@@ -10,6 +10,9 @@ from .exceptions import (
     APIError,
     APIRequestError,
     APIResponseError,
+    NetworkError,
+    ServerError,
+    ClientError,
     PageNotFoundError,
     RateLimitError,
 )
@@ -113,7 +116,9 @@ class MediaWikiAPIClient:
 
                 # Handle HTTP errors
                 if response.status_code == 404:
-                    raise PageNotFoundError(f"Page not found: {params}")
+                    raise PageNotFoundError(
+                        "Page not found", http_status=404, request_params=params
+                    )
                 if response.status_code == 429:
                     # Use rate limiter's exponential backoff for 429 errors
                     if attempt < self.max_retries - 1:
@@ -124,7 +129,11 @@ class MediaWikiAPIClient:
                         )
                         self.rate_limiter.backoff(attempt)
                         continue
-                    raise RateLimitError("Rate limit exceeded")
+                    raise RateLimitError(
+                        f"Rate limit exceeded after {self.max_retries} attempts",
+                        http_status=429,
+                        request_params=params,
+                    )
                 if response.status_code >= 500:
                     # Retry server errors with backoff
                     if attempt < self.max_retries - 1:
@@ -136,7 +145,17 @@ class MediaWikiAPIClient:
                         )
                         self.rate_limiter.backoff(attempt)
                         continue
-                    raise APIRequestError(f"Server error: {response.status_code}")
+                    raise ServerError(
+                        f"Server error after {self.max_retries} attempts",
+                        http_status=response.status_code,
+                        request_params=params,
+                    )
+                if response.status_code >= 400:
+                    raise ClientError(
+                        f"Client error: {response.status_code}",
+                        http_status=response.status_code,
+                        request_params=params,
+                    )
 
                 response.raise_for_status()
                 return self._parse_response(response)
@@ -151,18 +170,29 @@ class MediaWikiAPIClient:
                     )
                     self.rate_limiter.backoff(attempt)
                     continue
-                raise APIRequestError(
-                    f"Request timeout after {self.max_retries} attempts"
-                ) from e
+                raise NetworkError(
+                    f"Request timeout after {self.max_retries} attempts",
+                    cause=e,
+                    request_params=params,
+                )
+
+            except requests.ConnectionError as e:
+                raise NetworkError(
+                    f"Connection error: {str(e)}", cause=e, request_params=params
+                )
 
             except requests.RequestException as e:
                 # Non-transient errors - don't retry
-                raise APIRequestError(f"Request failed: {e}") from e
+                raise NetworkError(
+                    f"Network error: {str(e)}", cause=e, request_params=params
+                )
 
         # If we exhausted retries
-        raise APIRequestError(
-            f"Max retries ({self.max_retries}) exceeded"
-        ) from last_exception
+        raise NetworkError(
+            f"Max retries ({self.max_retries}) exceeded",
+            cause=last_exception,
+            request_params=params,
+        )
 
     def _parse_response(self, response: requests.Response) -> Dict[str, Any]:
         """
@@ -181,16 +211,43 @@ class MediaWikiAPIClient:
         try:
             data = response.json()
         except ValueError as e:
-            raise APIResponseError("Invalid JSON response") from e
+            logger.error(
+                "Invalid JSON response", extra={"response_text": response.text[:200]}
+            )
+            raise APIResponseError(
+                "Invalid JSON in API response",
+                cause=e,
+                http_status=response.status_code,
+            )
 
         # Check for API errors
         if "error" in data:
-            error_info = data["error"].get("info", "Unknown error")
-            raise APIError(f"API error: {error_info}")
+            error_info = data["error"]
+            api_code = error_info.get("code", "unknown")
+            api_message = error_info.get("info", "Unknown error")
 
-        # Log warnings
+            logger.error(
+                f"API error: {api_code}",
+                extra={"api_code": api_code, "api_message": api_message},
+            )
+
+            raise APIError(
+                f"API error: {api_message}",
+                api_code=api_code,
+                http_status=response.status_code,
+            )
+
+        # Log warnings but don't raise
         if "warnings" in data:
-            logger.warning("API warnings: %s", data["warnings"])
+            for warning_type, warning_data in data["warnings"].items():
+                logger.warning(
+                    f"API warning: {warning_type}",
+                    extra={"warning_type": warning_type, "warning_data": warning_data},
+                )
+
+        logger.debug(
+            "API request successful", extra={"response_keys": list(data.keys())}
+        )
 
         return dict(data)
 

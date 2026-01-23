@@ -75,6 +75,9 @@ class MockSession:
         self.last_request_url: Optional[str] = None
         self.response_sequence = []  # For testing retries
         self.current_response_index = 0
+        self._force_exception: Optional[Exception] = None
+        self._force_status_code: Optional[int] = None
+        self._force_text: Optional[str] = None
 
     def update(self, headers: Dict[str, str]) -> None:
         """
@@ -101,10 +104,23 @@ class MockSession:
 
         Returns:
             MockResponse object
+
+        Raises:
+            Exception: If force_exception is set
         """
         self.get_call_count += 1
         self.last_request_url = url
         self.last_request_params = params
+
+        # Check for forced exception (for testing error handling)
+        if self._force_exception:
+            raise self._force_exception
+
+        # Check for forced status code
+        if self._force_status_code:
+            if self._force_text:
+                return MockResponse(self._force_status_code, text=self._force_text)
+            return MockResponse(self._force_status_code)
 
         # If response sequence is set (for testing retries), use it
         if self.response_sequence:
@@ -144,6 +160,13 @@ class MockSession:
                     data = json.load(f)
                 return MockResponse(200, json_data=data)
 
+            # Simulate API warning response
+            if params.get("titles") == "WarningPage":
+                fixture_file = self.fixtures_dir / "api" / "warning_response.json"
+                with open(fixture_file, encoding="utf-8") as f:
+                    data = json.load(f)
+                return MockResponse(200, json_data=data)
+
         # Default successful response
         fixture_file = self.fixtures_dir / "api" / "successful_page_response.json"
         with open(fixture_file, encoding="utf-8") as f:
@@ -160,3 +183,32 @@ class MockSession:
         """
         self.response_sequence = responses
         self.current_response_index = 0
+
+    def set_exception(self, exception: Exception) -> None:
+        """
+        Force the session to raise an exception on next request.
+
+        Args:
+            exception: Exception to raise
+        """
+        self._force_exception = exception
+
+    def set_status_code(self, status_code: int, text: Optional[str] = None) -> None:
+        """
+        Force the session to return a specific status code.
+
+        Args:
+            status_code: HTTP status code to return
+            text: Optional response text
+        """
+        self._force_status_code = status_code
+        self._force_text = text
+
+    def reset(self) -> None:
+        """Reset all forced behaviors."""
+        self._force_exception = None
+        self._force_status_code = None
+        self._force_text = None
+        self.response_sequence = []
+        self.current_response_index = 0
+        self.get_call_count = 0

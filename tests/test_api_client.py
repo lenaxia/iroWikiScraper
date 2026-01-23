@@ -8,6 +8,8 @@ from scraper.api.exceptions import (
     APIError,
     APIRequestError,
     APIResponseError,
+    NetworkError,
+    ServerError,
     PageNotFoundError,
     RateLimitError,
 )
@@ -93,8 +95,8 @@ class TestMediaWikiAPIClientRequest:
         assert "Rate limit exceeded" in str(exc_info.value)
 
     def test_timeout_raises_api_request_error(self, api_client):
-        """Test request timeout raises APIRequestError."""
-        with pytest.raises(APIRequestError) as exc_info:
+        """Test request timeout raises NetworkError."""
+        with pytest.raises(NetworkError) as exc_info:
             api_client._request("query", {"titles": "TimeoutPage"})
 
         assert "timeout" in str(exc_info.value).lower()
@@ -135,7 +137,7 @@ class TestMediaWikiAPIClientRequest:
         assert "query" in result
 
     def test_max_retries_exceeded_raises_error(self, api_client, mock_session):
-        """Test max retries exceeded raises APIRequestError."""
+        """Test max retries exceeded raises ServerError."""
         # Set up mock to always return 500
         mock_session.set_response_sequence(
             [MockResponse(500), MockResponse(500), MockResponse(500), MockResponse(500)]
@@ -143,7 +145,7 @@ class TestMediaWikiAPIClientRequest:
 
         api_client.retry_delay = 0.1
 
-        with pytest.raises(APIRequestError) as exc_info:
+        with pytest.raises(ServerError) as exc_info:
             api_client._request("query", {"titles": "Test"})
 
         assert "Server error" in str(exc_info.value)
@@ -224,7 +226,8 @@ class TestMediaWikiAPIClientParseResponse:
 
         result = api_client._parse_response(mock_response)
 
-        assert "warnings" in caplog.text.lower()
+        assert "warning" in caplog.text.lower()
+        assert "main" in caplog.text.lower()
         assert "query" in result
 
 

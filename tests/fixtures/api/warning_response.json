@@ -1,0 +1,22 @@
+{
+  "warnings": {
+    "main": {
+      "*": "Subscribe to the mediawiki-api-announce mailing list at &lt;https://lists.wikimedia.org/postorius/lists/mediawiki-api-announce.lists.wikimedia.org/&gt; for notice of API deprecations and breaking changes."
+    },
+    "query": {
+      "*": "Formatting of continuation data has changed. To receive raw query-continue data, use the 'rawcontinue' parameter. To silence this warning, pass an empty string for 'continue' in the initial query."
+    }
+  },
+  "batchcomplete": "",
+  "query": {
+    "pages": {
+      "1": {
+        "pageid": 1,
+        "ns": 0,
+        "title": "Main Page",
+        "contentmodel": "wikitext",
+        "pagelanguage": "en"
+      }
+    }
+  }
+}
