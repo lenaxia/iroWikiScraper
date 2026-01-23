@@ -1,0 +1,12 @@
+{
+  "continue": {
+    "apcontinue": "Test_Page",
+    "continue": "-||"
+  },
+  "query": {
+    "allpages": [
+      {"pageid": 10, "ns": 0, "title": "Page_1"},
+      {"pageid": 11, "ns": 0, "title": "Page_2"}
+    ]
+  }
+}
