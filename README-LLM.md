@@ -60,6 +60,13 @@
 
 ## Critical Guidelines & Hard Rules
 
+**⚠️ CRITICAL DEVELOPMENT ORDER:**
+1. **Test Infrastructure FIRST** - Fixtures, mocks, conftest.py
+2. **Tests SECOND** - Write tests using the infrastructure  
+3. **Implementation LAST** - Write code to make tests pass
+
+This order is non-negotiable. See section 9 for details.
+
 ### 0. Communication Tone - MANDATORY
 
 **Always be neutral, factual, objective.**
@@ -380,61 +387,152 @@ logger.error("scrape_failed",
 
 ### 9. Testing Requirements - MANDATORY
 
-**Write tests for core functionality. Mock external APIs. Validate data integrity.**
+**Build test infrastructure FIRST, then write tests BEFORE code. ALWAYS.**
+
+#### Test Infrastructure First (Before Any Tests)
+
+**CRITICAL: Set up test infrastructure before writing any tests or implementation code.**
 
 ```python
-import pytest
-from unittest.mock import Mock, patch
-
-def test_scrape_page_success():
-    """Test successful page scraping with revisions."""
-    api_client = Mock()
-    api_client.get_page.return_value = {
-        "page_id": 1,
-        "title": "Main_Page",
-        "revisions": [
-            {"revid": 100, "timestamp": "2020-01-01T00:00:00Z"},
-            {"revid": 101, "timestamp": "2020-01-02T00:00:00Z"}
-        ]
+# 1. Create test fixtures FIRST
+# fixtures/sample_page_response.json
+{
+    "query": {
+        "pages": {
+            "1": {
+                "pageid": 1,
+                "title": "Main_Page",
+                "revisions": [
+                    {"revid": 100, "timestamp": "2020-01-01T00:00:00Z", "user": "Admin"},
+                    {"revid": 101, "timestamp": "2020-01-02T00:00:00Z", "user": "Editor"}
+                ]
+            }
+        }
     }
+}
+
+# 2. Create mocks and test doubles
+# tests/mocks/mock_api_client.py
+class MockAPIClient:
+    """Mock MediaWiki API client for testing."""
     
-    scraper = PageScraper(api_client)
+    def __init__(self, fixtures_dir: Path):
+        self.fixtures_dir = fixtures_dir
+        self.call_count = 0
+    
+    def get_page(self, title: str) -> dict:
+        self.call_count += 1
+        fixture_file = self.fixtures_dir / f"{title.lower()}.json"
+        if not fixture_file.exists():
+            raise PageNotFoundError(f"Page not found: {title}")
+        return json.loads(fixture_file.read_text())
+
+# 3. Create pytest fixtures and conftest.py
+# tests/conftest.py
+import pytest
+from pathlib import Path
+
+@pytest.fixture
+def fixtures_dir():
+    """Return path to test fixtures directory."""
+    return Path(__file__).parent.parent / "fixtures"
+
+@pytest.fixture
+def mock_api_client(fixtures_dir):
+    """Return configured mock API client."""
+    return MockAPIClient(fixtures_dir)
+
+@pytest.fixture
+def test_db():
+    """Return in-memory test database."""
+    db = Database(":memory:")
+    db.initialize_schema()
+    return db
+```
+
+#### Test-Driven Development (TDD) Workflow
+
+**ORDER: Test Infrastructure → Tests → Implementation**
+
+```python
+# STEP 1: Build test infrastructure (fixtures, mocks, conftest.py)
+# (See above)
+
+# STEP 2: Write tests FIRST (using the infrastructure)
+def test_scrape_page_success(mock_api_client):
+    """Test successful page scraping with revisions."""
+    scraper = PageScraper(mock_api_client)
     result = scraper.scrape_page("Main_Page")
     
     assert result.page_id == 1
     assert result.title == "Main_Page"
     assert len(result.revisions) == 2
+    assert mock_api_client.call_count == 1
 
-def test_scrape_page_not_found():
+def test_scrape_page_not_found(mock_api_client):
     """Test handling of non-existent page."""
-    api_client = Mock()
-    api_client.get_page.side_effect = PageNotFoundError("Page not found")
-    
-    scraper = PageScraper(api_client)
+    scraper = PageScraper(mock_api_client)
     
     with pytest.raises(PageNotFoundError):
         scraper.scrape_page("NonexistentPage")
 
-def test_database_integrity():
+def test_database_integrity(test_db):
     """Test that scraped data is stored correctly."""
-    db = Database(":memory:")
-    
     page = Page(page_id=1, namespace=0, title="Test_Page", is_redirect=False)
-    db.insert_page(page)
+    test_db.insert_page(page)
     
-    retrieved = db.get_page(1)
+    retrieved = test_db.get_page(1)
     
     assert retrieved.page_id == 1
     assert retrieved.title == "Test_Page"
+
+# STEP 3: Implement code to make tests pass
+# scraper/scrapers/page_scraper.py
+class PageScraper:
+    def __init__(self, api_client):
+        self.api_client = api_client
+    
+    def scrape_page(self, title: str) -> Page:
+        # Implementation that makes tests pass
+        pass
 ```
 
-**Test Coverage:**
+#### Test Infrastructure Components
+
+**Required before writing any tests:**
+
+1. **Test Fixtures** (`fixtures/`)
+   - Sample API responses (JSON files)
+   - Test database files
+   - Sample wiki content
+   - Expected output data
+
+2. **Mocks and Test Doubles** (`tests/mocks/`)
+   - Mock API clients
+   - Mock rate limiters
+   - Mock database connections
+   - Fake external services
+
+3. **Pytest Configuration** (`tests/conftest.py`)
+   - Reusable fixtures
+   - Test database setup/teardown
+   - Mock configuration
+   - Shared test utilities
+
+4. **Test Utilities** (`tests/utils/`)
+   - Assertion helpers
+   - Test data generators
+   - Comparison functions
+   - Validation utilities
+
+**Test Coverage Requirements:**
 - Unit tests for API client, database, scraper logic
 - Integration tests with test fixtures
-- Mock external API calls
+- Mock all external API calls
 - Test error handling paths
 - Validate database constraints
 - Test incremental update logic
+- 80%+ code coverage minimum
 
 ### 10. Technical Debt - ZERO TOLERANCE
 
@@ -786,27 +884,49 @@ pip install -e .
 pytest tests/ -v
 ```
 
-### 2. Implement Feature (TDD)
+### 2. Implement Feature (Test Infrastructure → Tests → Code)
+
+**CRITICAL: Follow this exact order for every feature implementation.**
 
 ```bash
-# 1. Write test FIRST
+# STEP 1: Build test infrastructure FIRST
+# Create fixtures for the feature
+vim fixtures/sample_page_response.json
+vim fixtures/sample_revisions.json
+
+# Create mocks if needed
+vim tests/mocks/mock_api_client.py
+
+# Update conftest.py with new fixtures
+vim tests/conftest.py
+
+# Verify test infrastructure is working
+pytest tests/test_conftest.py -v
+
+# STEP 2: Write tests SECOND (using the infrastructure)
 vim tests/test_page_scraper.py
 
-# 2. Run test (should fail)
+# Run test (should fail - no implementation yet)
 pytest tests/test_page_scraper.py::test_scrape_page_with_revisions -v
 
-# 3. Implement feature
+# STEP 3: Implement feature LAST (to make tests pass)
 vim scraper/scrapers/page_scraper.py
 
-# 4. Run test (should pass)
+# Run test (should pass now)
 pytest tests/test_page_scraper.py::test_scrape_page_with_revisions -v
 
-# 5. Run all tests
+# Run all tests
 pytest tests/ -v
 
-# 6. Check coverage
+# Check coverage
 pytest tests/ --cov=scraper --cov-report=html
 ```
+
+**Order Violations:**
+- ❌ Writing implementation before tests
+- ❌ Writing tests before test infrastructure
+- ❌ Using unittest.mock.Mock without proper fixtures
+- ✅ Infrastructure → Tests → Implementation (ALWAYS)
 
 ### 3. Before Committing
 
