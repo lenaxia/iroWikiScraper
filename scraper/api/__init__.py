@@ -7,6 +7,7 @@ from .exceptions import (
     PageNotFoundError,
     RateLimitError,
 )
+from .pagination import PaginatedQuery
 
 __all__ = [
     "APIError",
@@ -14,4 +15,5 @@ __all__ = [
     "APIResponseError",
     "PageNotFoundError",
     "RateLimitError",
+    "PaginatedQuery",
 ]

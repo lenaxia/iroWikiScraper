@@ -1,0 +1,13 @@
+{
+  "continue": {
+    "apcontinue": "Batch2_Start",
+    "continue": "-||"
+  },
+  "query": {
+    "allpages": [
+      {"pageid": 100, "ns": 0, "title": "Item_A"},
+      {"pageid": 101, "ns": 0, "title": "Item_B"},
+      {"pageid": 102, "ns": 0, "title": "Item_C"}
+    ]
+  }
+}
