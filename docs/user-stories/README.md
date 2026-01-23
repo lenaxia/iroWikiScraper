@@ -135,27 +135,58 @@ Example of bad criteria:
 
 ## Epic List
 
-<!-- Maintain this list as epics are created -->
-
-### Epic 01: Core Scraper
-**Goal**: Implement MediaWiki API scraper with full revision history
-**Status**: Not Started
+### Epic 01: Core Scraper Implementation
+**Location**: [epic-01-core-scraper/](epic-01-core-scraper/)  
+**Goal**: Implement MediaWiki API scraper with full revision history  
+**Priority**: High (Critical Path)  
+**Status**: Not Started  
+**Stories**: 13  
+**Effort**: 2-3 weeks
 
 ### Epic 02: Database & Storage
-**Goal**: Design and implement database schema for complete archival
-**Status**: Not Started
+**Location**: [epic-02-database-storage/](epic-02-database-storage/)  
+**Goal**: Design and implement database schema for complete archival  
+**Priority**: High (Critical Path)  
+**Status**: Not Started  
+**Stories**: 15  
+**Effort**: 1-2 weeks
 
-### Epic 03: Go SDK
-**Goal**: Build Go SDK for querying archived wiki data
-**Status**: Not Started
+### Epic 03: Incremental Updates
+**Location**: [epic-03-incremental-updates/](epic-03-incremental-updates/)  
+**Goal**: Implement incremental scraping for efficient monthly updates  
+**Priority**: High  
+**Status**: Not Started  
+**Stories**: 13  
+**Effort**: 1-2 weeks
 
-### Epic 04: Automation & Releases
-**Goal**: Automate monthly scraping and release packaging
-**Status**: Not Started
+### Epic 04: Export & Packaging
+**Location**: [epic-04-export-packaging/](epic-04-export-packaging/)  
+**Goal**: MediaWiki XML export and release packaging  
+**Priority**: Medium  
+**Status**: Not Started  
+**Stories**: 13  
+**Effort**: 1 week
 
-### Epic 05: Documentation & Testing
-**Goal**: Comprehensive docs and test coverage
-**Status**: Not Started
+### Epic 05: Go SDK
+**Location**: [epic-05-go-sdk/](epic-05-go-sdk/)  
+**Goal**: Build Go SDK for querying archived wiki data  
+**Priority**: Medium  
+**Status**: Not Started  
+**Stories**: 23  
+**Effort**: 2 weeks
+
+### Epic 06: Automation & CI/CD
+**Location**: [epic-06-automation-cicd/](epic-06-automation-cicd/)  
+**Goal**: Automate monthly scraping and release publishing  
+**Priority**: Medium  
+**Status**: Not Started  
+**Stories**: 20  
+**Effort**: 1 week
+
+---
+
+**Total Stories**: 97  
+**Total Estimated Effort**: 8-11 weeks
 
 ---
 
