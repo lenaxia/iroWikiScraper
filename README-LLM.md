@@ -829,13 +829,30 @@ pytest tests/ -v --cov=scraper
 bandit -r scraper/  # Security linting
 ```
 
-### 4. Commit and Push
+### 4. Create Worklog and Commit
+
+**IMPORTANT: Create a worklog entry after completing any major implementation work or at the end of an agent run, before moving to another story or epic.**
 
 ```bash
+# Create worklog documenting what was done
+vim docs/worklog/YYYY-MM-DD_NN_brief_description.md
+
+# Add worklog to commit
+git add docs/worklog/YYYY-MM-DD_NN_*.md
+
+# Commit changes
 git add .
 git commit -m "feat: implement incremental page scraping"
 git push origin feature/incremental-scrape
 ```
+
+**Worklog Trigger Points:**
+- ✅ After completing implementation of a user story
+- ✅ At the end of any agent run (session complete)
+- ✅ Before moving to a different story or epic
+- ✅ After making significant architectural decisions
+- ✅ When encountering blockers that halt progress
+- ❌ Not needed for minor bug fixes or trivial changes
 
 ---
 
@@ -946,8 +963,9 @@ All documentation follows strict naming conventions:
 - Naming: `YYYY-MM-DD_NN_brief_description.md`
 - NN is entry number for that day (01, 02, 03...)
 - Resets to 01 each day
-- Contains: Progress updates, decisions, blockers
-- Created: After work sessions or before context switches
+- Contains: Progress updates, decisions made, blockers encountered, next steps
+- **MANDATORY**: Created at end of any agent run, after completing major implementation work, or before moving to another story/epic
+- Not needed for minor bug fixes or trivial changes
 
 **User Stories** (`docs/user-stories/`)
 - Organized by epic: `epic-NN-name/`
