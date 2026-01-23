@@ -2,7 +2,7 @@
 
 import logging
 import time
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import requests
 
@@ -13,6 +13,7 @@ from .exceptions import (
     PageNotFoundError,
     RateLimitError,
 )
+from .rate_limiter import RateLimiter
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,7 @@ class MediaWikiAPIClient:
         timeout: int = 30,
         max_retries: int = 3,
         retry_delay: float = 5.0,
+        rate_limiter: Optional[RateLimiter] = None,
     ):
         """
         Initialize MediaWiki API client.
@@ -51,6 +53,7 @@ class MediaWikiAPIClient:
             timeout: Request timeout in seconds
             max_retries: Maximum number of retry attempts for transient errors
             retry_delay: Initial delay between retries (exponential backoff)
+            rate_limiter: Rate limiter instance (default: 1 req/s)
         """
         self.base_url = base_url.rstrip("/")
         self.api_endpoint = f"{self.base_url}/w/api.php"
@@ -60,6 +63,13 @@ class MediaWikiAPIClient:
 
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": user_agent})
+
+        # Use provided rate limiter or create default one
+        self.rate_limiter = (
+            rate_limiter
+            if rate_limiter is not None
+            else RateLimiter(requests_per_second=1.0)
+        )
 
     def _request(self, action: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -93,6 +103,9 @@ class MediaWikiAPIClient:
 
         for attempt in range(self.max_retries):
             try:
+                # Wait for rate limit before making request
+                self.rate_limiter.wait()
+
                 logger.debug("API request: %s %s", action, params)
                 response = self.session.get(
                     self.api_endpoint, params=params, timeout=self.timeout
@@ -102,19 +115,26 @@ class MediaWikiAPIClient:
                 if response.status_code == 404:
                     raise PageNotFoundError(f"Page not found: {params}")
                 if response.status_code == 429:
-                    raise RateLimitError("Rate limit exceeded")
-                if response.status_code >= 500:
-                    # Retry server errors
+                    # Use rate limiter's exponential backoff for 429 errors
                     if attempt < self.max_retries - 1:
-                        delay = self.retry_delay * (2**attempt)
                         logger.warning(
-                            "Server error %s, retrying in %ss (attempt %s/%s)",
-                            response.status_code,
-                            delay,
+                            "Rate limit exceeded, backing off (attempt %s/%s)",
                             attempt + 1,
                             self.max_retries,
                         )
-                        time.sleep(delay)
+                        self.rate_limiter.backoff(attempt)
+                        continue
+                    raise RateLimitError("Rate limit exceeded")
+                if response.status_code >= 500:
+                    # Retry server errors with backoff
+                    if attempt < self.max_retries - 1:
+                        logger.warning(
+                            "Server error %s, backing off (attempt %s/%s)",
+                            response.status_code,
+                            attempt + 1,
+                            self.max_retries,
+                        )
+                        self.rate_limiter.backoff(attempt)
                         continue
                     raise APIRequestError(f"Server error: {response.status_code}")
 
@@ -124,14 +144,12 @@ class MediaWikiAPIClient:
             except requests.Timeout as e:
                 last_exception = e
                 if attempt < self.max_retries - 1:
-                    delay = self.retry_delay * (2**attempt)
                     logger.warning(
-                        "Request timeout, retrying in %ss (attempt %s/%s)",
-                        delay,
+                        "Request timeout, backing off (attempt %s/%s)",
                         attempt + 1,
                         self.max_retries,
                     )
-                    time.sleep(delay)
+                    self.rate_limiter.backoff(attempt)
                     continue
                 raise APIRequestError(
                     f"Request timeout after {self.max_retries} attempts"

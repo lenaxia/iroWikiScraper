@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from tests.mocks.mock_http_session import MockSession
+from tests.mocks.mock_time import MockTime
 
 
 @pytest.fixture
@@ -35,7 +36,7 @@ def mock_session(fixtures_dir):
 @pytest.fixture
 def api_client(mock_session, monkeypatch):
     """
-    Return API client with mocked session.
+    Return API client with mocked session and disabled rate limiter.
 
     Args:
         mock_session: Mock HTTP session fixture
@@ -45,8 +46,43 @@ def api_client(mock_session, monkeypatch):
         MediaWikiAPIClient instance with mocked session
     """
     from scraper.api.client import MediaWikiAPIClient
+    from scraper.api.rate_limiter import RateLimiter
 
-    client = MediaWikiAPIClient("https://irowiki.org")
+    # Use disabled rate limiter for faster tests
+    disabled_limiter = RateLimiter(enabled=False)
+    client = MediaWikiAPIClient("https://irowiki.org", rate_limiter=disabled_limiter)
     monkeypatch.setattr(client, "session", mock_session)
 
     return client
+
+
+@pytest.fixture
+def mock_time():
+    """
+    Return mock time module for testing rate limiter.
+
+    Returns:
+        MockTime instance with controllable time
+    """
+    return MockTime()
+
+
+@pytest.fixture
+def rate_limiter_with_mock_time(mock_time, monkeypatch):
+    """
+    Return rate limiter with mocked time module.
+
+    Args:
+        mock_time: MockTime fixture
+        monkeypatch: Pytest monkeypatch fixture
+
+    Returns:
+        RateLimiter instance configured to use mock time
+    """
+    from scraper.api.rate_limiter import RateLimiter
+
+    # Replace time.time and time.sleep with mock versions
+    monkeypatch.setattr("time.time", mock_time.time)
+    monkeypatch.setattr("time.sleep", mock_time.sleep)
+
+    return RateLimiter()
