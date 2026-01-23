@@ -74,6 +74,7 @@ class MockSession:
         self.last_request_params: Optional[Dict[str, Any]] = None
         self.last_request_url: Optional[str] = None
         self.response_sequence = []  # For testing retries
+        self.responses = []  # Queue of responses to return
         self.current_response_index = 0
         self._force_exception: Optional[Exception] = None
         self._force_status_code: Optional[int] = None
@@ -121,6 +122,14 @@ class MockSession:
             if self._force_text:
                 return MockResponse(self._force_status_code, text=self._force_text)
             return MockResponse(self._force_status_code)
+
+        # If responses queue is set (simpler API), use it
+        if self.responses:
+            if len(self.responses) > 0:
+                response_data = self.responses.pop(0)
+                return MockResponse(200, json_data=response_data)
+            # If queue is empty, raise an error
+            raise RuntimeError("No more responses in queue")
 
         # If response sequence is set (for testing retries), use it
         if self.response_sequence:
@@ -184,6 +193,16 @@ class MockSession:
         self.response_sequence = responses
         self.current_response_index = 0
 
+    def add_response(self, method: str, json_data: Dict[str, Any]) -> None:
+        """
+        Add a response to the queue (simpler API for tests).
+
+        Args:
+            method: HTTP method (currently ignored, always uses GET)
+            json_data: JSON data to return as response
+        """
+        self.responses.append(json_data)
+
     def set_exception(self, exception: Exception) -> None:
         """
         Force the session to raise an exception on next request.
@@ -210,5 +229,6 @@ class MockSession:
         self._force_status_code = None
         self._force_text = None
         self.response_sequence = []
+        self.responses = []
         self.current_response_index = 0
         self.get_call_count = 0

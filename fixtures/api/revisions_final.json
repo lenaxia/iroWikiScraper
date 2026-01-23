@@ -1,0 +1,29 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "pages": {
+      "5": {
+        "pageid": 5,
+        "ns": 0,
+        "title": "Large Page",
+        "revisions": [
+          {
+            "revid": 5002,
+            "parentid": 5001,
+            "user": "Contributor",
+            "userid": 50,
+            "timestamp": "2024-01-21T12:00:00Z",
+            "comment": "Final revision",
+            "size": 2100,
+            "sha1": "sha5002",
+            "slots": {
+              "main": {
+                "content": "Content for revision 5002"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "pages": {
+      "10": {
+        "pageid": 10,
+        "ns": 0,
+        "title": "Old Page",
+        "revisions": [
+          {
+            "revid": 10001,
+            "parentid": 0,
+            "user": "",
+            "userhidden": "",
+            "timestamp": "2020-01-01T00:00:00Z",
+            "comment": "Old revision by deleted user",
+            "size": 100,
+            "sha1": "oldsha1",
+            "slots": {
+              "main": {
+                "content": "Old content"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

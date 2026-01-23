@@ -1,0 +1,63 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "pages": {
+      "2": {
+        "pageid": 2,
+        "ns": 0,
+        "title": "Poring",
+        "revisions": [
+          {
+            "revid": 2001,
+            "parentid": 0,
+            "user": "Editor1",
+            "userid": 10,
+            "timestamp": "2024-01-10T08:00:00Z",
+            "comment": "Created page",
+            "size": 500,
+            "sha1": "rev1sha1",
+            "minor": false,
+            "slots": {
+              "main": {
+                "content": "Poring is a cute monster."
+              }
+            }
+          },
+          {
+            "revid": 2002,
+            "parentid": 2001,
+            "user": "Editor2",
+            "userid": 20,
+            "timestamp": "2024-01-12T14:30:00Z",
+            "comment": "Added stats",
+            "size": 750,
+            "sha1": "rev2sha1",
+            "minor": false,
+            "tags": ["visual edit"],
+            "slots": {
+              "main": {
+                "content": "Poring is a cute monster.\n\n== Stats ==\nHP: 50"
+              }
+            }
+          },
+          {
+            "revid": 2003,
+            "parentid": 2002,
+            "user": "Editor1",
+            "userid": 10,
+            "timestamp": "2024-01-15T16:45:00Z",
+            "comment": "Minor typo fix",
+            "size": 752,
+            "sha1": "rev3sha1",
+            "minor": true,
+            "slots": {
+              "main": {
+                "content": "Poring is a cute monster.\n\n== Stats ==\nHP: 50\nATK: 5"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

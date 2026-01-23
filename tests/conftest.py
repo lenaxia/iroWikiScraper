@@ -1,5 +1,6 @@
 """Pytest configuration and fixtures for API client tests."""
 
+import json
 from pathlib import Path
 
 import pytest
@@ -17,6 +18,27 @@ def fixtures_dir():
         Path object pointing to fixtures directory
     """
     return Path(__file__).parent.parent / "fixtures"
+
+
+@pytest.fixture
+def load_fixture(fixtures_dir):
+    """
+    Helper fixture to load JSON fixtures by name.
+
+    Args:
+        fixtures_dir: Path to fixtures directory
+
+    Returns:
+        Callable that loads a fixture file by name
+    """
+
+    def _load(filename: str) -> dict:
+        """Load a JSON fixture file from fixtures/api directory."""
+        fixture_path = fixtures_dir / "api" / filename
+        with open(fixture_path, "r") as f:
+            return json.load(f)
+
+    return _load
 
 
 @pytest.fixture
@@ -54,6 +76,17 @@ def api_client(mock_session, monkeypatch):
     monkeypatch.setattr(client, "session", mock_session)
 
     return client
+
+
+@pytest.fixture
+def mock_api_client(api_client):
+    """
+    Alias for api_client for backward compatibility.
+
+    Returns:
+        MediaWikiAPIClient instance with mocked session
+    """
+    return api_client
 
 
 @pytest.fixture

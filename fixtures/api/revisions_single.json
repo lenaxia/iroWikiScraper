@@ -1,0 +1,33 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "pages": {
+      "1": {
+        "pageid": 1,
+        "ns": 0,
+        "title": "Main Page",
+        "revisions": [
+          {
+            "revid": 1001,
+            "parentid": 0,
+            "user": "Admin",
+            "userid": 1,
+            "timestamp": "2024-01-15T10:30:00Z",
+            "comment": "Initial page creation",
+            "size": 1234,
+            "sha1": "abc123def456",
+            "contentmodel": "wikitext",
+            "contentformat": "text/x-wiki",
+            "slots": {
+              "main": {
+                "contentmodel": "wikitext",
+                "contentformat": "text/x-wiki",
+                "content": "Welcome to the wiki!\n\n== Getting Started ==\nThis is the main page."
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

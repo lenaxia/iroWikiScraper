@@ -1,0 +1,32 @@
+{
+  "continue": {
+    "rvcontinue": "20240120120000|5001",
+    "continue": "-||"
+  },
+  "query": {
+    "pages": {
+      "5": {
+        "pageid": 5,
+        "ns": 0,
+        "title": "Large Page",
+        "revisions": [
+          {
+            "revid": 5001,
+            "parentid": 5000,
+            "user": "Contributor",
+            "userid": 50,
+            "timestamp": "2024-01-20T12:00:00Z",
+            "comment": "Revision 1 of many",
+            "size": 2000,
+            "sha1": "sha5001",
+            "slots": {
+              "main": {
+                "content": "Content for revision 5001"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
