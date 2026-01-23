@@ -1,0 +1,17 @@
+{
+    "batchcomplete": "",
+    "query": {
+        "pages": {
+            "1": {
+                "pageid": 1,
+                "ns": 0,
+                "title": "Main_Page",
+                "contentmodel": "wikitext",
+                "pagelanguage": "en",
+                "touched": "2023-01-15T12:00:00Z",
+                "lastrevid": 12345,
+                "length": 5000
+            }
+        }
+    }
+}

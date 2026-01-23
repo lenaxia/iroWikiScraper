@@ -1,0 +1,7 @@
+{
+    "error": {
+        "code": "missingtitle",
+        "info": "The page you specified doesn't exist.",
+        "*": "See https://irowiki.org/w/api.php for API usage."
+    }
+}
