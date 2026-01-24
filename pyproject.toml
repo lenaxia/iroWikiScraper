@@ -7,7 +7,7 @@ name = "iro-wiki-scraper"
 version = "0.1.0"
 description = "Archival system for iRO Wiki with historical preservation and searchable database"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 authors = [
     {name = "iRO Wiki Scraper Contributors"},
 ]
@@ -15,7 +15,6 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
