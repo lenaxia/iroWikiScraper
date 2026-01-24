@@ -382,6 +382,7 @@ def get_page_stats(connection: sqlite3.Connection, page_id: int) -> Dict[str, An
         - avg_edit_size: Average bytes per edit
         - total_size: Current size in bytes
     """
+    # fmt: off
     sql = """
         SELECT
             COUNT(*) as revision_count,
@@ -389,10 +390,11 @@ def get_page_stats(connection: sqlite3.Connection, page_id: int) -> Dict[str, An
             MIN(timestamp) as first_edit,
             MAX(timestamp) as last_edit,
             AVG(size) as avg_edit_size,
-            (SELECT size FROM revisions WHERE page_id = ? ORDER BY timestamp DESC LIMIT 1) as total_size  # noqa: E501
+            (SELECT size FROM revisions WHERE page_id = ? ORDER BY timestamp DESC LIMIT 1) as total_size
         FROM revisions
         WHERE page_id = ?
-    """
+    """  # noqa: E501
+    # fmt: on
 
     cursor = connection.execute(sql, (page_id, page_id))
     row = cursor.fetchone()
