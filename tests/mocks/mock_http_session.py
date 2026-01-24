@@ -16,6 +16,7 @@ class MockResponse:
         json_data: Optional[Dict[str, Any]] = None,
         text: str = "",
         headers: Optional[Dict[str, str]] = None,
+        content: bytes = b"",
     ):
         """
         Initialize mock response.
@@ -25,11 +26,14 @@ class MockResponse:
             json_data: JSON response data
             text: Response text content
             headers: Response headers
+            content: Binary content for file downloads
         """
         self.status_code = status_code
         self._json_data = json_data
         self.text = text
         self.headers = headers or {}
+        self.content = content
+        self._chunk_size = 8192
 
     def json(self) -> Dict[str, Any]:
         """
@@ -57,6 +61,20 @@ class MockResponse:
             error.response = self
             raise error
 
+    def iter_content(self, chunk_size: int = 8192):
+        """
+        Iterate over response content in chunks (for streaming downloads).
+
+        Args:
+            chunk_size: Size of chunks to yield
+
+        Yields:
+            Chunks of binary content
+        """
+        content = self.content
+        for i in range(0, len(content), chunk_size):
+            yield content[i : i + chunk_size]
+
 
 class MockSession:
     """Mock HTTP session for testing."""
@@ -79,6 +97,7 @@ class MockSession:
         self._force_exception: Optional[Exception] = None
         self._force_status_code: Optional[int] = None
         self._force_text: Optional[str] = None
+        self._force_content: Optional[bytes] = None
 
     def update(self, headers: Dict[str, str]) -> None:
         """
@@ -94,6 +113,7 @@ class MockSession:
         url: str,
         params: Optional[Dict[str, Any]] = None,
         timeout: Optional[int] = None,
+        stream: bool = False,
     ) -> MockResponse:
         """
         Mock GET request.
@@ -102,6 +122,7 @@ class MockSession:
             url: Request URL
             params: Query parameters
             timeout: Request timeout
+            stream: Whether to stream the response
 
         Returns:
             MockResponse object
@@ -115,13 +136,21 @@ class MockSession:
 
         # Check for forced exception (for testing error handling)
         if self._force_exception:
-            raise self._force_exception
+            exception = self._force_exception
+            self._force_exception = None  # Reset after raising
+            raise exception
 
         # Check for forced status code
         if self._force_status_code:
-            if self._force_text:
-                return MockResponse(self._force_status_code, text=self._force_text)
-            return MockResponse(self._force_status_code)
+            if self._force_content:
+                response = MockResponse(
+                    self._force_status_code, content=self._force_content
+                )
+            elif self._force_text:
+                response = MockResponse(self._force_status_code, text=self._force_text)
+            else:
+                response = MockResponse(self._force_status_code)
+            return response
 
         # If responses queue is set (simpler API), use it
         if self.responses:
@@ -223,11 +252,23 @@ class MockSession:
         self._force_status_code = status_code
         self._force_text = text
 
+    def set_content(self, content: bytes, status_code: int = 200) -> None:
+        """
+        Force the session to return binary content (for file downloads).
+
+        Args:
+            content: Binary content to return
+            status_code: HTTP status code (default 200)
+        """
+        self._force_content = content
+        self._force_status_code = status_code
+
     def reset(self) -> None:
         """Reset all forced behaviors."""
         self._force_exception = None
         self._force_status_code = None
         self._force_text = None
+        self._force_content = None
         self.response_sequence = []
         self.responses = []
         self.current_response_index = 0

@@ -1,0 +1,10 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "allpages": [
+      {"pageid": 1, "ns": 0, "title": "Valid Page"},
+      {"ns": 0, "title": "Missing Page ID"},
+      {"pageid": 3, "ns": 0, "title": "Another Valid Page"}
+    ]
+  }
+}

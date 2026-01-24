@@ -1,0 +1,19 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "allimages": [
+      {
+        "name": "Example.png",
+        "timestamp": "2024-01-15T10:30:00Z",
+        "url": "https://irowiki.org/wiki/images/a/ab/Example.png",
+        "descriptionurl": "https://irowiki.org/wiki/File:Example.png",
+        "size": 123456,
+        "width": 800,
+        "height": 600,
+        "sha1": "abc123def456789012345678901234567890abcd",
+        "mime": "image/png",
+        "user": "AdminUploader"
+      }
+    ]
+  }
+}

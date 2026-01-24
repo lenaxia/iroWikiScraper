@@ -1,0 +1,19 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "allimages": [
+      {
+        "name": "Orphaned_File.png",
+        "timestamp": "2024-01-10T08:00:00Z",
+        "url": "https://irowiki.org/wiki/images/f/fa/Orphaned_File.png",
+        "descriptionurl": "https://irowiki.org/wiki/File:Orphaned_File.png",
+        "size": 75000,
+        "width": 500,
+        "height": 400,
+        "sha1": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "mime": "image/png",
+        "user": ""
+      }
+    ]
+  }
+}

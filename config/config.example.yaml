@@ -1,0 +1,58 @@
+# iRO-Wiki-Scraper Configuration Example
+#
+# Copy this file to config.yaml and customize as needed.
+# All fields shown here are optional - defaults will be used for any missing values.
+
+# Wiki API Configuration
+wiki:
+  # Base URL of the wiki (without API path)
+  base_url: "https://irowiki.org"
+  
+  # Path to the MediaWiki API endpoint
+  api_path: "/w/api.php"
+
+# Scraper Behavior Configuration
+scraper:
+  # Maximum requests per second (politeness/rate limiting)
+  # Lower values are more polite to the server
+  # Example: 1.0 = 1 request per second, 0.5 = 1 request every 2 seconds
+  rate_limit: 1.0
+  
+  # HTTP request timeout in seconds
+  timeout: 30
+  
+  # Maximum number of retry attempts for failed requests
+  # Set to 0 to disable retries
+  max_retries: 3
+  
+  # User-Agent string for HTTP requests
+  # Best practice: Include bot name, version, and contact info
+  user_agent: "iROWikiArchiver/1.0 (github.com/irowiki/scraper; archiver@irowiki.org)"
+
+# Storage Configuration
+storage:
+  # Base directory for all data storage
+  data_dir: "data"
+  
+  # Path to checkpoint file (for resume capability)
+  checkpoint_file: "data/.checkpoint.json"
+  
+  # Path to SQLite database file
+  database_file: "data/irowiki.db"
+
+# Logging Configuration
+logging:
+  # Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  # DEBUG: Very verbose, shows all operations
+  # INFO: Normal operations and progress
+  # WARNING: Issues that don't stop execution
+  # ERROR: Errors that stop specific operations
+  # CRITICAL: Errors that stop the entire program
+  level: "INFO"
+  
+  # Path to log file
+  log_file: "logs/scraper.log"
+  
+  # Log message format
+  # See Python logging documentation for format options
+  log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

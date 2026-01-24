@@ -67,6 +67,10 @@ class TestPageDiscovery:
         with open(fixture_file) as f:
             data = json.load(f)
 
+        # Pre-set version detection to avoid extra API call
+        api_client.api_version_detected = True
+        api_client.api_version = "MediaWiki 1.44.0"
+
         mock_session.set_response_sequence([MockResponse(200, json_data=data)])
 
         discovery = PageDiscovery(api_client)
@@ -92,6 +96,10 @@ class TestPageDiscovery:
         with open(final_fixture) as f:
             final_data = json.load(f)
 
+        # Pre-set version detection to avoid extra API call
+        api_client.api_version_detected = True
+        api_client.api_version = "MediaWiki 1.44.0"
+
         mock_session.set_response_sequence(
             [
                 MockResponse(200, json_data=continue_data),
@@ -114,6 +122,10 @@ class TestPageDiscovery:
         with open(fixture_file) as f:
             data = json.load(f)
 
+        # Pre-set version detection to avoid extra API call
+        api_client.api_version_detected = True
+        api_client.api_version = "MediaWiki 1.44.0"
+
         # Return same fixture for all namespace requests
         responses = [MockResponse(200, json_data=data) for _ in range(16)]
         mock_session.set_response_sequence(responses)
@@ -127,6 +139,10 @@ class TestPageDiscovery:
 
     def test_discover_namespace_empty(self, api_client, mock_session):
         """Test discovering empty namespace."""
+        # Pre-set version detection to avoid extra API call
+        api_client.api_version_detected = True
+        api_client.api_version = "MediaWiki 1.44.0"
+
         empty_response = {"batchcomplete": "", "query": {"allpages": []}}
 
         mock_session.set_response_sequence(
@@ -151,6 +167,10 @@ class TestPageDiscovery:
         with open(fixture_file) as f:
             data = json.load(f)
 
+        # Pre-set version detection to avoid extra API call
+        api_client.api_version_detected = True
+        api_client.api_version = "MediaWiki 1.44.0"
+
         responses = [MockResponse(200, json_data=data) for _ in range(2)]
         mock_session.set_response_sequence(responses)
 
@@ -169,6 +189,10 @@ class TestPageDiscovery:
         fixture_file = fixtures_dir / "api" / "allpages_single.json"
         with open(fixture_file) as f:
             data = json.load(f)
+
+        # Pre-set version detection to avoid extra API call
+        api_client.api_version_detected = True
+        api_client.api_version = "MediaWiki 1.44.0"
 
         # First namespace succeeds, second fails, third succeeds
         responses = [

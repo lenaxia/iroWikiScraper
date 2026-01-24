@@ -1,0 +1,43 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "allimages": [
+      {
+        "name": "First_Image.png",
+        "timestamp": "2024-01-15T10:30:00Z",
+        "url": "https://irowiki.org/wiki/images/a/ab/First_Image.png",
+        "descriptionurl": "https://irowiki.org/wiki/File:First_Image.png",
+        "size": 123456,
+        "width": 800,
+        "height": 600,
+        "sha1": "1111111111111111111111111111111111111111",
+        "mime": "image/png",
+        "user": "User1"
+      },
+      {
+        "name": "Second_Image.jpg",
+        "timestamp": "2024-01-16T14:20:00Z",
+        "url": "https://irowiki.org/wiki/images/b/bc/Second_Image.jpg",
+        "descriptionurl": "https://irowiki.org/wiki/File:Second_Image.jpg",
+        "size": 234567,
+        "width": 1024,
+        "height": 768,
+        "sha1": "2222222222222222222222222222222222222222",
+        "mime": "image/jpeg",
+        "user": "User2"
+      },
+      {
+        "name": "Third_Image.gif",
+        "timestamp": "2024-01-17T09:15:00Z",
+        "url": "https://irowiki.org/wiki/images/c/cd/Third_Image.gif",
+        "descriptionurl": "https://irowiki.org/wiki/File:Third_Image.gif",
+        "size": 45678,
+        "width": 300,
+        "height": 200,
+        "sha1": "3333333333333333333333333333333333333333",
+        "mime": "image/gif",
+        "user": "User3"
+      }
+    ]
+  }
+}

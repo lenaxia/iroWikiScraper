@@ -1,0 +1,27 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "allimages": [
+      {
+        "name": "Tutorial_Video.webm",
+        "timestamp": "2024-01-20T15:30:00Z",
+        "url": "https://irowiki.org/wiki/images/g/gh/Tutorial_Video.webm",
+        "descriptionurl": "https://irowiki.org/wiki/File:Tutorial_Video.webm",
+        "size": 5242880,
+        "sha1": "ffffffffffffffffffffffffffffffffffffffff",
+        "mime": "video/webm",
+        "user": "VideoUploader"
+      },
+      {
+        "name": "Documentation.pdf",
+        "timestamp": "2024-01-21T10:00:00Z",
+        "url": "https://irowiki.org/wiki/images/h/hi/Documentation.pdf",
+        "descriptionurl": "https://irowiki.org/wiki/File:Documentation.pdf",
+        "size": 1048576,
+        "sha1": "0000000000000000000000000000000000000000",
+        "mime": "application/pdf",
+        "user": "DocUploader"
+      }
+    ]
+  }
+}

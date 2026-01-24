@@ -1,0 +1,34 @@
+{
+  "continue": {
+    "aicontinue": "20240118103000|Next_File.png",
+    "continue": "-||"
+  },
+  "query": {
+    "allimages": [
+      {
+        "name": "Batch1_File1.png",
+        "timestamp": "2024-01-15T10:30:00Z",
+        "url": "https://irowiki.org/wiki/images/a/ab/Batch1_File1.png",
+        "descriptionurl": "https://irowiki.org/wiki/File:Batch1_File1.png",
+        "size": 100000,
+        "width": 640,
+        "height": 480,
+        "sha1": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "mime": "image/png",
+        "user": "BatchUser1"
+      },
+      {
+        "name": "Batch1_File2.jpg",
+        "timestamp": "2024-01-16T11:30:00Z",
+        "url": "https://irowiki.org/wiki/images/b/bc/Batch1_File2.jpg",
+        "descriptionurl": "https://irowiki.org/wiki/File:Batch1_File2.jpg",
+        "size": 200000,
+        "width": 1920,
+        "height": 1080,
+        "sha1": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "mime": "image/jpeg",
+        "user": "BatchUser2"
+      }
+    ]
+  }
+}

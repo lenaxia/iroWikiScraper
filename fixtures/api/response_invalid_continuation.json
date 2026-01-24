@@ -1,0 +1,9 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "allpages": [
+      {"pageid": 1, "ns": 0, "title": "Test Page"}
+    ]
+  },
+  "continue": "invalid_string_format_should_be_dict"
+}

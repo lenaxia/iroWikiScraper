@@ -1,0 +1,8 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "allpages": [
+      {"pageid": "not_an_int", "ns": 0, "title": "Type Error Page"}
+    ]
+  }
+}

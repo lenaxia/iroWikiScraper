@@ -1,0 +1,17 @@
+{
+  "warnings": {
+    "main": {
+      "*": "First warning message about API deprecation"
+    },
+    "query": {
+      "*": "Second warning about continuation format"
+    },
+    "list": {
+      "*": "Third warning about parameter usage"
+    }
+  },
+  "batchcomplete": "",
+  "query": {
+    "allpages": []
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "batchcomplete": "",
+  "query": {
+    "allimages": [
+      {
+        "name": "Final_File1.png",
+        "timestamp": "2024-01-18T10:30:00Z",
+        "url": "https://irowiki.org/wiki/images/d/de/Final_File1.png",
+        "descriptionurl": "https://irowiki.org/wiki/File:Final_File1.png",
+        "size": 150000,
+        "width": 800,
+        "height": 600,
+        "sha1": "cccccccccccccccccccccccccccccccccccccccc",
+        "mime": "image/png",
+        "user": "FinalUser1"
+      },
+      {
+        "name": "Final_File2.jpg",
+        "timestamp": "2024-01-19T12:45:00Z",
+        "url": "https://irowiki.org/wiki/images/e/ef/Final_File2.jpg",
+        "descriptionurl": "https://irowiki.org/wiki/File:Final_File2.jpg",
+        "size": 250000,
+        "width": 1024,
+        "height": 768,
+        "sha1": "dddddddddddddddddddddddddddddddddddddddd",
+        "mime": "image/jpeg",
+        "user": "FinalUser2"
+      }
+    ]
+  }
+}
