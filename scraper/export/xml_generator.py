@@ -75,7 +75,8 @@ class XMLGenerator:
             else:
                 escaped_name = XMLGenerator.escape_xml(ns_name)
                 namespaces_xml.append(
-                    f'    <namespace key="{ns_id}" case="{NAMESPACE_CASE}">{escaped_name}</namespace>')  # noqa: E501
+                    f'    <namespace key="{ns_id}" case="{NAMESPACE_CASE}">{escaped_name}</namespace>'
+                )  # noqa: E501
 
         return (
             "  <siteinfo>\n"

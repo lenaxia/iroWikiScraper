@@ -1,6 +1,5 @@
 """Tests for MediaWiki XML schema definitions."""
 
-
 from scraper.export.schema import (
     MEDIAWIKI_NAMESPACES,
     MEDIAWIKI_NS,

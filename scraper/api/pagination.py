@@ -114,8 +114,7 @@ class PaginatedQuery:
         # Validate result_path elements are strings
         for i, element in enumerate(result_path):
             if not isinstance(element, str):
-                raise ValueError(
-                    f"result_path elements must be strings, got: {
+                raise ValueError(f"result_path elements must be strings, got: {
                         type(element).__name__} at index {i}")
 
         self.api = api_client
@@ -165,8 +164,7 @@ class PaginatedQuery:
 
             # Validate that data is iterable
             if not hasattr(data, "__iter__") or isinstance(data, (str, dict)):
-                raise TypeError(
-                    f"Result at path {
+                raise TypeError(f"Result at path {
                         self.result_path} is not iterable. Got type: {
                         type(data).__name__}")
 
