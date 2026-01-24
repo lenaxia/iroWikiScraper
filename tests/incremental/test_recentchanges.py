@@ -223,7 +223,9 @@ class TestRecentChangesClient:
         start = datetime(2026, 1, 1, tzinfo=timezone.utc)
         end = datetime(2026, 1, 31, tzinfo=timezone.utc)
 
-        changes = rc_client.get_recent_changes(start, end, change_type="edit")  # noqa: F841
+        changes = rc_client.get_recent_changes(
+            start, end, change_type="edit"
+        )  # noqa: F841
 
         # Check type parameter was passed
         call_args = mock_api._request.call_args[0][1]

@@ -1,6 +1,5 @@
 """Tests for ModifiedPageDetector."""
 
-
 import pytest
 
 from scraper.api.exceptions import PageNotFoundError

@@ -1,6 +1,5 @@
 """Tests for the RevisionScraper class."""
 
-
 import pytest
 
 from scraper.scrapers.revision_scraper import RevisionScraper

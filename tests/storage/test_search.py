@@ -84,13 +84,11 @@ class TestBasicSearch:
 
         # Insert revisions with content
         revisions_data = [
-            (1,
-             1,
-             None,
-             datetime(
-                 2024,
-                 1,
-                 1),
+            (
+                1,
+                1,
+                None,
+                datetime(2024, 1, 1),
                 "User1",
                 None,
                 "Prontera is the capital city of the Rune-Midgarts Kingdom. It is a bustling trade hub.",  # noqa: E501
@@ -98,14 +96,12 @@ class TestBasicSearch:
                 "abc1",
                 False,
                 None,
-             ),
-            (2,
-             2,
-             None,
-             datetime(
-                 2024,
-                 1,
-                 2),
+            ),
+            (
+                2,
+                2,
+                None,
+                datetime(2024, 1, 2),
                 "User2",
                 None,
                 "Geffen is the magical city of wizards and mages. Many magic shops are located here.",  # noqa: E501
@@ -113,14 +109,12 @@ class TestBasicSearch:
                 "abc2",
                 False,
                 None,
-             ),
-            (3,
-             3,
-             None,
-             datetime(
-                 2024,
-                 1,
-                 3),
+            ),
+            (
+                3,
+                3,
+                None,
+                datetime(2024, 1, 3),
                 "User3",
                 None,
                 "Payon is a small village nestled in the mountains. It is known for archers.",
@@ -128,22 +122,20 @@ class TestBasicSearch:
                 "abc3",
                 False,
                 None,
-             ),
-            (4,
-             4,
-             None,
-             datetime(
-                 2024,
-                 1,
-                 4),
-             "User4",
-             None,
-             "Morocc is a desert city with bazaars and merchants. The pyramid is nearby.",
-             76,
-             "abc4",
-             False,
-             None,
-             ),
+            ),
+            (
+                4,
+                4,
+                None,
+                datetime(2024, 1, 4),
+                "User4",
+                None,
+                "Morocc is a desert city with bazaars and merchants. The pyramid is nearby.",
+                76,
+                "abc4",
+                False,
+                None,
+            ),
         ]
 
         for rev_data in revisions_data:

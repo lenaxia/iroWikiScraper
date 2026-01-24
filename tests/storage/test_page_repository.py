@@ -263,7 +263,9 @@ class TestPageUpdate:
     def test_update_page_without_id(self, db):
         """Test update page without page_id raises error."""
         repo = PageRepository(db)
-        page = Page(page_id=1, namespace=0, title="Test", is_redirect=False)  # noqa: F841
+        page = Page(
+            page_id=1, namespace=0, title="Test", is_redirect=False
+        )  # noqa: F841
 
         # Manually create a page-like object without page_id
         class PageWithoutId:

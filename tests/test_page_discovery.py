@@ -1,6 +1,5 @@
 """Tests for page discovery functionality."""
 
-
 import pytest
 
 from scraper.scrapers.page_scraper import PageDiscovery

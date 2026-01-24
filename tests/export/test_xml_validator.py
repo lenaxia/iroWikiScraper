@@ -1,6 +1,5 @@
 """Tests for XML validator."""
 
-
 import pytest
 
 from scraper.export.xml_exporter import XMLExporter
