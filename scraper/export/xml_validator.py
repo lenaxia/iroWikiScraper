@@ -69,9 +69,10 @@ class ValidationReport:
     def __repr__(self) -> str:
         """Return string representation."""
         status = "PASS" if self.is_valid else "FAIL"
-        return f"ValidationReport({status}, {
-            self.error_count} errors, {
-            self.warning_count} warnings)"
+        return (
+            f"ValidationReport({status}, {self.error_count} errors, "
+            f"{self.warning_count} warnings)"
+        )
 
 
 class XMLValidator:

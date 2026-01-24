@@ -297,9 +297,10 @@ class Config:
         # Validate logging settings
         valid_log_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         if self.logging.level not in valid_log_levels:
-            errors.append(f"Invalid log level: {
-                    self.logging.level}. Must be one of: {
-                    ', '.join(valid_log_levels)}")
+            errors.append(
+                f"Invalid log level: {self.logging.level}. "
+                f"Must be one of: {', '.join(valid_log_levels)}"
+            )
 
         # Raise if any errors
         if errors:

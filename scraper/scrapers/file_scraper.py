@@ -385,13 +385,14 @@ class FileDownloader:
                 if not self._verify_checksum(file_path, file_meta.sha1):
                     # Delete corrupted file
                     file_path.unlink()
+                    calculated_sha1 = (
+                        self._calculate_sha1(file_path)
+                        if file_path.exists()
+                        else "file deleted"
+                    )
                     raise ValueError(
-                        f"SHA1 checksum mismatch for {
-                            file_meta.filename}. "
-                        f"Expected: {
-                            file_meta.sha1}, "
-                        f"Got: {
-                            self._calculate_sha1(file_path) if file_path.exists() else 'file deleted'}"
+                        f"SHA1 checksum mismatch for {file_meta.filename}. "
+                        f"Expected: {file_meta.sha1}, Got: {calculated_sha1}"
                     )  # noqa: E501
 
                 logger.info(f"Verified checksum for {file_meta.filename}")
@@ -399,9 +400,9 @@ class FileDownloader:
 
             except (requests.Timeout, requests.ConnectionError) as e:
                 if attempt == self.max_retries - 1:
-                    logger.error(f"Failed to download {
-                            file_meta.filename} after {
-                            self.max_retries} attempts: {e}")
+                    logger.error(f"Failed to download {file_meta.filename} after {
+                            self.max_retries
+                        } attempts: {e}")
                     raise
 
                 wait_time = 2**attempt  # Exponential backoff
