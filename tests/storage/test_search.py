@@ -10,17 +10,19 @@ Tests cover:
 - Performance benchmarks
 """
 
-import pytest
 import sqlite3
 from datetime import datetime
+
+import pytest
+
 from scraper.storage.database import Database
 from scraper.storage.search import (
-    search,
-    search_titles,
     SearchResult,
-    rebuild_index,
     index_page,
     optimize_index,
+    rebuild_index,
+    search,
+    search_titles,
 )
 
 

@@ -1,11 +1,12 @@
 """Tests for IncrementalRevisionScraper."""
 
-import pytest
 from datetime import datetime, timezone
-from unittest.mock import Mock, MagicMock
+from unittest.mock import MagicMock, Mock
 
-from scraper.incremental.revision_scraper import IncrementalRevisionScraper
+import pytest
+
 from scraper.incremental.models import PageUpdateInfo
+from scraper.incremental.revision_scraper import IncrementalRevisionScraper
 from scraper.storage.models import Revision
 
 
@@ -158,9 +159,9 @@ class TestIncrementalRevisionScraper:
 
     def test_insert_new_revisions_deduplication(self, db, sample_revisions):
         """Test deduplication when inserting revisions."""
+        from scraper.storage.models import Page
         from scraper.storage.page_repository import PageRepository
         from scraper.storage.revision_repository import RevisionRepository
-        from scraper.storage.models import Page
 
         # Insert page and one revision
         page_repo = PageRepository(db)

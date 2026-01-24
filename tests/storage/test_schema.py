@@ -11,12 +11,13 @@ Tests all SQL schema files (001-005) for:
 - Data insertion and validation
 """
 
-import sqlite3
-import pytest
-import tempfile
 import os
-from pathlib import Path
+import sqlite3
+import tempfile
 from datetime import datetime
+from pathlib import Path
+
+import pytest
 
 
 @pytest.fixture

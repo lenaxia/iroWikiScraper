@@ -1,12 +1,13 @@
 """Tests for file discovery functionality."""
 
-import pytest
 from datetime import datetime
-from unittest.mock import Mock, patch, call
+from unittest.mock import Mock, call, patch
 
-from scraper.storage.models import FileMetadata
-from scraper.scrapers.file_scraper import FileDiscovery
+import pytest
+
 from scraper.api.exceptions import APIError
+from scraper.scrapers.file_scraper import FileDiscovery
+from scraper.storage.models import FileMetadata
 from tests.mocks.mock_http_session import MockResponse
 
 

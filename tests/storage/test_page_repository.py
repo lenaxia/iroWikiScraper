@@ -14,6 +14,7 @@ Tests the PageRepository class for:
 """
 
 import pytest
+
 from scraper.storage.models import Page
 from scraper.storage.page_repository import PageRepository
 

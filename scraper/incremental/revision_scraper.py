@@ -1,13 +1,13 @@
 """Incremental revision scraper for fetching only new revisions."""
 
 import logging
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 from scraper.api.client import MediaWikiAPIClient
-from scraper.storage.database import Database
-from scraper.storage.revision_repository import RevisionRepository
 from scraper.incremental.models import PageUpdateInfo
+from scraper.storage.database import Database
 from scraper.storage.models import Revision
+from scraper.storage.revision_repository import RevisionRepository
 
 logger = logging.getLogger(__name__)
 

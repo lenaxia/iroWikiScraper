@@ -6,8 +6,9 @@ with database backend for persistence across runs.
 
 import logging
 from typing import Dict, List
-from scraper.storage.models import Link
+
 from scraper.storage.database import Database
+from scraper.storage.models import Link
 
 logger = logging.getLogger(__name__)
 

@@ -17,7 +17,7 @@ from typing import List, Optional
 import pytest
 import requests
 
-from scraper.scrapers.file_scraper import FileDownloader, DownloadStats
+from scraper.scrapers.file_scraper import DownloadStats, FileDownloader
 from scraper.storage.models import FileMetadata
 
 # ============================================================================

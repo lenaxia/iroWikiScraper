@@ -6,10 +6,11 @@ from a database to a file, handling large databases efficiently.
 
 from pathlib import Path
 from typing import Optional, TextIO
+
 from tqdm import tqdm
 
-from scraper.storage.database import Database
 from scraper.export.xml_generator import XMLGenerator
+from scraper.storage.database import Database
 
 
 class XMLExporter:

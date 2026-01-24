@@ -4,9 +4,9 @@ This module provides functions to generate and verify SHA256 checksums
 for release archives.
 """
 
+import hashlib
 from pathlib import Path
 from typing import Dict
-import hashlib
 
 
 def generate_checksums(directory: Path, show_progress: bool = False) -> Dict[str, str]:

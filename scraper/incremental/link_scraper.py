@@ -3,8 +3,8 @@
 import logging
 from typing import Dict, List
 
-from scraper.storage.database import Database
 from scraper.scrapers.link_extractor import LinkExtractor
+from scraper.storage.database import Database
 
 logger = logging.getLogger(__name__)
 

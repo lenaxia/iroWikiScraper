@@ -1,23 +1,24 @@
 """Tests for IncrementalPageScraper - the main orchestrator."""
 
-import pytest
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import Mock, MagicMock, patch, call
 from typing import Set
+from unittest.mock import MagicMock, Mock, call, patch
 
-from scraper.incremental.page_scraper import (
-    IncrementalPageScraper,
-    FirstRunRequiresFullScrapeError,
-)
+import pytest
+
 from scraper.incremental.models import (
     ChangeSet,
+    FileChangeSet,
+    IncrementalStats,
     MovedPage,
     PageUpdateInfo,
-    IncrementalStats,
-    FileChangeSet,
 )
-from scraper.storage.models import Revision, Page
+from scraper.incremental.page_scraper import (
+    FirstRunRequiresFullScrapeError,
+    IncrementalPageScraper,
+)
+from scraper.storage.models import Page, Revision
 
 
 @pytest.fixture

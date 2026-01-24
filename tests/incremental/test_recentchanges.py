@@ -1,11 +1,12 @@
 """Tests for RecentChanges API client."""
 
-import pytest
 from datetime import datetime, timezone
 from unittest.mock import Mock
 
-from scraper.api.recentchanges import RecentChangesClient, RecentChange
+import pytest
+
 from scraper.api.exceptions import APIError
+from scraper.api.recentchanges import RecentChange, RecentChangesClient
 
 
 class TestRecentChange:

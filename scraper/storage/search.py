@@ -14,8 +14,8 @@ Functions:
     optimize_index: Optimize FTS index for performance
 """
 
-import sqlite3
 import logging
+import sqlite3
 from dataclasses import dataclass
 from typing import List
 

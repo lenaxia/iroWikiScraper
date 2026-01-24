@@ -5,9 +5,9 @@ This module provides the Database class for creating and managing
 SQLite database connections with automatic schema initialization.
 """
 
-import sqlite3
 import logging
 import os
+import sqlite3
 from pathlib import Path
 from typing import Optional
 

@@ -1,12 +1,13 @@
 """Tests for ChangeDetector."""
 
-import pytest
 from datetime import datetime, timezone
 from unittest.mock import Mock
 
+import pytest
+
+from scraper.api.recentchanges import RecentChange
 from scraper.incremental.change_detector import ChangeDetector
 from scraper.incremental.models import ChangeSet, MovedPage
-from scraper.api.recentchanges import RecentChange
 
 
 class TestChangeDetectorInit:

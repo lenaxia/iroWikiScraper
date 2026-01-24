@@ -27,7 +27,7 @@ import json
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Any, List, Set
+from typing import Any, Dict, List, Set
 
 logger = logging.getLogger(__name__)
 

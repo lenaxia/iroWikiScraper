@@ -12,8 +12,10 @@ Tests the RevisionRepository class for:
 - Tags JSON conversion
 """
 
-import pytest
 from datetime import datetime
+
+import pytest
+
 from scraper.storage.models import Revision
 from scraper.storage.revision_repository import RevisionRepository
 
@@ -24,8 +26,8 @@ def setup_pages_for_revisions(db):
 
     This fixture runs automatically for all tests in this module.
     """
-    from scraper.storage.page_repository import PageRepository
     from scraper.storage.models import Page
+    from scraper.storage.page_repository import PageRepository
 
     repo = PageRepository(db)
     # Create pages 1-1000 to support all revision tests
@@ -557,8 +559,8 @@ class TestRevisionDataConversion:
 
     def test_roundtrip_conversion(self, db):
         """Test that all fields survive roundtrip conversion."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.models import Page
+        from scraper.storage.page_repository import PageRepository
 
         # Create page 678 for the revision
         page_repo = PageRepository(db)

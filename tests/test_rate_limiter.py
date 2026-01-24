@@ -1,7 +1,7 @@
 """Tests for rate limiter with exponential backoff."""
 
-import time
 import threading
+import time
 from typing import List
 
 import pytest

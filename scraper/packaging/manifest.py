@@ -3,11 +3,11 @@
 This module creates MANIFEST.json files with comprehensive release metadata.
 """
 
-from pathlib import Path
-from typing import Dict, Optional
 import json
 import sqlite3
 from datetime import datetime
+from pathlib import Path
+from typing import Dict, Optional
 
 from scraper.storage.database import Database
 

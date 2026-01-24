@@ -1,8 +1,9 @@
 """Integrity verification for incremental updates."""
 
-from typing import List, Dict
-from scraper.storage.database import Database
 import logging
+from typing import Dict, List
+
+from scraper.storage.database import Database
 
 logger = logging.getLogger(__name__)
 

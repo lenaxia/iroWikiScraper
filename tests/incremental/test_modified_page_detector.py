@@ -1,11 +1,12 @@
 """Tests for ModifiedPageDetector."""
 
-import pytest
 from datetime import datetime, timezone
 
-from scraper.incremental.modified_page_detector import ModifiedPageDetector
-from scraper.incremental.models import PageUpdateInfo
+import pytest
+
 from scraper.api.exceptions import PageNotFoundError
+from scraper.incremental.models import PageUpdateInfo
+from scraper.incremental.modified_page_detector import ModifiedPageDetector
 
 
 class TestModifiedPageDetectorInit:
@@ -209,8 +210,9 @@ class TestPerformance:
     def test_batch_query_100_pages_fast(self, db):
         """Test batch query of 100 pages is fast (<100ms target)."""
         import time
-        from scraper.storage.page_repository import PageRepository
+
         from scraper.storage.models import Page
+        from scraper.storage.page_repository import PageRepository
 
         # Create 100 pages
         page_repo = PageRepository(db)

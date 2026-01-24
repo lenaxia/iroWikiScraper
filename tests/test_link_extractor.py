@@ -1,10 +1,12 @@
 """Tests for the LinkExtractor and Link model."""
 
-import pytest
 import time
 from pathlib import Path
-from scraper.storage.models import Link
+
+import pytest
+
 from scraper.scrapers.link_extractor import LinkExtractor
+from scraper.storage.models import Link
 
 # Fixture paths
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures" / "wikitext"

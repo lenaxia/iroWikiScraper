@@ -10,8 +10,9 @@ This module tests the link storage functionality including:
 """
 
 import pytest
-from scraper.storage.models import Link
+
 from scraper.storage.link_storage import LinkStorage
+from scraper.storage.models import Link
 
 # ============================================================================
 # Test Utilities & Fixtures

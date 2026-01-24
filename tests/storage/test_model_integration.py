@@ -10,12 +10,14 @@ Tests cover:
 - Edge cases
 """
 
-import pytest
-import sqlite3
 import json
+import sqlite3
 from datetime import datetime
+
+import pytest
+
 from scraper.storage.database import Database
-from scraper.storage.models import Page, Revision, FileMetadata, Link
+from scraper.storage.models import FileMetadata, Link, Page, Revision
 
 
 class TestPageIntegration:

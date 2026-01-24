@@ -3,12 +3,12 @@
 This module provides verification tools to check release archives.
 """
 
+import json
 from pathlib import Path
 from typing import Dict, List
-import json
 
-from scraper.packaging.checksums import verify_checksums
 from scraper.export.xml_validator import XMLValidator
+from scraper.packaging.checksums import verify_checksums
 
 
 class VerificationError:

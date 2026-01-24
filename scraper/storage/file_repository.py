@@ -1,12 +1,12 @@
 """Repository for file metadata CRUD operations."""
 
-import sqlite3
 import logging
-from typing import List, Optional
+import sqlite3
 from datetime import datetime
+from typing import List, Optional
 
-from scraper.storage.models import FileMetadata
 from scraper.storage.database import Database
+from scraper.storage.models import FileMetadata
 
 logger = logging.getLogger(__name__)
 

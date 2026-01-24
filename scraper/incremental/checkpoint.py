@@ -1,11 +1,11 @@
 """Checkpoint management for incremental scrapes."""
 
-from dataclasses import dataclass, field
-from typing import Set
-from datetime import datetime
-from pathlib import Path
 import json
 import logging
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import Set
 
 logger = logging.getLogger(__name__)
 

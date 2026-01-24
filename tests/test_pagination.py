@@ -1,10 +1,11 @@
 """Tests for generic pagination handler."""
 
-import pytest
 from unittest.mock import Mock, call
 
-from scraper.api.pagination import PaginatedQuery
+import pytest
+
 from scraper.api.exceptions import APIError
+from scraper.api.pagination import PaginatedQuery
 from tests.mocks.mock_http_session import MockResponse
 
 

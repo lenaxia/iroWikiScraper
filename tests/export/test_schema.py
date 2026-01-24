@@ -1,12 +1,13 @@
 """Tests for MediaWiki XML schema definitions."""
 
 import pytest
+
 from scraper.export.schema import (
+    MEDIAWIKI_NAMESPACES,
     MEDIAWIKI_NS,
     MEDIAWIKI_VERSION,
-    MEDIAWIKI_NAMESPACES,
-    SITE_NAME,
     SITE_DBNAME,
+    SITE_NAME,
 )
 
 

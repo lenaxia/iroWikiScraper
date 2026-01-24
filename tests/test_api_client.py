@@ -9,9 +9,9 @@ from scraper.api.exceptions import (
     APIRequestError,
     APIResponseError,
     NetworkError,
-    ServerError,
     PageNotFoundError,
     RateLimitError,
+    ServerError,
 )
 from tests.mocks.mock_http_session import MockResponse
 

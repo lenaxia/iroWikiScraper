@@ -2,25 +2,25 @@
 
 import logging
 from datetime import datetime
-from typing import Optional, Set
 from pathlib import Path
+from typing import Optional, Set
 
 from scraper.api.client import MediaWikiAPIClient
-from scraper.storage.database import Database
-from scraper.storage.page_repository import PageRepository
-from scraper.storage.revision_repository import RevisionRepository
+from scraper.api.recentchanges import RecentChangesClient
 from scraper.incremental.change_detector import ChangeDetector
+from scraper.incremental.file_scraper import IncrementalFileScraper
+from scraper.incremental.link_scraper import IncrementalLinkScraper
+from scraper.incremental.models import ChangeSet, IncrementalStats, MovedPage
 from scraper.incremental.modified_page_detector import ModifiedPageDetector
 from scraper.incremental.new_page_detector import NewPageDetector
 from scraper.incremental.revision_scraper import IncrementalRevisionScraper
-from scraper.incremental.link_scraper import IncrementalLinkScraper
-from scraper.incremental.file_scraper import IncrementalFileScraper
 from scraper.incremental.scrape_run_tracker import ScrapeRunTracker
-from scraper.incremental.models import IncrementalStats, ChangeSet, MovedPage
-from scraper.api.recentchanges import RecentChangesClient
-from scraper.scrapers.revision_scraper import RevisionScraper
 from scraper.scrapers.link_extractor import LinkExtractor
+from scraper.scrapers.revision_scraper import RevisionScraper
+from scraper.storage.database import Database
 from scraper.storage.models import Page
+from scraper.storage.page_repository import PageRepository
+from scraper.storage.revision_repository import RevisionRepository
 
 logger = logging.getLogger(__name__)
 

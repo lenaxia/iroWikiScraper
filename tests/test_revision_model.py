@@ -1,7 +1,9 @@
 """Tests for the Revision model."""
 
-import pytest
 from datetime import datetime
+
+import pytest
+
 from scraper.storage.models import Revision
 
 

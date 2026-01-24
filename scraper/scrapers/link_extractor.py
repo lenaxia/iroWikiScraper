@@ -7,6 +7,7 @@ category memberships.
 
 import re
 from typing import List, Set
+
 from scraper.storage.models import Link
 
 

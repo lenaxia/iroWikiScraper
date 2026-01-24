@@ -4,11 +4,11 @@ This module provides validation for exported MediaWiki XML files to ensure
 they conform to the expected structure and format.
 """
 
+import re
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 from xml.etree import ElementTree as ET
-from datetime import datetime
-import re
 
 from scraper.export.schema import MEDIAWIKI_NS
 

@@ -1,9 +1,10 @@
 """Tests for IncrementalCheckpoint."""
 
-import pytest
+import json
 from datetime import datetime
 from pathlib import Path
-import json
+
+import pytest
 
 from scraper.incremental.checkpoint import (
     IncrementalCheckpoint,

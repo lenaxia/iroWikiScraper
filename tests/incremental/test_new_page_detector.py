@@ -1,10 +1,11 @@
 """Tests for NewPageDetector."""
 
-import pytest
 from datetime import datetime, timezone
 
-from scraper.incremental.new_page_detector import NewPageDetector
+import pytest
+
 from scraper.incremental.models import NewPageInfo
+from scraper.incremental.new_page_detector import NewPageDetector
 
 
 class TestNewPageDetectorInit:

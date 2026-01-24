@@ -4,10 +4,10 @@ This module generates markdown-formatted release notes by comparing
 current release with previous release.
 """
 
-from pathlib import Path
-from typing import Optional, Dict
 import json
 from datetime import datetime
+from pathlib import Path
+from typing import Dict, Optional
 
 from scraper.storage.database import Database
 

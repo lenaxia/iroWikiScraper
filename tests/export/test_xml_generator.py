@@ -1,8 +1,9 @@
 """Tests for XML generator."""
 
-import pytest
 from datetime import datetime
 from xml.etree import ElementTree as ET
+
+import pytest
 
 from scraper.export.xml_generator import XMLGenerator
 from scraper.storage.models import Page, Revision

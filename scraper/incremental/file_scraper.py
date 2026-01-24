@@ -1,15 +1,15 @@
 """Incremental file scraper for detecting and downloading changed files."""
 
 import logging
-from typing import Dict
 from pathlib import Path
+from typing import Dict
 
 from scraper.api.client import MediaWikiAPIClient
+from scraper.incremental.models import FileChangeSet, FileInfo
+from scraper.scrapers.file_scraper import FileDiscovery, FileDownloader
 from scraper.storage.database import Database
 from scraper.storage.file_repository import FileRepository
 from scraper.storage.models import FileMetadata
-from scraper.scrapers.file_scraper import FileDiscovery, FileDownloader
-from scraper.incremental.models import FileChangeSet, FileInfo
 
 logger = logging.getLogger(__name__)
 

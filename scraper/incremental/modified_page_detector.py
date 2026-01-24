@@ -3,9 +3,9 @@
 import logging
 from typing import List
 
-from scraper.storage.database import Database
 from scraper.api.exceptions import PageNotFoundError
 from scraper.incremental.models import PageUpdateInfo
+from scraper.storage.database import Database
 
 logger = logging.getLogger(__name__)
 

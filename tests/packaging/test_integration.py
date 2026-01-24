@@ -7,18 +7,19 @@ These tests validate end-to-end packaging scenarios including:
 - Release verification workflows
 """
 
-import pytest
-from pathlib import Path
 import json
-import tarfile
 import shutil
+import tarfile
+from pathlib import Path
 
-from scraper.storage.database import Database
-from scraper.packaging.package import PackagingConfig, package_release
-from scraper.packaging.checksums import verify_checksums
-from scraper.packaging.verify import verify_release
+import pytest
+
 from scraper.export.xml_exporter import XMLExporter
 from scraper.export.xml_validator import XMLValidator
+from scraper.packaging.checksums import verify_checksums
+from scraper.packaging.package import PackagingConfig, package_release
+from scraper.packaging.verify import verify_release
+from scraper.storage.database import Database
 
 
 @pytest.fixture

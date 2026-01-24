@@ -4,10 +4,10 @@ This module provides functions to compress release directories into tar.gz archi
 and split large archives for GitHub Releases (2GB limit).
 """
 
+import math
+import tarfile
 from pathlib import Path
 from typing import Dict, Optional
-import tarfile
-import math
 
 
 def compress_directory(

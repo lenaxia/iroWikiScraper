@@ -10,18 +10,20 @@ These tests validate complete workflows with realistic data volumes:
 - Foreign key enforcement
 """
 
-import pytest
 import time
 from datetime import datetime, timedelta
+
+import pytest
+
 from scraper.storage.database import Database
-from scraper.storage.models import Page, Revision, FileMetadata, Link
-from scraper.storage.search import search, rebuild_index
+from scraper.storage.models import FileMetadata, Link, Page, Revision
 from scraper.storage.queries import (
-    get_page_at_time,
     get_changes_in_range,
     get_db_stats,
     get_namespace_stats,
+    get_page_at_time,
 )
+from scraper.storage.search import rebuild_index, search
 
 
 class TestCompleteScrapeWorkflow:

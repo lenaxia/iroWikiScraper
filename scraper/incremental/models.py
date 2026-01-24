@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Set, List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional, Set
 
 
 @dataclass

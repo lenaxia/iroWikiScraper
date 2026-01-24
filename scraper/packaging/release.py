@@ -3,9 +3,9 @@
 This module creates the standard release directory structure for iRO Wiki archives.
 """
 
+import shutil
 from pathlib import Path
 from typing import Optional
-import shutil
 
 
 class ReleaseBuilder:

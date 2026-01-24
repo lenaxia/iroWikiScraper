@@ -4,8 +4,8 @@ import logging
 from datetime import datetime, timezone
 from typing import List, Set
 
-from scraper.storage.database import Database
 from scraper.incremental.models import NewPageInfo
+from scraper.storage.database import Database
 
 logger = logging.getLogger(__name__)
 

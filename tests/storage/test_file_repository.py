@@ -12,10 +12,12 @@ Tests the FileRepository class for:
 - NULL dimension handling
 """
 
-import pytest
 from datetime import datetime
-from scraper.storage.models import FileMetadata
+
+import pytest
+
 from scraper.storage.file_repository import FileRepository
+from scraper.storage.models import FileMetadata
 
 
 class TestFileInsertion:

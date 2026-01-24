@@ -1,7 +1,8 @@
 """Tests for page discovery functionality."""
 
-import pytest
 from pathlib import Path
+
+import pytest
 
 from scraper.scrapers.page_scraper import PageDiscovery
 from scraper.storage.models import Page

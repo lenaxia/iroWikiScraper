@@ -1,11 +1,11 @@
 """Page discovery functionality."""
 
 import logging
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
 from scraper.api.client import MediaWikiAPIClient
-from scraper.api.validation import ResponseValidator
 from scraper.api.exceptions import APIResponseError
+from scraper.api.validation import ResponseValidator
 from scraper.storage.models import Page
 
 logger = logging.getLogger(__name__)

@@ -1,21 +1,22 @@
 """Comprehensive tests for packaging modules."""
 
-import pytest
-from pathlib import Path
 import json
 import tarfile
+from pathlib import Path
 
-from scraper.storage.database import Database
-from scraper.packaging.release import ReleaseBuilder
-from scraper.packaging.compression import compress_directory, split_archive
+import pytest
+
 from scraper.packaging.checksums import (
     generate_checksums,
-    write_checksums_file,
     verify_checksums,
+    write_checksums_file,
 )
+from scraper.packaging.compression import compress_directory, split_archive
 from scraper.packaging.manifest import ManifestGenerator
-from scraper.packaging.verify import verify_release
+from scraper.packaging.release import ReleaseBuilder
 from scraper.packaging.release_notes import ReleaseNotesGenerator
+from scraper.packaging.verify import verify_release
+from scraper.storage.database import Database
 
 
 @pytest.fixture

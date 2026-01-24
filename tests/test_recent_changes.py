@@ -1,13 +1,14 @@
 """Tests for RecentChangesClient and RecentChange model."""
 
 import json
-import pytest
-import requests
 from datetime import datetime, timezone
 from unittest.mock import Mock
 
-from scraper.api.recentchanges import RecentChangesClient, RecentChange
+import pytest
+import requests
+
 from scraper.api.exceptions import APIError, NetworkError
+from scraper.api.recentchanges import RecentChange, RecentChangesClient
 from tests.mocks.mock_http_session import MockResponse
 
 
@@ -684,8 +685,9 @@ class TestIntegration:
     @pytest.mark.skip(reason="Live API test - run manually")
     def test_fetch_real_recent_changes_from_irowiki(self):
         """Test fetching real recent changes from irowiki.org."""
-        from scraper.api.client import MediaWikiAPIClient
         from datetime import timedelta
+
+        from scraper.api.client import MediaWikiAPIClient
 
         api = MediaWikiAPIClient("https://irowiki.org")
         rc_client = RecentChangesClient(api)

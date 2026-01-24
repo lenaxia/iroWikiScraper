@@ -1,13 +1,14 @@
 """Tests for XML exporter."""
 
-import pytest
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 from xml.etree import ElementTree as ET
 
+import pytest
+
+from scraper.export.xml_exporter import XMLExporter
 from scraper.storage.database import Database
 from scraper.storage.models import Page, Revision
-from scraper.export.xml_exporter import XMLExporter
 
 
 @pytest.fixture

@@ -1,10 +1,10 @@
 """Data models for wiki content."""
 
-import sqlite3
 import json
+import sqlite3
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, List, Tuple, Any
+from typing import Any, List, Optional, Tuple
 
 
 @dataclass

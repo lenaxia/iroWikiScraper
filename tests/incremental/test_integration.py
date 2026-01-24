@@ -1,19 +1,20 @@
 """Integration tests for complete incremental update workflow."""
 
-import pytest
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+import pytest
+
+from scraper.incremental.models import ChangeSet, IncrementalStats
 from scraper.incremental.page_scraper import (
-    IncrementalPageScraper,
     FirstRunRequiresFullScrapeError,
+    IncrementalPageScraper,
 )
 from scraper.incremental.verification import IncrementalVerifier
-from scraper.incremental.models import ChangeSet, IncrementalStats
+from scraper.storage.models import Page, Revision
 from scraper.storage.page_repository import PageRepository
 from scraper.storage.revision_repository import RevisionRepository
-from scraper.storage.models import Page, Revision
 
 
 @pytest.fixture

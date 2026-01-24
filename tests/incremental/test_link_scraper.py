@@ -1,7 +1,8 @@
 """Tests for IncrementalLinkScraper."""
 
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from unittest.mock import Mock, MagicMock, patch
 
 from scraper.incremental.link_scraper import IncrementalLinkScraper
 from scraper.storage.models import Link
@@ -19,8 +20,8 @@ class TestIncrementalLinkScraper:
 
     def test_update_links_for_page_single_link(self, db, sample_pages):
         """Test updating links for a page with single link."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         # Insert page
         page_repo = PageRepository(db)
@@ -44,8 +45,8 @@ class TestIncrementalLinkScraper:
 
     def test_update_links_for_page_multiple_links(self, db, sample_pages):
         """Test updating links with multiple link types."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         # Insert page
         page_repo = PageRepository(db)
@@ -76,8 +77,8 @@ class TestIncrementalLinkScraper:
 
     def test_update_links_for_page_replaces_old_links(self, db, sample_pages):
         """Test that update replaces old links atomically."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         # Insert page
         page_repo = PageRepository(db)
@@ -110,8 +111,8 @@ class TestIncrementalLinkScraper:
 
     def test_update_links_for_page_empty_content(self, db, sample_pages):
         """Test updating with empty content removes all links."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         # Insert page
         page_repo = PageRepository(db)
@@ -134,8 +135,8 @@ class TestIncrementalLinkScraper:
 
     def test_update_links_for_page_no_existing_links(self, db, sample_pages):
         """Test updating page that has no existing links."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         # Insert page
         page_repo = PageRepository(db)
@@ -156,8 +157,8 @@ class TestIncrementalLinkScraper:
 
     def test_update_links_for_page_duplicate_links(self, db, sample_pages):
         """Test that duplicate links in content are deduplicated."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         # Insert page
         page_repo = PageRepository(db)
@@ -177,8 +178,8 @@ class TestIncrementalLinkScraper:
 
     def test_update_links_for_page_many_links(self, db, sample_pages):
         """Test updating page with many links (100+)."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         # Insert page
         page_repo = PageRepository(db)
@@ -200,8 +201,8 @@ class TestIncrementalLinkScraper:
         self, db, sample_pages
     ):
         """Test that transaction rolls back on error."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         # Insert page
         page_repo = PageRepository(db)
@@ -250,8 +251,8 @@ class TestBatchOperations:
 
     def test_update_links_batch_multiple_pages(self, db, sample_pages):
         """Test batch update for multiple pages."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         # Insert pages
         page_repo = PageRepository(db)
@@ -283,8 +284,8 @@ class TestBatchOperations:
 
     def test_update_links_batch_continues_on_failure(self, db, sample_pages):
         """Test that batch continues processing even if individual pages fail."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         # Insert pages
         page_repo = PageRepository(db)
@@ -340,9 +341,10 @@ class TestBatchOperations:
 
     def test_update_links_batch_logs_failures(self, db, sample_pages, caplog):
         """Test that batch logs individual failures."""
-        from scraper.storage.page_repository import PageRepository
-        from unittest.mock import patch
         import logging
+        from unittest.mock import patch
+
+        from scraper.storage.page_repository import PageRepository
 
         page_repo = PageRepository(db)
         page_repo.insert_page(sample_pages[0])
@@ -381,8 +383,8 @@ class TestDeleteOperations:
 
     def test_delete_links_for_page(self, db, sample_pages):
         """Test deleting all links from a page."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         # Insert page
         page_repo = PageRepository(db)
@@ -428,10 +430,11 @@ class TestTransactionSemantics:
 
     def test_transaction_atomicity(self, db, sample_pages):
         """Test that DELETE and INSERT happen atomically."""
-        from scraper.storage.page_repository import PageRepository
-        from scraper.storage.link_storage import LinkStorage
         import threading
         import time
+
+        from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         page_repo = PageRepository(db)
         page_repo.insert_page(sample_pages[0])
@@ -472,8 +475,8 @@ class TestTransactionSemantics:
 
     def test_concurrent_updates_isolated(self, db, sample_pages):
         """Test that concurrent updates to different pages are isolated."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         page_repo = PageRepository(db)
         page_repo.insert_page(sample_pages[0])  # page_id=1
@@ -503,8 +506,8 @@ class TestLinkExtractorIntegration:
 
     def test_uses_link_extractor(self, db, sample_pages):
         """Test that IncrementalLinkScraper uses LinkExtractor correctly."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         page_repo = PageRepository(db)
         page_repo.insert_page(sample_pages[0])
@@ -535,8 +538,8 @@ class TestLinkExtractorIntegration:
 
     def test_handles_link_extractor_normalization(self, db, sample_pages):
         """Test that link title normalization is preserved."""
-        from scraper.storage.page_repository import PageRepository
         from scraper.storage.link_storage import LinkStorage
+        from scraper.storage.page_repository import PageRepository
 
         page_repo = PageRepository(db)
         page_repo.insert_page(sample_pages[0])

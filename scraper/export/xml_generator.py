@@ -5,23 +5,23 @@ into MediaWiki-compatible XML elements.
 """
 
 import html
-from typing import List, Optional
 from datetime import datetime
+from typing import List, Optional
 
-from scraper.storage.models import Page, Revision
 from scraper.export.schema import (
-    MEDIAWIKI_NS,
-    MEDIAWIKI_VERSION,
+    CONTENT_FORMAT,
+    CONTENT_MODEL,
     MEDIAWIKI_LANG,
     MEDIAWIKI_NAMESPACES,
+    MEDIAWIKI_NS,
+    MEDIAWIKI_VERSION,
     NAMESPACE_CASE,
-    CONTENT_MODEL,
-    CONTENT_FORMAT,
-    SITE_NAME,
-    SITE_DBNAME,
     SITE_BASE_URL,
+    SITE_DBNAME,
     SITE_GENERATOR,
+    SITE_NAME,
 )
+from scraper.storage.models import Page, Revision
 
 
 class XMLGenerator:

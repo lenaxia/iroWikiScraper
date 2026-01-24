@@ -4,10 +4,10 @@ This module provides rate limiting functionality to ensure API requests
 are properly spaced and handles rate limit errors with exponential backoff.
 """
 
-import time
-import threading
 import logging
-from typing import Optional, Any
+import threading
+import time
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 

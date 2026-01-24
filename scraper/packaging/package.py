@@ -4,17 +4,17 @@ This module provides the main package_release() function that orchestrates
 the complete release packaging workflow.
 """
 
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
-from datetime import datetime
 
-from scraper.storage.database import Database
 from scraper.export.xml_exporter import XMLExporter
-from scraper.packaging.release import ReleaseBuilder
 from scraper.packaging.checksums import generate_checksums, write_checksums_file
-from scraper.packaging.manifest import ManifestGenerator
 from scraper.packaging.compression import compress_directory, split_archive
+from scraper.packaging.manifest import ManifestGenerator
+from scraper.packaging.release import ReleaseBuilder
 from scraper.packaging.verify import verify_release
+from scraper.storage.database import Database
 
 
 class PackagingConfig:

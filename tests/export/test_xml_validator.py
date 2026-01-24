@@ -1,14 +1,15 @@
 """Tests for XML validator."""
 
-import pytest
+from datetime import datetime
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-from scraper.export.xml_validator import XMLValidator, ValidationReport
+import pytest
+
+from scraper.export.xml_exporter import XMLExporter
+from scraper.export.xml_validator import ValidationReport, XMLValidator
 from scraper.storage.database import Database
 from scraper.storage.models import Page, Revision
-from scraper.export.xml_exporter import XMLExporter
-from datetime import datetime
 
 
 @pytest.fixture

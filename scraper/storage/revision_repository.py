@@ -1,13 +1,13 @@
 """Repository for revision CRUD operations."""
 
 import json
-import sqlite3
 import logging
-from typing import List, Optional
+import sqlite3
 from datetime import datetime
+from typing import List, Optional
 
-from scraper.storage.models import Revision
 from scraper.storage.database import Database
+from scraper.storage.models import Revision
 
 logger = logging.getLogger(__name__)
 

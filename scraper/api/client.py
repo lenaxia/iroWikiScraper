@@ -10,11 +10,11 @@ from .exceptions import (
     APIError,
     APIRequestError,
     APIResponseError,
-    NetworkError,
-    ServerError,
     ClientError,
+    NetworkError,
     PageNotFoundError,
     RateLimitError,
+    ServerError,
 )
 from .rate_limiter import RateLimiter
 

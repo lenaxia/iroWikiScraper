@@ -1,13 +1,14 @@
 """Tests for the RevisionScraper class."""
 
 import json
-import pytest
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import pytest
 
 from scraper.scrapers.revision_scraper import RevisionScraper
 from scraper.storage.models import Revision
-from tests.mocks.mock_http_session import MockSession, MockResponse
+from tests.mocks.mock_http_session import MockResponse, MockSession
 
 
 class TestRevisionScraperInit:

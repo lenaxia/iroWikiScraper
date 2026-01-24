@@ -9,10 +9,11 @@ Tests the Database class for:
 - Error handling
 """
 
-import sqlite3
-import pytest
 import os
+import sqlite3
 from pathlib import Path
+
+import pytest
 
 from scraper.storage.database import Database
 

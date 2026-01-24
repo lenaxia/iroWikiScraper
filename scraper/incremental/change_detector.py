@@ -2,11 +2,11 @@
 
 import logging
 from datetime import datetime, timezone
-from typing import Optional, List
+from typing import List, Optional
 
-from scraper.storage.database import Database
-from scraper.api.recentchanges import RecentChangesClient, RecentChange
+from scraper.api.recentchanges import RecentChange, RecentChangesClient
 from scraper.incremental.models import ChangeSet, MovedPage
+from scraper.storage.database import Database
 
 logger = logging.getLogger(__name__)
 

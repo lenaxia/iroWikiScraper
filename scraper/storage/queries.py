@@ -20,12 +20,12 @@ Statistics Functions:
     get_activity_timeline: Edit activity over time
 """
 
-import sqlite3
 import logging
-from typing import List, Optional, Tuple, Dict, Any
-from datetime import datetime
+import sqlite3
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 from scraper.storage.models import Page, Revision
 

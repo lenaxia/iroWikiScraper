@@ -1,12 +1,13 @@
 """Tests for IncrementalFileScraper."""
 
-import pytest
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 
 from scraper.incremental.file_scraper import IncrementalFileScraper
-from scraper.incremental.models import FileInfo, FileChangeSet
+from scraper.incremental.models import FileChangeSet, FileInfo
 from scraper.storage.models import FileMetadata
 
 

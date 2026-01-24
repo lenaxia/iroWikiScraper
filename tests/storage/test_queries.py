@@ -9,25 +9,25 @@ Tests cover:
 - Edge cases and NULL handling
 """
 
-import pytest
 from datetime import datetime, timedelta
+
+import pytest
+
 from scraper.storage.database import Database
-from scraper.storage.queries import (
-    # Timeline functions
-    get_page_at_time,
-    list_pages_at_time,
-    get_changes_in_range,
-    get_page_history,
-    Change,
-    # Statistics functions
-    get_db_stats,
-    get_page_stats,
-    get_namespace_stats,
-    get_contributor_stats,
-    get_activity_timeline,
-    NamespaceStats,
-    ContributorStats,
+from scraper.storage.queries import (  # Timeline functions; Statistics functions
     ActivityPoint,
+    Change,
+    ContributorStats,
+    NamespaceStats,
+    get_activity_timeline,
+    get_changes_in_range,
+    get_contributor_stats,
+    get_db_stats,
+    get_namespace_stats,
+    get_page_at_time,
+    get_page_history,
+    get_page_stats,
+    list_pages_at_time,
 )
 
 
