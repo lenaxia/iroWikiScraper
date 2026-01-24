@@ -14,7 +14,6 @@ Tests the FileRepository class for:
 
 from datetime import datetime
 
-import pytest
 
 from scraper.storage.file_repository import FileRepository
 from scraper.storage.models import FileMetadata

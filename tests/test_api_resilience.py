@@ -4,7 +4,6 @@ import logging
 
 import pytest
 
-from scraper.api.client import MediaWikiAPIClient
 from scraper.api.exceptions import APIResponseError
 from scraper.scrapers.page_scraper import PageDiscovery
 from tests.mocks.mock_http_session import MockResponse

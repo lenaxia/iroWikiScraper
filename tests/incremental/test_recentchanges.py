@@ -5,7 +5,6 @@ from unittest.mock import Mock
 
 import pytest
 
-from scraper.api.exceptions import APIError
 from scraper.api.recentchanges import RecentChange, RecentChangesClient
 
 
@@ -208,7 +207,7 @@ class TestRecentChangesClient:
         start = datetime(2026, 1, 1, tzinfo=timezone.utc)
         end = datetime(2026, 1, 31, tzinfo=timezone.utc)
 
-        changes = rc_client.get_recent_changes(start, end, namespace=0)
+        changes = rc_client.get_recent_changes(start, end, namespace=0)  # noqa: F841
 
         # Check namespace parameter was passed
         call_args = mock_api._request.call_args[0][1]
@@ -224,7 +223,7 @@ class TestRecentChangesClient:
         start = datetime(2026, 1, 1, tzinfo=timezone.utc)
         end = datetime(2026, 1, 31, tzinfo=timezone.utc)
 
-        changes = rc_client.get_recent_changes(start, end, change_type="edit")
+        changes = rc_client.get_recent_changes(start, end, change_type="edit")  # noqa: F841
 
         # Check type parameter was passed
         call_args = mock_api._request.call_args[0][1]

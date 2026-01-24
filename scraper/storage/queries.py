@@ -158,7 +158,7 @@ def list_pages_at_time(
         ...     print(f"{page.title}: {len(revision.content)} bytes")
     """
     sql = """
-        SELECT 
+        SELECT
             p.page_id,
             p.namespace,
             p.title,
@@ -167,15 +167,15 @@ def list_pages_at_time(
         FROM pages p
         INNER JOIN (
             -- Get latest revision before timestamp for each page
-            SELECT 
+            SELECT
                 page_id,
                 MAX(timestamp) as max_timestamp
             FROM revisions
             WHERE timestamp <= ?
             GROUP BY page_id
         ) latest ON p.page_id = latest.page_id
-        INNER JOIN revisions r 
-            ON r.page_id = latest.page_id 
+        INNER JOIN revisions r
+            ON r.page_id = latest.page_id
             AND r.timestamp = latest.max_timestamp
         ORDER BY p.namespace, p.title
         LIMIT ? OFFSET ?
@@ -231,7 +231,7 @@ def get_changes_in_range(
         ...     print(f"{change.timestamp}: {change.user} edited {change.page_title}")
     """
     sql = """
-        SELECT 
+        SELECT
             r.page_id,
             p.title as page_title,
             r.revision_id,
@@ -241,11 +241,11 @@ def get_changes_in_range(
             r.size as size,
             COALESCE(
                 r.size - (
-                    SELECT size 
-                    FROM revisions 
-                    WHERE page_id = r.page_id 
-                      AND timestamp < r.timestamp 
-                    ORDER BY timestamp DESC 
+                    SELECT size
+                    FROM revisions
+                    WHERE page_id = r.page_id
+                      AND timestamp < r.timestamp
+                    ORDER BY timestamp DESC
                     LIMIT 1
                 ),
                 r.size
@@ -327,7 +327,7 @@ def get_db_stats(connection: sqlite3.Connection) -> Dict[str, Any]:
         - last_edit: Timestamp of newest revision
     """
     sql = """
-        SELECT 
+        SELECT
             (SELECT COUNT(*) FROM pages) as total_pages,
             (SELECT COUNT(*) FROM revisions) as total_revisions,
             (SELECT COUNT(*) FROM files) as total_files,
@@ -383,13 +383,13 @@ def get_page_stats(connection: sqlite3.Connection, page_id: int) -> Dict[str, An
         - total_size: Current size in bytes
     """
     sql = """
-        SELECT 
+        SELECT
             COUNT(*) as revision_count,
             COUNT(DISTINCT user) as contributor_count,
             MIN(timestamp) as first_edit,
             MAX(timestamp) as last_edit,
             AVG(size) as avg_edit_size,
-            (SELECT size FROM revisions WHERE page_id = ? ORDER BY timestamp DESC LIMIT 1) as total_size
+            (SELECT size FROM revisions WHERE page_id = ? ORDER BY timestamp DESC LIMIT 1) as total_size  # noqa: E501
         FROM revisions
         WHERE page_id = ?
     """
@@ -419,7 +419,7 @@ def get_namespace_stats(connection: sqlite3.Connection) -> Dict[int, NamespaceSt
         Dictionary mapping namespace ID to NamespaceStats
     """
     sql = """
-        SELECT 
+        SELECT
             p.namespace,
             COUNT(DISTINCT p.page_id) as page_count,
             COUNT(r.revision_id) as revision_count,
@@ -458,7 +458,7 @@ def get_contributor_stats(
         List of ContributorStats, ordered by edit count descending
     """
     sql = """
-        SELECT 
+        SELECT
             user,
             COUNT(*) as edit_count,
             SUM(size) as total_bytes,
@@ -507,7 +507,7 @@ def get_activity_timeline(
     )
 
     sql = f"""
-        SELECT 
+        SELECT
             strftime('{date_format}', timestamp) as period,
             COUNT(*) as edit_count,
             COUNT(DISTINCT user) as contributor_count

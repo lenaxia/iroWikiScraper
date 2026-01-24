@@ -3,14 +3,14 @@
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Set
+from typing import Set
 
 from scraper.api.client import MediaWikiAPIClient
 from scraper.api.recentchanges import RecentChangesClient
 from scraper.incremental.change_detector import ChangeDetector
 from scraper.incremental.file_scraper import IncrementalFileScraper
 from scraper.incremental.link_scraper import IncrementalLinkScraper
-from scraper.incremental.models import ChangeSet, IncrementalStats, MovedPage
+from scraper.incremental.models import IncrementalStats, MovedPage
 from scraper.incremental.modified_page_detector import ModifiedPageDetector
 from scraper.incremental.new_page_detector import NewPageDetector
 from scraper.incremental.revision_scraper import IncrementalRevisionScraper
@@ -196,7 +196,7 @@ class IncrementalPageScraper:
                     continue
 
                 # Create page from first revision metadata
-                first_rev = revisions[0]
+                revisions[0]
                 page = Page(
                     page_id=page_id,
                     namespace=0,  # TODO: Get from API
@@ -211,7 +211,7 @@ class IncrementalPageScraper:
 
                 # Extract and store links from latest revision
                 latest_content = revisions[-1].content
-                links = self.link_extractor.extract_links(page_id, latest_content)
+                self.link_extractor.extract_links(page_id, latest_content)
                 # TODO: Store links
 
                 processed += 1
@@ -348,5 +348,3 @@ class IncrementalPageScraper:
 
 class FirstRunRequiresFullScrapeError(Exception):
     """Raised when incremental scrape attempted on empty database."""
-
-    pass

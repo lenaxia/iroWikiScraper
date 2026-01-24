@@ -1,7 +1,7 @@
 """Incremental link scraper for updating page links."""
 
 import logging
-from typing import Dict, List
+from typing import Dict
 
 from scraper.scrapers.link_extractor import LinkExtractor
 from scraper.storage.database import Database

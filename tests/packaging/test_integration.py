@@ -7,14 +7,11 @@ These tests validate end-to-end packaging scenarios including:
 - Release verification workflows
 """
 
-import json
-import shutil
 import tarfile
 from pathlib import Path
 
 import pytest
 
-from scraper.export.xml_exporter import XMLExporter
 from scraper.export.xml_validator import XMLValidator
 from scraper.packaging.checksums import verify_checksums
 from scraper.packaging.package import PackagingConfig, package_release
@@ -32,44 +29,44 @@ def populated_db(tmp_path):
     with db.get_connection() as conn:
         # Add multiple pages
         conn.execute(
-            "INSERT INTO pages (page_id, namespace, title, is_redirect) VALUES (1, 0, 'Main_Page', 0)"
+            "INSERT INTO pages (page_id, namespace, title, is_redirect) VALUES (1, 0, 'Main_Page', 0)"  # noqa: E501
         )
         conn.execute(
-            "INSERT INTO pages (page_id, namespace, title, is_redirect) VALUES (2, 0, 'Test_Page', 0)"
+            "INSERT INTO pages (page_id, namespace, title, is_redirect) VALUES (2, 0, 'Test_Page', 0)"  # noqa: E501
         )
         conn.execute(
-            "INSERT INTO pages (page_id, namespace, title, is_redirect) VALUES (3, 1, 'Talk:Main_Page', 0)"
+            "INSERT INTO pages (page_id, namespace, title, is_redirect) VALUES (3, 1, 'Talk:Main_Page', 0)"  # noqa: E501
         )
         conn.execute(
-            "INSERT INTO pages (page_id, namespace, title, is_redirect) VALUES (4, 6, 'File:Test.png', 0)"
+            "INSERT INTO pages (page_id, namespace, title, is_redirect) VALUES (4, 6, 'File:Test.png', 0)"  # noqa: E501
         )
         conn.execute(
-            "INSERT INTO pages (page_id, namespace, title, is_redirect) VALUES (5, 0, 'Redirect_Test', 1)"
+            "INSERT INTO pages (page_id, namespace, title, is_redirect) VALUES (5, 0, 'Redirect_Test', 1)"  # noqa: E501
         )
 
         # Add multiple revisions
         conn.execute("""
             INSERT INTO revisions (revision_id, page_id, parent_id, timestamp,
                 user, user_id, comment, content, size, sha1, minor, tags)
-            VALUES (1, 1, NULL, '2024-01-01T00:00:00Z', 'Admin', 1, 'Initial creation', 
+            VALUES (1, 1, NULL, '2024-01-01T00:00:00Z', 'Admin', 1, 'Initial creation',
                     'Welcome to the wiki!', 20, 'abc123def456789012345678901234567890abcd', 0, NULL)
             """)
         conn.execute("""
             INSERT INTO revisions (revision_id, page_id, parent_id, timestamp,
                 user, user_id, comment, content, size, sha1, minor, tags)
-            VALUES (2, 1, 1, '2024-01-02T00:00:00Z', 'Editor', 2, 'Updated content', 
-                    'Welcome to the wiki! Updated.', 29, 'def456abc789012345678901234567890abcdef0', 0, NULL)
+            VALUES (2, 1, 1, '2024-01-02T00:00:00Z', 'Editor', 2, 'Updated content',
+                    'Welcome to the wiki! Updated.', 29, 'def456abc789012345678901234567890abcdef0', 0, NULL)  # noqa: E501
             """)
         conn.execute("""
             INSERT INTO revisions (revision_id, page_id, parent_id, timestamp,
                 user, user_id, comment, content, size, sha1, minor, tags)
-            VALUES (3, 2, NULL, '2024-01-03T00:00:00Z', 'Contributor', 3, 'New test page', 
+            VALUES (3, 2, NULL, '2024-01-03T00:00:00Z', 'Contributor', 3, 'New test page',
                     'This is a test page.', 19, '123456789abcdef0123456789abcdef012345678', 0, NULL)
             """)
 
         # Add files
         conn.execute("""
-            INSERT INTO files (filename, timestamp, uploader, size, width, height, sha1, mime_type, url, descriptionurl)
+            INSERT INTO files (filename, timestamp, uploader, size, width, height, sha1, mime_type, url, descriptionurl)  # noqa: E501
             VALUES ('Test.png', '2024-01-01T00:00:00Z', 'Admin', 1024, 100, 100,
                     'abcdef0123456789abcdef0123456789abcdef01', 'image/png',
                     'https://irowiki.org/~iro/images/Test.png',
@@ -426,7 +423,7 @@ class TestReleaseVerificationWorkflow:
         builder.create_readme(release_dir, "2026.01")
 
         # Re-verify (should still fail due to checksum mismatch)
-        verification3 = verify_release(release_dir)
+        verify_release(release_dir)
         # This might fail because checksums don't match
         # In real scenario, would need to regenerate checksums
 
@@ -449,7 +446,7 @@ class TestArchiveExtractAndVerify:
             split_large=False,
         )
 
-        results = package_release(config)
+        package_release(config)
 
         # Extract archive
         archive_path = output_dir / "irowiki-archive-2026.01.tar.gz"

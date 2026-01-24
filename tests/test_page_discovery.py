@@ -1,6 +1,5 @@
 """Tests for page discovery functionality."""
 
-from pathlib import Path
 
 import pytest
 

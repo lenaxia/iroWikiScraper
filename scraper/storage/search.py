@@ -67,7 +67,7 @@ def search(
     # FTS5 query with BM25 ranking and snippet extraction
     # snippet() parameters: column, start_tag, end_tag, ellipsis, max_tokens
     sql = """
-        SELECT 
+        SELECT
             pf.page_id,
             pf.title,
             snippet(pages_fts, 2, '<mark>', '</mark>', '...', 32) as snippet,
@@ -112,7 +112,7 @@ def search_titles(
         >>> search_titles(db, "prontera")
     """
     sql = """
-        SELECT 
+        SELECT
             pf.page_id,
             pf.title,
             '' as snippet,
@@ -159,7 +159,7 @@ def index_page(connection: sqlite3.Connection, page_id: int) -> None:
     connection.execute(
         """
         INSERT INTO pages_fts (page_id, title, content)
-        SELECT 
+        SELECT
             p.page_id,
             p.title,
             (
@@ -201,7 +201,7 @@ def rebuild_index(connection: sqlite3.Connection) -> None:
     # Repopulate with latest revisions
     connection.execute("""
         INSERT INTO pages_fts (page_id, title, content)
-        SELECT 
+        SELECT
             p.page_id,
             p.title,
             (

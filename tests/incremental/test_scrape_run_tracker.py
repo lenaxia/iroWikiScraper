@@ -1,8 +1,7 @@
 """Tests for ScrapeRunTracker."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
-import pytest
 
 from scraper.incremental.scrape_run_tracker import ScrapeRunTracker
 

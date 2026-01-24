@@ -37,8 +37,8 @@ class RevisionRepository:
 
         self.conn.execute(
             """
-            INSERT OR REPLACE INTO revisions 
-            (revision_id, page_id, parent_id, timestamp, user, user_id, 
+            INSERT OR REPLACE INTO revisions
+            (revision_id, page_id, parent_id, timestamp, user, user_id,
              comment, content, size, sha1, minor, tags)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
@@ -90,8 +90,8 @@ class RevisionRepository:
 
         self.conn.executemany(
             """
-            INSERT OR REPLACE INTO revisions 
-            (revision_id, page_id, parent_id, timestamp, user, user_id, 
+            INSERT OR REPLACE INTO revisions
+            (revision_id, page_id, parent_id, timestamp, user, user_id,
              comment, content, size, sha1, minor, tags)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,

@@ -35,7 +35,7 @@ class TestFTS5Setup:
 
         # Check if pages_fts table exists
         cursor = conn.execute("""
-            SELECT name FROM sqlite_master 
+            SELECT name FROM sqlite_master
             WHERE type='table' AND name='pages_fts'
         """)
         result = cursor.fetchone()
@@ -49,7 +49,7 @@ class TestFTS5Setup:
 
         # Check for triggers
         cursor = conn.execute("""
-            SELECT name FROM sqlite_master 
+            SELECT name FROM sqlite_master
             WHERE type='trigger' AND name LIKE '%fts%'
         """)
         triggers = [row[0] for row in cursor.fetchall()]
@@ -84,37 +84,43 @@ class TestBasicSearch:
 
         # Insert revisions with content
         revisions_data = [
-            (
-                1,
-                1,
-                None,
-                datetime(2024, 1, 1),
+            (1,
+             1,
+             None,
+             datetime(
+                 2024,
+                 1,
+                 1),
                 "User1",
                 None,
-                "Prontera is the capital city of the Rune-Midgarts Kingdom. It is a bustling trade hub.",
+                "Prontera is the capital city of the Rune-Midgarts Kingdom. It is a bustling trade hub.",  # noqa: E501
                 80,
                 "abc1",
                 False,
                 None,
-            ),
-            (
-                2,
-                2,
-                None,
-                datetime(2024, 1, 2),
+             ),
+            (2,
+             2,
+             None,
+             datetime(
+                 2024,
+                 1,
+                 2),
                 "User2",
                 None,
-                "Geffen is the magical city of wizards and mages. Many magic shops are located here.",
+                "Geffen is the magical city of wizards and mages. Many magic shops are located here.",  # noqa: E501
                 85,
                 "abc2",
                 False,
                 None,
-            ),
-            (
-                3,
-                3,
-                None,
-                datetime(2024, 1, 3),
+             ),
+            (3,
+             3,
+             None,
+             datetime(
+                 2024,
+                 1,
+                 3),
                 "User3",
                 None,
                 "Payon is a small village nestled in the mountains. It is known for archers.",
@@ -122,26 +128,28 @@ class TestBasicSearch:
                 "abc3",
                 False,
                 None,
-            ),
-            (
-                4,
-                4,
-                None,
-                datetime(2024, 1, 4),
-                "User4",
-                None,
-                "Morocc is a desert city with bazaars and merchants. The pyramid is nearby.",
-                76,
-                "abc4",
-                False,
-                None,
-            ),
+             ),
+            (4,
+             4,
+             None,
+             datetime(
+                 2024,
+                 1,
+                 4),
+             "User4",
+             None,
+             "Morocc is a desert city with bazaars and merchants. The pyramid is nearby.",
+             76,
+             "abc4",
+             False,
+             None,
+             ),
         ]
 
         for rev_data in revisions_data:
             conn.execute(
                 """
-                INSERT INTO revisions 
+                INSERT INTO revisions
                 (revision_id, page_id, parent_id, timestamp, user, user_id,
                  content, size, sha1, minor, tags)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -226,7 +234,7 @@ class TestBooleanQueries:
         # Insert revisions with specific content for boolean tests
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
             VALUES (1, 1, NULL, ?, 'User1', NULL,
@@ -237,7 +245,7 @@ class TestBooleanQueries:
 
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
             VALUES (2, 2, NULL, ?, 'User2', NULL,
@@ -248,7 +256,7 @@ class TestBooleanQueries:
 
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
             VALUES (3, 3, NULL, ?, 'User3', NULL,
@@ -311,7 +319,7 @@ class TestPhraseSearch:
 
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
             VALUES (1, 1, NULL, ?, 'User1', NULL,
@@ -322,7 +330,7 @@ class TestPhraseSearch:
 
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
             VALUES (2, 2, NULL, ?, 'User2', NULL,
@@ -367,7 +375,7 @@ class TestRankingAndSnippets:
         # Page 1: Keyword appears once
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
             VALUES (1, 1, NULL, ?, 'User1', NULL,
@@ -379,11 +387,11 @@ class TestRankingAndSnippets:
         # Page 2: Keyword appears multiple times (more relevant)
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
             VALUES (2, 2, NULL, ?, 'User2', NULL,
-                    'Knights are warriors. Knights fight with swords. Many knights live here.', 
+                    'Knights are warriors. Knights fight with swords. Many knights live here.',
                     72, 'abc2', 0, NULL)
         """,
             (datetime(2024, 1, 2),),
@@ -392,7 +400,7 @@ class TestRankingAndSnippets:
         # Page 3: No keyword
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
             VALUES (3, 3, NULL, ?, 'User3', NULL,
@@ -470,7 +478,7 @@ class TestTitleSearch:
         for i in range(1, 4):
             conn.execute(
                 """
-                INSERT INTO revisions 
+                INSERT INTO revisions
                 (revision_id, page_id, parent_id, timestamp, user, user_id,
                  content, size, sha1, minor, tags)
                 VALUES (?, ?, NULL, ?, 'User1', NULL,
@@ -517,7 +525,7 @@ class TestIndexMaintenance:
         )
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
             VALUES (1, 1, NULL, ?, 'User1', NULL, 'Test content', 12, 'abc1', 0, NULL)
@@ -543,7 +551,7 @@ class TestIndexMaintenance:
         )
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
             VALUES (1, 1, NULL, ?, 'User1', NULL, 'Original content', 16, 'abc1', 0, NULL)
@@ -570,7 +578,7 @@ class TestIndexMaintenance:
         )
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
             VALUES (1, 1, NULL, ?, 'User1', NULL, 'Content', 7, 'abc1', 0, NULL)
@@ -602,7 +610,7 @@ class TestTriggers:
         # Insert revision (should trigger FTS update)
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
             VALUES (1, 1, NULL, ?, 'User1', NULL, 'Searchable content', 18, 'abc1', 0, NULL)
@@ -626,7 +634,7 @@ class TestTriggers:
         )
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
             VALUES (1, 1, NULL, ?, 'User1', NULL, 'Content', 7, 'abc1', 0, NULL)
@@ -655,7 +663,7 @@ class TestTriggers:
         )
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
             VALUES (1, 1, NULL, ?, 'User1', NULL, 'Content', 7, 'abc1', 0, NULL)
@@ -703,11 +711,11 @@ class TestEdgeCases:
         )
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              content, size, sha1, minor, tags)
-            VALUES (1, 1, NULL, ?, 'User1', NULL, 
-                    'Content with special chars: @#$% and numbers 123', 
+            VALUES (1, 1, NULL, ?, 'User1', NULL,
+                    'Content with special chars: @#$% and numbers 123',
                     50, 'abc1', 0, NULL)
         """,
             (datetime(2024, 1, 1),),
@@ -716,7 +724,7 @@ class TestEdgeCases:
 
         # Should handle special characters gracefully
         try:
-            results = search(conn, "special")
+            search(conn, "special")
             # May or may not find results depending on tokenization
         except sqlite3.OperationalError:
             # FTS5 may reject certain special characters

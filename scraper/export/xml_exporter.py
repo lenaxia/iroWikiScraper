@@ -5,7 +5,6 @@ from a database to a file, handling large databases efficiently.
 """
 
 from pathlib import Path
-from typing import Optional, TextIO
 
 from tqdm import tqdm
 

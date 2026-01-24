@@ -1,16 +1,13 @@
 """Tests for IncrementalPageScraper - the main orchestrator."""
 
 from datetime import datetime
-from pathlib import Path
-from typing import Set
-from unittest.mock import MagicMock, Mock, call, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
 from scraper.incremental.models import (
     ChangeSet,
     FileChangeSet,
-    IncrementalStats,
     MovedPage,
     PageUpdateInfo,
 )
@@ -199,7 +196,7 @@ class TestScrapeIncrementalWorkflow:
                     with patch.object(
                         page_scraper.run_tracker, "complete_scrape_run"
                     ) as mock_complete:
-                        stats = page_scraper.scrape_incremental()
+                        page_scraper.scrape_incremental()
 
                         # Verify run lifecycle
                         mock_create.assert_called_once_with("incremental")

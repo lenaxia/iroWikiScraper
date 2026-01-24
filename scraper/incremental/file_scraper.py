@@ -2,7 +2,6 @@
 
 import logging
 from pathlib import Path
-from typing import Dict
 
 from scraper.api.client import MediaWikiAPIClient
 from scraper.incremental.models import FileChangeSet, FileInfo

@@ -2,11 +2,9 @@
 
 from datetime import datetime
 
-import pytest
 
 from scraper.incremental.verification import IncrementalVerifier
-from scraper.storage.link_storage import LinkStorage
-from scraper.storage.models import Link, Page, Revision
+from scraper.storage.models import Page, Revision
 from scraper.storage.page_repository import PageRepository
 from scraper.storage.revision_repository import RevisionRepository
 

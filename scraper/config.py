@@ -23,7 +23,7 @@ Example:
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Union
 
 import yaml
 
@@ -32,8 +32,6 @@ logger = logging.getLogger(__name__)
 
 class ConfigError(Exception):
     """Raised when configuration is invalid or cannot be loaded."""
-
-    pass
 
 
 @dataclass
@@ -300,8 +298,9 @@ class Config:
         valid_log_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         if self.logging.level not in valid_log_levels:
             errors.append(
-                f"Invalid log level: {self.logging.level}. Must be one of: {', '.join(valid_log_levels)}"
-            )
+                f"Invalid log level: {
+                    self.logging.level}. Must be one of: {
+                    ', '.join(valid_log_levels)}")
 
         # Raise if any errors
         if errors:

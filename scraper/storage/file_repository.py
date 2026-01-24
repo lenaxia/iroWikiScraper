@@ -34,7 +34,7 @@ class FileRepository:
         self.conn.execute(
             """
             INSERT OR REPLACE INTO files
-            (filename, url, descriptionurl, sha1, size, width, height, 
+            (filename, url, descriptionurl, sha1, size, width, height,
              mime_type, timestamp, uploader)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
@@ -83,7 +83,7 @@ class FileRepository:
         self.conn.executemany(
             """
             INSERT OR REPLACE INTO files
-            (filename, url, descriptionurl, sha1, size, width, height, 
+            (filename, url, descriptionurl, sha1, size, width, height,
              mime_type, timestamp, uploader)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,

@@ -5,7 +5,6 @@ This module creates the standard release directory structure for iRO Wiki archiv
 
 import shutil
 from pathlib import Path
-from typing import Optional
 
 
 class ReleaseBuilder:
@@ -71,7 +70,6 @@ The scraper and tooling are MIT licensed.
 
     def __init__(self):
         """Initialize release builder."""
-        pass
 
     def create_release_directory(
         self,

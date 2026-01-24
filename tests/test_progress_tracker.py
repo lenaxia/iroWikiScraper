@@ -2,8 +2,6 @@
 
 import logging
 from io import StringIO
-from pathlib import Path
-from typing import List
 
 import pytest
 
@@ -400,7 +398,7 @@ class TestProgressTrackerETA:
             tracker.update_page(revision_count=1)
             mock_time_module.advance(2.0)
 
-        eta1 = tracker.get_eta()
+        tracker.get_eta()
 
         # Speed up - 5 more pages in 5 seconds
         for i in range(5):

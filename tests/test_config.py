@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 
 import pytest
-import yaml
 
 from scraper.config import Config, ConfigError
 

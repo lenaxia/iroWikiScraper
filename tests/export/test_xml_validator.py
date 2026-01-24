@@ -1,15 +1,11 @@
 """Tests for XML validator."""
 
-from datetime import datetime
-from pathlib import Path
-from xml.etree import ElementTree as ET
 
 import pytest
 
 from scraper.export.xml_exporter import XMLExporter
 from scraper.export.xml_validator import ValidationReport, XMLValidator
 from scraper.storage.database import Database
-from scraper.storage.models import Page, Revision
 
 
 @pytest.fixture
@@ -44,7 +40,7 @@ def test_db(tmp_path):
                 revision_id, page_id, parent_id, timestamp,
                 user, user_id, comment, content, size, sha1, minor, tags
             ) VALUES
-                (100, 1, NULL, '2024-01-15T10:00:00', 'User1', 1, 'Test', 'Content', 7, 'abc123def456789012345678901234567890abcd', 0, NULL)
+                (100, 1, NULL, '2024-01-15T10:00:00', 'User1', 1, 'Test', 'Content', 7, 'abc123def456789012345678901234567890abcd', 0, NULL)  # noqa: E501
             """)
         conn.commit()
 
@@ -146,7 +142,7 @@ class TestXMLValidator:
         """Test validating XML with missing siteinfo."""
         xml_content = (
             '<?xml version="1.0"?>'
-            f'<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
+            '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
             "</mediawiki>"
         )
         xml_file = tmp_path / "no_siteinfo.xml"
@@ -159,7 +155,7 @@ class TestXMLValidator:
         """Test validating XML with missing version attribute."""
         xml_content = (
             '<?xml version="1.0"?>'
-            f'<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/">'
+            '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/">'
             "<siteinfo><sitename>Test</sitename><dbname>test</dbname>"
             "<base>http://test.com</base><generator>Test</generator>"
             "<case>first-letter</case><namespaces></namespaces></siteinfo>"
@@ -175,7 +171,7 @@ class TestXMLValidator:
         """Test validating XML with missing main namespace."""
         xml_content = (
             '<?xml version="1.0"?>'
-            f'<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
+            '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
             "<siteinfo><sitename>Test</sitename><dbname>test</dbname>"
             "<base>http://test.com</base><generator>Test</generator>"
             "<case>first-letter</case>"
@@ -194,7 +190,7 @@ class TestXMLValidator:
         """Test validating page with missing title."""
         xml_content = (
             '<?xml version="1.0"?>'
-            f'<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
+            '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
             "<siteinfo><sitename>Test</sitename><dbname>test</dbname>"
             "<base>http://test.com</base><generator>Test</generator>"
             "<case>first-letter</case>"
@@ -212,7 +208,7 @@ class TestXMLValidator:
         """Test validating page with empty title."""
         xml_content = (
             '<?xml version="1.0"?>'
-            f'<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
+            '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
             "<siteinfo><sitename>Test</sitename><dbname>test</dbname>"
             "<base>http://test.com</base><generator>Test</generator>"
             "<case>first-letter</case>"
@@ -230,7 +226,7 @@ class TestXMLValidator:
         """Test validating page with invalid namespace."""
         xml_content = (
             '<?xml version="1.0"?>'
-            f'<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
+            '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
             "<siteinfo><sitename>Test</sitename><dbname>test</dbname>"
             "<base>http://test.com</base><generator>Test</generator>"
             "<case>first-letter</case>"
@@ -248,7 +244,7 @@ class TestXMLValidator:
         """Test validating page with negative ID."""
         xml_content = (
             '<?xml version="1.0"?>'
-            f'<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
+            '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
             "<siteinfo><sitename>Test</sitename><dbname>test</dbname>"
             "<base>http://test.com</base><generator>Test</generator>"
             "<case>first-letter</case>"
@@ -266,7 +262,7 @@ class TestXMLValidator:
         """Test validating revision with invalid timestamp."""
         xml_content = (
             '<?xml version="1.0"?>'
-            f'<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
+            '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
             "<siteinfo><sitename>Test</sitename><dbname>test</dbname>"
             "<base>http://test.com</base><generator>Test</generator>"
             "<case>first-letter</case>"
@@ -288,7 +284,7 @@ class TestXMLValidator:
         """Test validating revision with missing text element."""
         xml_content = (
             '<?xml version="1.0"?>'
-            f'<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
+            '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
             "<siteinfo><sitename>Test</sitename><dbname>test</dbname>"
             "<base>http://test.com</base><generator>Test</generator>"
             "<case>first-letter</case>"
@@ -310,7 +306,7 @@ class TestXMLValidator:
         """Test validating revision with invalid SHA1 length."""
         xml_content = (
             '<?xml version="1.0"?>'
-            f'<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
+            '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
             "<siteinfo><sitename>Test</sitename><dbname>test</dbname>"
             "<base>http://test.com</base><generator>Test</generator>"
             "<case>first-letter</case>"
@@ -332,7 +328,7 @@ class TestXMLValidator:
         """Test validating XML with no pages generates warning."""
         xml_content = (
             '<?xml version="1.0"?>'
-            f'<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
+            '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11">'
             "<siteinfo><sitename>Test</sitename><dbname>test</dbname>"
             "<base>http://test.com</base><generator>Test</generator>"
             "<case>first-letter</case>"

@@ -5,7 +5,7 @@ This module provides verification tools to check release archives.
 
 import json
 from pathlib import Path
-from typing import Dict, List
+from typing import List
 
 from scraper.export.xml_validator import XMLValidator
 from scraper.packaging.checksums import verify_checksums

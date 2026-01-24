@@ -9,7 +9,7 @@ Tests cover:
 - Edge cases and NULL handling
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pytest
 
@@ -180,7 +180,7 @@ class TestTimelineQueries:
                 INSERT INTO revisions
                 (revision_id, page_id, parent_id, timestamp, user, user_id, comment,
                  content, size, sha1, minor, tags)
-                VALUES (?, ?, NULL, '2024-01-01T10:00:00', 'User', 1, '', 'Content', 7, 'abc', 0, NULL)
+                VALUES (?, ?, NULL, '2024-01-01T10:00:00', 'User', 1, '', 'Content', 7, 'abc', 0, NULL)  # noqa: E501
             """,
                 (i * 10, i),
             )
@@ -224,8 +224,7 @@ class TestStatisticsQueries:
         for i in range(1, 11):
             namespace = 0 if i <= 5 else 1
             conn.execute(
-                f"INSERT INTO pages (page_id, namespace, title) VALUES ({i}, {namespace}, 'Page{i}')"
-            )
+                f"INSERT INTO pages (page_id, namespace, title) VALUES ({i}, {namespace}, 'Page{i}')")  # noqa: E501
 
         # Insert revisions with varied data
         for page_id in range(1, 11):

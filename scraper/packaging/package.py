@@ -4,7 +4,6 @@ This module provides the main package_release() function that orchestrates
 the complete release packaging workflow.
 """
 
-from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -79,7 +78,7 @@ def package_release(config: PackagingConfig) -> dict:
         OSError: If packaging fails
     """
     print("=" * 70)
-    print(f"iRO Wiki Release Packager v1.0")
+    print("iRO Wiki Release Packager v1.0")
     print(f"Version: {config.version}")
     print("=" * 70)
     print()
@@ -141,7 +140,7 @@ def package_release(config: PackagingConfig) -> dict:
     manifest = manifest_gen.generate_manifest(config.version, release_dir, checksums)
     manifest_gen.write_manifest(manifest, release_dir / "MANIFEST.json")
     results["manifest"] = manifest
-    print(f"  ✓ Manifest created")
+    print("  ✓ Manifest created")
     print(f"     - Pages: {manifest['statistics']['total_pages']}")
     print(f"     - Revisions: {manifest['statistics']['total_revisions']}")
     print(f"     - Files: {manifest['statistics']['total_files']}")
@@ -150,7 +149,7 @@ def package_release(config: PackagingConfig) -> dict:
     # Step 7: Create README
     print("[7/10] Creating README...")
     builder.create_readme(release_dir, config.version)
-    print(f"  ✓ README.txt created")
+    print("  ✓ README.txt created")
     print()
 
     # Step 8: Compress (if enabled)
@@ -194,12 +193,12 @@ def package_release(config: PackagingConfig) -> dict:
     }
 
     if verification.is_valid:
-        print(f"  ✓ Verification PASSED")
+        print("  ✓ Verification PASSED")
         print(f"     - {len(verification.checks_passed)} checks passed")
         if verification.warning_count > 0:
             print(f"     - {verification.warning_count} warnings")
     else:
-        print(f"  ✗ Verification FAILED")
+        print("  ✗ Verification FAILED")
         print(f"     - {verification.error_count} errors")
         for error in verification.errors[:3]:
             print(f"       • {error.message}")

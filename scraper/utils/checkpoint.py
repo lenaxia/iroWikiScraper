@@ -27,7 +27,7 @@ import json
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, Set
 
 logger = logging.getLogger(__name__)
 
@@ -317,7 +317,7 @@ class Checkpoint:
         Example:
             >>> checkpoint = Checkpoint(Path("checkpoint.json"))
             >>> phase = checkpoint.get_phase()
-            >>> assert phase in ["scraping_pages", "downloading_files", "extracting_links", "complete"]
+            >>> assert phase in ["scraping_pages", "downloading_files", "extracting_links", "complete"]  # noqa: E501
         """
         return self.data.get("phase", "scraping_pages")
 

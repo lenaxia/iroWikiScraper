@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Union
 
 from .client import MediaWikiAPIClient
-from .exceptions import APIError
 
 logger = logging.getLogger(__name__)
 

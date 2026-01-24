@@ -73,7 +73,7 @@ class MockResponse:
         """
         content = self.content
         for i in range(0, len(content), chunk_size):
-            yield content[i : i + chunk_size]
+            yield content[i: i + chunk_size]
 
 
 class MockSession:

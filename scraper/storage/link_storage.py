@@ -112,7 +112,9 @@ class LinkStorage:
         if not links:
             return 0
 
-        data = [(l.source_page_id, l.target_title, l.link_type) for l in links]
+        data = [
+            (link.source_page_id, link.target_title, link.link_type) for link in links
+        ]
 
         # Get count before insert
         count_before = self.get_link_count()

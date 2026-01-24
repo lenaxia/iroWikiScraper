@@ -1,13 +1,11 @@
 """Tests for IncrementalRevisionScraper."""
 
 from datetime import datetime, timezone
-from unittest.mock import MagicMock, Mock
+from unittest.mock import Mock
 
-import pytest
 
 from scraper.incremental.models import PageUpdateInfo
 from scraper.incremental.revision_scraper import IncrementalRevisionScraper
-from scraper.storage.models import Revision
 
 
 class TestIncrementalRevisionScraper:

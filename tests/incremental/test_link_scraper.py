@@ -1,11 +1,10 @@
 """Tests for IncrementalLinkScraper."""
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
 import pytest
 
 from scraper.incremental.link_scraper import IncrementalLinkScraper
-from scraper.storage.models import Link
 
 
 class TestIncrementalLinkScraper:

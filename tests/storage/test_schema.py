@@ -14,7 +14,6 @@ Tests all SQL schema files (001-005) for:
 import os
 import sqlite3
 import tempfile
-from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -354,10 +353,9 @@ def test_files_insert_image(tmp_database, schema_dir):
     load_schema(conn, schema_dir / "003_files.sql")
 
     conn.execute(
-        "INSERT INTO files (filename, url, descriptionurl, sha1, size, width, height, mime_type, timestamp, uploader) "
-        "VALUES ('Example.png', 'https://example.com/Example.png', 'https://example.com/File:Example.png', "
-        "'abc123', 12345, 800, 600, 'image/png', '2024-01-15 10:00:00', 'Alice')"
-    )
+        "INSERT INTO files (filename, url, descriptionurl, sha1, size, width, height, mime_type, timestamp, uploader) "  # noqa: E501
+        "VALUES ('Example.png', 'https://example.com/Example.png', 'https://example.com/File:Example.png', "  # noqa: E501
+        "'abc123', 12345, 800, 600, 'image/png', '2024-01-15 10:00:00', 'Alice')")
 
     cursor = conn.execute("SELECT * FROM files WHERE filename = 'Example.png'")
     row = cursor.fetchone()
@@ -373,9 +371,8 @@ def test_files_insert_non_image(tmp_database, schema_dir):
 
     conn.execute(
         "INSERT INTO files (filename, url, descriptionurl, sha1, size, mime_type, timestamp) "
-        "VALUES ('Document.pdf', 'https://example.com/Document.pdf', 'https://example.com/File:Document.pdf', "
-        "'def456', 54321, 'application/pdf', '2024-01-16 11:00:00')"
-    )
+        "VALUES ('Document.pdf', 'https://example.com/Document.pdf', 'https://example.com/File:Document.pdf', "  # noqa: E501
+        "'def456', 54321, 'application/pdf', '2024-01-16 11:00:00')")
 
     cursor = conn.execute("SELECT * FROM files WHERE filename = 'Document.pdf'")
     row = cursor.fetchone()
@@ -415,15 +412,13 @@ def test_files_check_constraints(tmp_database, schema_dir):
     with pytest.raises(sqlite3.IntegrityError, match="CHECK"):
         conn.execute(
             "INSERT INTO files (filename, url, descriptionurl, sha1, size, mime_type, timestamp) "
-            "VALUES ('Negative.png', 'http://test.com', 'http://test.com', 'abc', -100, 'image/png', '2024-01-01')"
-        )
+            "VALUES ('Negative.png', 'http://test.com', 'http://test.com', 'abc', -100, 'image/png', '2024-01-01')")  # noqa: E501
 
     # Zero width should fail
     with pytest.raises(sqlite3.IntegrityError, match="CHECK"):
         conn.execute(
-            "INSERT INTO files (filename, url, descriptionurl, sha1, size, width, height, mime_type, timestamp) "
-            "VALUES ('ZeroWidth.png', 'http://test.com', 'http://test.com', 'abc', 100, 0, 100, 'image/png', '2024-01-01')"
-        )
+            "INSERT INTO files (filename, url, descriptionurl, sha1, size, width, height, mime_type, timestamp) "  # noqa: E501
+            "VALUES ('ZeroWidth.png', 'http://test.com', 'http://test.com', 'abc', 100, 0, 100, 'image/png', '2024-01-01')")  # noqa: E501
 
     conn.close()
 
@@ -646,9 +641,8 @@ def test_scrape_runs_insert(tmp_database, schema_dir):
     load_schema(conn, schema_dir / "005_scrape_metadata.sql")
 
     conn.execute(
-        "INSERT INTO scrape_runs (start_time, status, pages_scraped, revisions_scraped, files_downloaded) "
-        "VALUES ('2024-01-15 10:00:00', 'running', 0, 0, 0)"
-    )
+        "INSERT INTO scrape_runs (start_time, status, pages_scraped, revisions_scraped, files_downloaded) "  # noqa: E501
+        "VALUES ('2024-01-15 10:00:00', 'running', 0, 0, 0)")
 
     cursor = conn.execute("SELECT * FROM scrape_runs WHERE run_id = 1")
     row = cursor.fetchone()
@@ -799,16 +793,14 @@ def test_full_workflow_simulation(tmp_database, schema_dir):
         "VALUES (100, 1, '2024-01-01 10:00:00', 'Alice', 'First revision', 14, 'abc123')"
     )
     conn.execute(
-        "INSERT INTO revisions (revision_id, page_id, parent_id, timestamp, user, content, size, sha1) "
-        "VALUES (101, 1, 100, '2024-01-02 11:00:00', 'Bob', 'Second revision', 15, 'def456')"
-    )
+        "INSERT INTO revisions (revision_id, page_id, parent_id, timestamp, user, content, size, sha1) "  # noqa: E501
+        "VALUES (101, 1, 100, '2024-01-02 11:00:00', 'Bob', 'Second revision', 15, 'def456')")
 
     # Insert files
     conn.execute(
-        "INSERT INTO files (filename, url, descriptionurl, sha1, size, width, height, mime_type, timestamp) "
-        "VALUES ('Example.png', 'https://example.com/Example.png', 'https://example.com/File:Example.png', "
-        "'abc123', 12345, 800, 600, 'image/png', '2024-01-15 10:00:00')"
-    )
+        "INSERT INTO files (filename, url, descriptionurl, sha1, size, width, height, mime_type, timestamp) "  # noqa: E501
+        "VALUES ('Example.png', 'https://example.com/Example.png', 'https://example.com/File:Example.png', "  # noqa: E501
+        "'abc123', 12345, 800, 600, 'image/png', '2024-01-15 10:00:00')")
 
     # Insert links
     conn.execute(

@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from scraper.storage.database import Database
-from scraper.storage.models import FileMetadata, Link, Page, Revision
+from scraper.storage.models import Page, Revision
 from scraper.storage.queries import (
     get_changes_in_range,
     get_db_stats,
@@ -74,7 +74,7 @@ class TestCompleteScrapeWorkflow:
 
                 conn.execute(
                     """
-                    INSERT INTO revisions 
+                    INSERT INTO revisions
                     (revision_id, page_id, parent_id, timestamp, user, user_id,
                      comment, content, size, sha1, minor, tags)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -90,9 +90,9 @@ class TestCompleteScrapeWorkflow:
 
         # Step 3: Query and verify
         cursor = conn.execute("""
-            SELECT * FROM revisions 
-            WHERE page_id = 1 
-            ORDER BY timestamp DESC 
+            SELECT * FROM revisions
+            WHERE page_id = 1
+            ORDER BY timestamp DESC
             LIMIT 1
         """)
         latest = Revision.from_db_row(cursor.fetchone())
@@ -136,7 +136,7 @@ class TestIncrementalUpdate:
 
                 conn.execute(
                     """
-                    INSERT INTO revisions 
+                    INSERT INTO revisions
                     (revision_id, page_id, parent_id, timestamp, user, user_id,
                      comment, content, size, sha1, minor, tags)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -168,7 +168,7 @@ class TestIncrementalUpdate:
 
             conn.execute(
                 """
-                INSERT INTO revisions 
+                INSERT INTO revisions
                 (revision_id, page_id, parent_id, timestamp, user, user_id,
                  comment, content, size, sha1, minor, tags)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -261,7 +261,7 @@ class TestSearchIntegration:
         for rev in revisions:
             conn.execute(
                 """
-                INSERT INTO revisions 
+                INSERT INTO revisions
                 (revision_id, page_id, parent_id, timestamp, user, user_id,
                  comment, content, size, sha1, minor, tags)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -320,7 +320,7 @@ class TestTimelineIntegration:
 
             conn.execute(
                 """
-                INSERT INTO revisions 
+                INSERT INTO revisions
                 (revision_id, page_id, parent_id, timestamp, user, user_id,
                  comment, content, size, sha1, minor, tags)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -402,7 +402,7 @@ class TestPerformanceBenchmarks:
 
             conn.execute(
                 """
-                INSERT INTO revisions 
+                INSERT INTO revisions
                 (revision_id, page_id, parent_id, timestamp, user, user_id,
                  comment, content, size, sha1, minor, tags)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -447,7 +447,7 @@ class TestForeignKeyEnforcement:
 
             conn.execute(
                 """
-                INSERT INTO revisions 
+                INSERT INTO revisions
                 (revision_id, page_id, parent_id, timestamp, user, user_id,
                  comment, content, size, sha1, minor, tags)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -488,7 +488,7 @@ class TestForeignKeyEnforcement:
 
             conn.execute(
                 """
-                INSERT INTO revisions 
+                INSERT INTO revisions
                 (revision_id, page_id, parent_id, timestamp, user, user_id,
                  comment, content, size, sha1, minor, tags)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -550,7 +550,7 @@ class TestCrossComponentIntegration:
 
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              comment, content, size, sha1, minor, tags)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)

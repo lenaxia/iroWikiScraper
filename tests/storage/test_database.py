@@ -9,7 +9,6 @@ Tests the Database class for:
 - Error handling
 """
 
-import os
 import sqlite3
 from pathlib import Path
 
@@ -143,7 +142,7 @@ class TestConnectionManagement:
 
         # Insert test data
         conn.execute(
-            "INSERT INTO pages (namespace, title, is_redirect, created_at, updated_at) VALUES (?, ?, ?, datetime('now'), datetime('now'))",
+            "INSERT INTO pages (namespace, title, is_redirect, created_at, updated_at) VALUES (?, ?, ?, datetime('now'), datetime('now'))",  # noqa: E501
             (0, "Test", 0),
         )
         conn.commit()

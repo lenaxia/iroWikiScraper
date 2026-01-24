@@ -172,7 +172,10 @@ class NewPageInfo:
         }
 
     def __repr__(self) -> str:
-        return f"NewPageInfo(page_id={self.page_id}, title={self.title}, namespace={self.namespace})"
+        return f"NewPageInfo(page_id={
+            self.page_id}, title={
+            self.title}, namespace={
+            self.namespace})"
 
 
 @dataclass

@@ -1,14 +1,12 @@
 """MediaWiki API client for iRO Wiki scraper."""
 
 import logging
-import time
 from typing import Any, Dict, List, Optional
 
 import requests
 
 from .exceptions import (
     APIError,
-    APIRequestError,
     APIResponseError,
     ClientError,
     NetworkError,

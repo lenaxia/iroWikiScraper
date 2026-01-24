@@ -1,14 +1,11 @@
 """Tests for XML exporter."""
 
-from datetime import datetime
-from pathlib import Path
 from xml.etree import ElementTree as ET
 
 import pytest
 
 from scraper.export.xml_exporter import XMLExporter
 from scraper.storage.database import Database
-from scraper.storage.models import Page, Revision
 
 
 @pytest.fixture
@@ -37,11 +34,11 @@ def test_db(tmp_path):
                 revision_id, page_id, parent_id, timestamp,
                 user, user_id, comment, content, size, sha1, minor, tags
             ) VALUES
-                (100, 1, NULL, '2024-01-15T10:00:00', 'User1', 1, 'Initial', 'Main page content', 17, 'abc123def456789012345678901234567890abcd', 0, NULL),
-                (101, 1, 100, '2024-01-15T11:00:00', 'User2', 2, 'Update', 'Updated main page', 17, 'def456abc789012345678901234567890abcdef1', 0, NULL),
-                (200, 2, NULL, '2024-01-15T10:00:00', 'User1', 1, 'Created', 'Test page content', 17, 'aaa123def456789012345678901234567890abcd', 0, NULL),
-                (300, 3, NULL, '2024-01-15T10:00:00', 'User1', 1, 'Redirect', '#REDIRECT [[Main Page]]', 23, 'bbb123def456789012345678901234567890abcd', 0, NULL),
-                (400, 4, NULL, '2024-01-15T10:00:00', 'User1', 1, 'Template', '{{Template content}}', 20, 'ccc123def456789012345678901234567890abcd', 0, NULL)
+                (100, 1, NULL, '2024-01-15T10:00:00', 'User1', 1, 'Initial', 'Main page content', 17, 'abc123def456789012345678901234567890abcd', 0, NULL),  # noqa: E501
+                (101, 1, 100, '2024-01-15T11:00:00', 'User2', 2, 'Update', 'Updated main page', 17, 'def456abc789012345678901234567890abcdef1', 0, NULL),  # noqa: E501
+                (200, 2, NULL, '2024-01-15T10:00:00', 'User1', 1, 'Created', 'Test page content', 17, 'aaa123def456789012345678901234567890abcd', 0, NULL),  # noqa: E501
+                (300, 3, NULL, '2024-01-15T10:00:00', 'User1', 1, 'Redirect', '#REDIRECT [[Main Page]]', 23, 'bbb123def456789012345678901234567890abcd', 0, NULL),  # noqa: E501
+                (400, 4, NULL, '2024-01-15T10:00:00', 'User1', 1, 'Template', '{{Template content}}', 20, 'ccc123def456789012345678901234567890abcd', 0, NULL)  # noqa: E501
             """)
         conn.commit()
 

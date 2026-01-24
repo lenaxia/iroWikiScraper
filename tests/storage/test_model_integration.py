@@ -10,8 +10,6 @@ Tests cover:
 - Edge cases
 """
 
-import json
-import sqlite3
 from datetime import datetime
 
 import pytest
@@ -143,7 +141,7 @@ class TestRevisionIntegration:
 
         # Insert revision with all fields
         conn.execute("""
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              comment, content, size, sha1, minor, tags)
             VALUES (1, 1, NULL, '2024-01-15T10:00:00', 'Alice', 101,
@@ -226,7 +224,7 @@ class TestRevisionIntegration:
         # Insert
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              comment, content, size, sha1, minor, tags)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -276,7 +274,7 @@ class TestRevisionIntegration:
         # Insert
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              comment, content, size, sha1, minor, tags)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -321,7 +319,7 @@ class TestRevisionIntegration:
         # Insert
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              comment, content, size, sha1, minor, tags)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -365,7 +363,7 @@ class TestRevisionIntegration:
 
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              comment, content, size, sha1, minor, tags)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -391,7 +389,7 @@ class TestRevisionIntegration:
 
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              comment, content, size, sha1, minor, tags)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -419,7 +417,7 @@ class TestFileMetadataIntegration:
 
         # Insert file
         conn.execute("""
-            INSERT INTO files 
+            INSERT INTO files
             (filename, url, descriptionurl, sha1, size, width, height,
              mime_type, timestamp, uploader)
             VALUES ('Test.png', 'https://example.com/Test.png',
@@ -489,7 +487,7 @@ class TestFileMetadataIntegration:
         # Insert
         conn.execute(
             """
-            INSERT INTO files 
+            INSERT INTO files
             (filename, url, descriptionurl, sha1, size, width, height,
              mime_type, timestamp, uploader)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -535,7 +533,7 @@ class TestFileMetadataIntegration:
         # Insert
         conn.execute(
             """
-            INSERT INTO files 
+            INSERT INTO files
             (filename, url, descriptionurl, sha1, size, width, height,
              mime_type, timestamp, uploader)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -579,7 +577,7 @@ class TestLinkIntegration:
 
         # Retrieve and convert
         cursor = conn.execute("""
-            SELECT * FROM links 
+            SELECT * FROM links
             WHERE source_page_id = 1 AND target_title = 'Target Page'
         """)
         row = cursor.fetchone()
@@ -622,7 +620,7 @@ class TestLinkIntegration:
 
         # Retrieve
         cursor = conn.execute("""
-            SELECT * FROM links 
+            SELECT * FROM links
             WHERE source_page_id = 1 AND target_title = 'Round Trip Link'
         """)
         loaded = Link.from_db_row(cursor.fetchone())
@@ -694,7 +692,7 @@ class TestEdgeCases:
 
         conn.execute(
             """
-            INSERT INTO revisions 
+            INSERT INTO revisions
             (revision_id, page_id, parent_id, timestamp, user, user_id,
              comment, content, size, sha1, minor, tags)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)

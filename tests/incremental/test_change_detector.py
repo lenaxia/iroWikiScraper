@@ -3,7 +3,6 @@
 from datetime import datetime, timezone
 from unittest.mock import Mock
 
-import pytest
 
 from scraper.api.recentchanges import RecentChange
 from scraper.incremental.change_detector import ChangeDetector

@@ -1,7 +1,7 @@
 """Tests for file discovery functionality."""
 
 from datetime import datetime
-from unittest.mock import Mock, call, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -419,7 +419,7 @@ class TestFileDiscoverFiles:
         mock_session.set_response_sequence([MockResponse(200, json_data=data)])
 
         discovery = FileDiscovery(api_client, progress_interval=1)
-        files = discovery.discover_files()
+        discovery.discover_files()
 
         # Check that info logs were called
         assert mock_logger.info.called

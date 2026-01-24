@@ -5,8 +5,7 @@ into MediaWiki-compatible XML elements.
 """
 
 import html
-from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 from scraper.export.schema import (
     CONTENT_FORMAT,
@@ -76,8 +75,7 @@ class XMLGenerator:
             else:
                 escaped_name = XMLGenerator.escape_xml(ns_name)
                 namespaces_xml.append(
-                    f'    <namespace key="{ns_id}" case="{NAMESPACE_CASE}">{escaped_name}</namespace>'
-                )
+                    f'    <namespace key="{ns_id}" case="{NAMESPACE_CASE}">{escaped_name}</namespace>')  # noqa: E501
 
         return (
             "  <siteinfo>\n"
@@ -108,7 +106,9 @@ class XMLGenerator:
         # Build contributor XML
         contributor_xml = "      <contributor>\n"
         if revision.user:
-            contributor_xml += f"        <username>{XMLGenerator.escape_xml(revision.user)}</username>\n"
+            contributor_xml += f"        <username>{
+                XMLGenerator.escape_xml(
+                    revision.user)}</username>\n"
             if revision.user_id is not None:
                 contributor_xml += f"        <id>{revision.user_id}</id>\n"
         else:

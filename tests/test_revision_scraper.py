@@ -1,7 +1,5 @@
 """Tests for the RevisionScraper class."""
 
-import json
-from datetime import datetime
 
 import pytest
 

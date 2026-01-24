@@ -3,7 +3,6 @@
 from datetime import datetime
 from xml.etree import ElementTree as ET
 
-import pytest
 
 from scraper.export.xml_generator import XMLGenerator
 from scraper.storage.models import Page, Revision
@@ -221,7 +220,7 @@ class TestXMLGenerator:
 
         # Verify XML is valid (no unescaped characters)
         xml_str = "<root>" + revision_xml + "</root>"
-        root = ET.fromstring(xml_str)  # Should not raise
+        root = ET.fromstring(xml_str)  # Should not raise  # noqa: F841
 
         # Verify content is escaped
         assert "&lt;tags&gt;" in revision_xml

@@ -124,8 +124,9 @@ class Revision:
             # Parent ID should be less than current revision ID (temporal ordering)
             if self.parent_id >= self.revision_id:
                 raise ValueError(
-                    f"parent_id ({self.parent_id}) must be less than revision_id ({self.revision_id})"
-                )
+                    f"parent_id ({
+                        self.parent_id}) must be less than revision_id ({
+                        self.revision_id})")
 
         # Validate timestamp
         if not isinstance(self.timestamp, datetime):

@@ -309,7 +309,7 @@ class ScrapeRunTracker:
             >>> print(f"Success rate: {stats['completed_runs']}/{stats['total_runs']}")
         """
         query = """
-            SELECT 
+            SELECT
                 COUNT(*) as total_runs,
                 SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_runs,
                 SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed_runs,

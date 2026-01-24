@@ -1,8 +1,6 @@
 """Comprehensive tests for packaging modules."""
 
 import json
-import tarfile
-from pathlib import Path
 
 import pytest
 
@@ -33,7 +31,7 @@ def test_db(tmp_path):
         conn.execute("""
             INSERT INTO revisions (revision_id, page_id, parent_id, timestamp,
                 user, user_id, comment, content, size, sha1, minor, tags)
-            VALUES (1, 1, NULL, '2024-01-01T00:00:00', 'User', 1, 'Test', 'Content', 7, 
+            VALUES (1, 1, NULL, '2024-01-01T00:00:00', 'User', 1, 'Test', 'Content', 7,
                     'abc123def456789012345678901234567890abcd', 0, NULL)
             """)
         conn.commit()

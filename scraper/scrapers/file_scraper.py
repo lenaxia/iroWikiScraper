@@ -213,7 +213,7 @@ class DownloadStats:
         bytes_downloaded: Total bytes downloaded
 
     Example:
-        >>> stats = DownloadStats(total=100, downloaded=95, skipped=3, failed=2, bytes_downloaded=1024000)
+        >>> stats = DownloadStats(total=100, downloaded=95, skipped=3, failed=2, bytes_downloaded=1024000)  # noqa: E501
         >>> stats.downloaded
         95
     """
@@ -386,10 +386,10 @@ class FileDownloader:
                     # Delete corrupted file
                     file_path.unlink()
                     raise ValueError(
-                        f"SHA1 checksum mismatch for {file_meta.filename}. "
-                        f"Expected: {file_meta.sha1}, "
-                        f"Got: {self._calculate_sha1(file_path) if file_path.exists() else 'file deleted'}"
-                    )
+                        f"SHA1 checksum mismatch for {
+                            file_meta.filename}. " f"Expected: {
+                            file_meta.sha1}, " f"Got: {
+                            self._calculate_sha1(file_path) if file_path.exists() else 'file deleted'}")  # noqa: E501
 
                 logger.info(f"Verified checksum for {file_meta.filename}")
                 return file_path
@@ -397,8 +397,9 @@ class FileDownloader:
             except (requests.Timeout, requests.ConnectionError) as e:
                 if attempt == self.max_retries - 1:
                     logger.error(
-                        f"Failed to download {file_meta.filename} after {self.max_retries} attempts: {e}"
-                    )
+                        f"Failed to download {
+                            file_meta.filename} after {
+                            self.max_retries} attempts: {e}")
                     raise
 
                 wait_time = 2**attempt  # Exponential backoff

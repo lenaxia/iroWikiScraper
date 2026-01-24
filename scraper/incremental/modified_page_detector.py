@@ -53,7 +53,7 @@ class ModifiedPageDetector:
             >>> print(f"Fetch revisions after {info.highest_revision_id}")
         """
         query = """
-            SELECT 
+            SELECT
                 p.page_id,
                 p.namespace,
                 p.title,
@@ -131,7 +131,7 @@ class ModifiedPageDetector:
         # Build query with IN clause
         placeholders = ",".join("?" * len(page_ids))
         query = f"""
-            SELECT 
+            SELECT
                 p.page_id,
                 p.namespace,
                 p.title,

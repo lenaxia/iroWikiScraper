@@ -115,8 +115,8 @@ class PaginatedQuery:
         for i, element in enumerate(result_path):
             if not isinstance(element, str):
                 raise ValueError(
-                    f"result_path elements must be strings, got: {type(element).__name__} at index {i}"
-                )
+                    f"result_path elements must be strings, got: {
+                        type(element).__name__} at index {i}")
 
         self.api = api_client
         self.params = initial_params
@@ -159,15 +159,16 @@ class PaginatedQuery:
             # Navigate to results using result_path
             try:
                 data = self._navigate_result_path(response)
-            except (KeyError, TypeError) as e:
+            except (KeyError, TypeError):
                 # Re-raise with context
                 raise
 
             # Validate that data is iterable
             if not hasattr(data, "__iter__") or isinstance(data, (str, dict)):
                 raise TypeError(
-                    f"Result at path {self.result_path} is not iterable. Got type: {type(data).__name__}"
-                )
+                    f"Result at path {
+                        self.result_path} is not iterable. Got type: {
+                        type(data).__name__}")
 
             # Convert to list to get count
             items = list(data)

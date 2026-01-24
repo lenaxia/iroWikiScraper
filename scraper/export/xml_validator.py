@@ -7,7 +7,7 @@ they conform to the expected structure and format.
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List, Optional
 from xml.etree import ElementTree as ET
 
 from scraper.export.schema import MEDIAWIKI_NS
@@ -69,7 +69,9 @@ class ValidationReport:
     def __repr__(self) -> str:
         """Return string representation."""
         status = "PASS" if self.is_valid else "FAIL"
-        return f"ValidationReport({status}, {self.error_count} errors, {self.warning_count} warnings)"
+        return f"ValidationReport({status}, {
+            self.error_count} errors, {
+            self.warning_count} warnings)"
 
 
 class XMLValidator:

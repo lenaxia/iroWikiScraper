@@ -36,7 +36,7 @@ class TestPageInsertion:
         assert loaded is not None
         assert loaded.title == "TestPage"
         assert loaded.namespace == 0
-        assert loaded.is_redirect == False
+        assert loaded.is_redirect is False
 
     def test_insert_redirect_page(self, db):
         """Test inserting redirect page."""
@@ -47,7 +47,7 @@ class TestPageInsertion:
 
         loaded = repo.get_page_by_id(page_id)
         assert loaded is not None
-        assert loaded.is_redirect == True
+        assert loaded.is_redirect
 
     def test_insert_pages_batch(self, db):
         """Test batch insert performance."""
@@ -258,12 +258,12 @@ class TestPageUpdate:
         # Verify update
         loaded = repo.get_page_by_id(page_id)
         assert loaded.title == "Updated"
-        assert loaded.is_redirect == True
+        assert loaded.is_redirect
 
     def test_update_page_without_id(self, db):
         """Test update page without page_id raises error."""
         repo = PageRepository(db)
-        page = Page(page_id=1, namespace=0, title="Test", is_redirect=False)
+        page = Page(page_id=1, namespace=0, title="Test", is_redirect=False)  # noqa: F841
 
         # Manually create a page-like object without page_id
         class PageWithoutId:
@@ -368,7 +368,7 @@ class TestPageUpsert:
 
         # Should have updated is_redirect
         loaded = repo.get_page_by_title(0, "TestPage")
-        assert loaded.is_redirect == True
+        assert loaded.is_redirect
 
         # Still only one page
         count = repo.count_pages()
@@ -406,12 +406,12 @@ class TestPageDataConversion:
         )
         repo.insert_page(page_false)
         loaded_false = repo.get_page_by_id(1)
-        assert loaded_false.is_redirect == False
+        assert loaded_false.is_redirect is False
         assert isinstance(loaded_false.is_redirect, bool)
 
         # Test True
         page_true = Page(page_id=2, namespace=0, title="IsRedirect", is_redirect=True)
         repo.insert_page(page_true)
         loaded_true = repo.get_page_by_id(2)
-        assert loaded_true.is_redirect == True
+        assert loaded_true.is_redirect
         assert isinstance(loaded_true.is_redirect, bool)

@@ -6,7 +6,6 @@ import requests
 from scraper.api.client import MediaWikiAPIClient
 from scraper.api.exceptions import (
     APIError,
-    APIRequestError,
     APIResponseError,
     NetworkError,
     PageNotFoundError,
@@ -244,14 +243,14 @@ class TestMediaWikiAPIClientGetPage:
 
     def test_get_page_with_namespace(self, api_client, mock_session):
         """Test get_page with custom namespace."""
-        result = api_client.get_page("Test", namespace=1)
+        result = api_client.get_page("Test", namespace=1)  # noqa: F841
 
         params = mock_session.last_request_params
         assert "1:Test" in params["titles"]
 
     def test_get_page_default_namespace_zero(self, api_client, mock_session):
         """Test get_page uses namespace 0 by default."""
-        result = api_client.get_page("Test")
+        api_client.get_page("Test")
 
         params = mock_session.last_request_params
         assert params["titles"] == "Test"
@@ -270,7 +269,7 @@ class TestMediaWikiAPIClientGetPages:
 
     def test_get_pages_with_namespace(self, api_client, mock_session):
         """Test get_pages with custom namespace."""
-        result = api_client.get_pages(["Test1", "Test2"], namespace=2)
+        result = api_client.get_pages(["Test1", "Test2"], namespace=2)  # noqa: F841
 
         params = mock_session.last_request_params
         # Each title should be prefixed with namespace

@@ -239,7 +239,7 @@ class ReleaseNotesGenerator:
         lines.append("## License")
         lines.append("")
         lines.append(
-            "The iRO Wiki content is licensed under the Creative Commons Attribution-ShareAlike license."
+            "The iRO Wiki content is licensed under the Creative Commons Attribution-ShareAlike license."  # noqa: E501
         )
         lines.append("The scraper and tooling are MIT licensed.")
         lines.append("")

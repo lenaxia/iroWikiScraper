@@ -7,7 +7,7 @@ and split large archives for GitHub Releases (2GB limit).
 import math
 import tarfile
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict
 
 
 def compress_directory(
@@ -64,7 +64,7 @@ def compress_directory(
     uncompressed_size = sum(f.stat().st_size for f in file_list)
 
     # Create tar.gz archive
-    with tarfile.open(output_tar_gz, f"w:gz", compresslevel=compression_level) as tar:
+    with tarfile.open(output_tar_gz, "w:gz", compresslevel=compression_level) as tar:
         for file_path in file_list:
             # Calculate arcname (path relative to source_dir's parent)
             arcname = file_path.relative_to(source_dir.parent)
@@ -198,7 +198,7 @@ def _generate_reassemble_script(archive_name: str, chunk_count: int) -> str:
     Returns:
         Shell script content
     """
-    script = f"""#!/bin/bash
+    script = """#!/bin/bash
 # Reassemble split archive: {archive_name}
 # This script combines the split chunks back into the original archive.
 

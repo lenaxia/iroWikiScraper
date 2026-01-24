@@ -1,6 +1,5 @@
 """Tests for MediaWiki XML schema definitions."""
 
-import pytest
 
 from scraper.export.schema import (
     MEDIAWIKI_NAMESPACES,
