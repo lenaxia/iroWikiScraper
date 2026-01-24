@@ -1,0 +1,228 @@
+name: Release Notifications
+
+# Send notifications when a new release is published
+# Supports Discord and Slack webhooks
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify:
+    name: Send Release Notifications
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Extract release information
+        id: release-info
+        run: |
+          # Extract version from tag
+          VERSION="${{ github.event.release.tag_name }}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Get release name
+          NAME="${{ github.event.release.name }}"
+          echo "name=$NAME" >> $GITHUB_OUTPUT
+          
+          # Get release URL
+          URL="${{ github.event.release.html_url }}"
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          
+          # Check if prerelease
+          IS_PRERELEASE="${{ github.event.release.prerelease }}"
+          echo "prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+          
+          echo "Release information extracted:"
+          echo "  Version: $VERSION"
+          echo "  Name: $NAME"
+          echo "  URL: $URL"
+          echo "  Prerelease: $IS_PRERELEASE"
+      
+      - name: Extract statistics from release body
+        id: stats
+        run: |
+          # Extract stats from release body if available
+          BODY="${{ github.event.release.body }}"
+          
+          # Try to extract common statistics
+          TOTAL_PAGES=$(echo "$BODY" | grep -oP 'Total pages: \K\d+' || echo "N/A")
+          TOTAL_REVISIONS=$(echo "$BODY" | grep -oP 'Total revisions: \K\d+' || echo "N/A")
+          NEW_PAGES=$(echo "$BODY" | grep -oP 'New pages: \K\d+' || echo "0")
+          UPDATED_PAGES=$(echo "$BODY" | grep -oP 'Updated pages: \K\d+' || echo "0")
+          
+          echo "total_pages=$TOTAL_PAGES" >> $GITHUB_OUTPUT
+          echo "total_revisions=$TOTAL_REVISIONS" >> $GITHUB_OUTPUT
+          echo "new_pages=$NEW_PAGES" >> $GITHUB_OUTPUT
+          echo "updated_pages=$UPDATED_PAGES" >> $GITHUB_OUTPUT
+      
+      - name: Send Discord notification
+        if: secrets.DISCORD_WEBHOOK_URL != ''
+        run: |
+          # Determine color based on prerelease status
+          if [[ "${{ steps.release-info.outputs.prerelease }}" == "true" ]]; then
+            COLOR=16776960  # Yellow for prerelease
+            TITLE="🔔 New Pre-Release: ${{ steps.release-info.outputs.name }}"
+          else
+            COLOR=5814783  # Green for stable release
+            TITLE="📚 New Release: ${{ steps.release-info.outputs.name }}"
+          fi
+          
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d @- <<EOF
+          {
+            "content": "${{ steps.release-info.outputs.prerelease == 'true' && '@here' || '📢' }} New iRO Wiki Archive Available!",
+            "embeds": [{
+              "title": "$TITLE",
+              "description": "A new archive of the iRO Wiki has been published.",
+              "color": $COLOR,
+              "fields": [
+                {
+                  "name": "Version",
+                  "value": "${{ steps.release-info.outputs.version }}",
+                  "inline": true
+                },
+                {
+                  "name": "Type",
+                  "value": "${{ steps.release-info.outputs.prerelease == 'true' && 'Pre-release' || 'Stable Release' }}",
+                  "inline": true
+                },
+                {
+                  "name": "Total Pages",
+                  "value": "${{ steps.stats.outputs.total_pages }}",
+                  "inline": true
+                },
+                {
+                  "name": "Total Revisions",
+                  "value": "${{ steps.stats.outputs.total_revisions }}",
+                  "inline": true
+                },
+                {
+                  "name": "New Pages",
+                  "value": "${{ steps.stats.outputs.new_pages }}",
+                  "inline": true
+                },
+                {
+                  "name": "Updated Pages",
+                  "value": "${{ steps.stats.outputs.updated_pages }}",
+                  "inline": true
+                },
+                {
+                  "name": "Download",
+                  "value": "[GitHub Releases](${{ steps.release-info.outputs.url }})"
+                }
+              ],
+              "footer": {
+                "text": "iRO Wiki Scraper"
+              },
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }]
+          }
+          EOF
+          
+          echo "✓ Discord notification sent"
+      
+      - name: Send Slack notification
+        if: secrets.SLACK_WEBHOOK_URL != ''
+        run: |
+          # Determine emoji and text based on prerelease status
+          if [[ "${{ steps.release-info.outputs.prerelease }}" == "true" ]]; then
+            EMOJI=":bell:"
+            TEXT="Pre-Release"
+          else
+            EMOJI=":books:"
+            TEXT="Release"
+          fi
+          
+          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d @- <<EOF
+          {
+            "text": "$EMOJI New iRO Wiki Archive: ${{ steps.release-info.outputs.name }}",
+            "blocks": [
+              {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": "$EMOJI New $TEXT: ${{ steps.release-info.outputs.name }}"
+                }
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "A new archive of the iRO Wiki has been published."
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Version:*\n${{ steps.release-info.outputs.version }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Type:*\n${{ steps.release-info.outputs.prerelease == 'true' && 'Pre-release' || 'Stable Release' }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Total Pages:*\n${{ steps.stats.outputs.total_pages }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Total Revisions:*\n${{ steps.stats.outputs.total_revisions }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*New Pages:*\n${{ steps.stats.outputs.new_pages }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Updated Pages:*\n${{ steps.stats.outputs.updated_pages }}"
+                  }
+                ]
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Download Release"
+                    },
+                    "url": "${{ steps.release-info.outputs.url }}",
+                    "style": "primary"
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+          
+          echo "✓ Slack notification sent"
+      
+      - name: Log notification status
+        run: |
+          echo "=== Notification Status ==="
+          
+          if [[ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]]; then
+            echo "✅ Discord notification sent"
+          else
+            echo "⚠️  Discord webhook not configured"
+          fi
+          
+          if [[ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]]; then
+            echo "✅ Slack notification sent"
+          else
+            echo "⚠️  Slack webhook not configured"
+          fi
+          
+          echo ""
+          echo "To configure notifications:"
+          echo "1. Go to repository Settings > Secrets and variables > Actions"
+          echo "2. Add DISCORD_WEBHOOK_URL and/or SLACK_WEBHOOK_URL"

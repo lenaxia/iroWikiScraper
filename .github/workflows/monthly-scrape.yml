@@ -1,0 +1,422 @@
+name: Monthly Wiki Archive
+
+# Automated monthly scraping and release publication
+# Runs on the 1st of each month at 2 AM UTC
+# Can also be triggered manually with custom parameters
+
+on:
+  schedule:
+    # Run at 2 AM UTC on the 1st of every month
+    - cron: '0 2 1 * *'
+  
+  workflow_dispatch:
+    # Allow manual trigger from GitHub Actions UI
+    inputs:
+      scrape_type:
+        description: 'Type of scrape to run'
+        required: true
+        default: 'incremental'
+        type: choice
+        options:
+          - incremental
+          - full
+      
+      force:
+        description: 'Force full scrape even if database exists'
+        required: false
+        default: false
+        type: boolean
+      
+      create_release:
+        description: 'Create GitHub release after scrape'
+        required: false
+        default: true
+        type: boolean
+      
+      announce:
+        description: 'Announce release on Discord/Slack'
+        required: false
+        default: false
+        type: boolean
+      
+      reason:
+        description: 'Reason for manual trigger (optional)'
+        required: false
+        type: string
+
+# Secrets required:
+# - GITHUB_TOKEN (automatic, for releases)
+# - DISCORD_WEBHOOK_URL (optional, for notifications)
+# - SLACK_WEBHOOK_URL (optional, for notifications)
+
+jobs:
+  scrape-and-release:
+    name: Scrape Wiki and Create Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 4320  # 3 days max (72 hours)
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Log trigger information
+        run: |
+          echo "=== Workflow Trigger Information ==="
+          echo "Event: ${{ github.event_name }}"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Trigger time: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo ""
+            echo "=== Manual Trigger Parameters ==="
+            echo "Scrape type: ${{ github.event.inputs.scrape_type }}"
+            echo "Force: ${{ github.event.inputs.force }}"
+            echo "Create release: ${{ github.event.inputs.create_release }}"
+            echo "Announce: ${{ github.event.inputs.announce }}"
+            echo "Reason: ${{ github.event.inputs.reason || 'Not provided' }}"
+          else
+            echo "Scheduled run (automatic)"
+          fi
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'  # Cache pip dependencies for faster installs
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      
+      - name: Verify installation
+        run: |
+          python --version
+          echo "Python installation verified"
+      
+      - name: Create necessary directories
+        run: |
+          mkdir -p data/ downloads/ logs/ releases/
+      
+      - name: Download previous database artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: irowiki-database
+          path: data/
+        continue-on-error: true  # First run won't have artifact
+      
+      - name: Check for existing database
+        id: check-db
+        run: |
+          if [[ -f "data/irowiki.db" ]]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            SIZE=$(stat -c%s "data/irowiki.db")
+            echo "size=$SIZE" >> $GITHUB_OUTPUT
+            echo "✓ Found existing database: $(numfmt --to=iec-i --suffix=B $SIZE)"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "size=0" >> $GITHUB_OUTPUT
+            echo "No existing database found"
+          fi
+      
+      - name: Determine scrape parameters
+        id: scrape-params
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # Manual trigger - use inputs
+            SCRAPE_TYPE="${{ github.event.inputs.scrape_type }}"
+            FORCE="${{ github.event.inputs.force }}"
+            CREATE_RELEASE="${{ github.event.inputs.create_release }}"
+            ANNOUNCE="${{ github.event.inputs.announce }}"
+          else
+            # Scheduled run - use defaults
+            SCRAPE_TYPE="incremental"
+            FORCE="false"
+            CREATE_RELEASE="true"
+            ANNOUNCE="true"
+          fi
+          
+          echo "scrape_type=$SCRAPE_TYPE" >> $GITHUB_OUTPUT
+          echo "force=$FORCE" >> $GITHUB_OUTPUT
+          echo "create_release=$CREATE_RELEASE" >> $GITHUB_OUTPUT
+          echo "announce=$ANNOUNCE" >> $GITHUB_OUTPUT
+          
+          echo "Scrape parameters determined:"
+          echo "  Type: $SCRAPE_TYPE"
+          echo "  Force: $FORCE"
+          echo "  Create release: $CREATE_RELEASE"
+          echo "  Announce: $ANNOUNCE"
+      
+      - name: Create configuration file
+        run: |
+          cat > config.yaml <<'EOF'
+          # CI/CD Configuration
+          base_url: https://irowiki.org
+          
+          # Database
+          database:
+            path: data/irowiki.db
+            type: sqlite
+          
+          # Rate limiting
+          rate_limit:
+            requests_per_second: 2
+            burst: 5
+            respect_retry_after: true
+          
+          # Incremental settings
+          incremental:
+            enabled: true
+            lookback_hours: 720  # 30 days
+            force_full: false
+          
+          # Logging
+          logging:
+            level: INFO
+            format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            file: logs/scrape.log
+          
+          # Timeouts
+          timeouts:
+            connect: 30
+            read: 60
+            total: 300
+          
+          # Retry
+          retry:
+            max_attempts: 5
+            backoff_factor: 2
+          
+          # Export settings
+          export:
+            output_dir: exports/
+            xml_format: mediawiki
+            include_metadata: true
+          EOF
+          
+          echo "Configuration file created:"
+          cat config.yaml
+      
+      - name: Run incremental scrape
+        id: scrape
+        run: |
+          # Build scraper command
+          SCRAPER_CMD="python -m scraper scrape"
+          SCRAPER_CMD="$SCRAPER_CMD --config config.yaml"
+          SCRAPER_CMD="$SCRAPER_CMD --database data/irowiki.db"
+          SCRAPER_CMD="$SCRAPER_CMD --log-level INFO"
+          
+          if [[ "${{ steps.scrape-params.outputs.scrape_type }}" == "full" ]]; then
+            SCRAPER_CMD="$SCRAPER_CMD --force-full"
+          else
+            SCRAPER_CMD="$SCRAPER_CMD --incremental"
+          fi
+          
+          if [[ "${{ steps.scrape-params.outputs.force }}" == "true" ]]; then
+            SCRAPER_CMD="$SCRAPER_CMD --force"
+          fi
+          
+          # Run scraper with output streaming
+          echo "Executing: $SCRAPER_CMD"
+          $SCRAPER_CMD 2>&1 | tee logs/scrape.log
+          
+          # Check exit code
+          SCRAPE_EXIT_CODE=${PIPESTATUS[0]}
+          echo "Scraper exit code: $SCRAPE_EXIT_CODE"
+          
+          if [[ $SCRAPE_EXIT_CODE -ne 0 ]]; then
+            echo "::error::Scraper failed with exit code $SCRAPE_EXIT_CODE"
+            exit $SCRAPE_EXIT_CODE
+          fi
+          
+          echo "✓ Scrape completed successfully"
+        env:
+          PYTHONUNBUFFERED: "1"  # Force unbuffered output for real-time logs
+      
+      - name: Generate version tag
+        id: version
+        run: |
+          VERSION="v$(date +%Y-%m)"
+          RELEASE_VERSION="${VERSION}.${GITHUB_RUN_NUMBER}"
+          RELEASE_DATE="$(date +%Y-%m-%d)"
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "release_version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+          echo "release_date=$RELEASE_DATE" >> $GITHUB_OUTPUT
+          
+          echo "Release version: $RELEASE_VERSION"
+      
+      - name: Generate statistics and release notes
+        id: stats
+        run: |
+          bash scripts/generate-stats.sh data/irowiki.db > release-notes.md
+          
+          echo "Release notes generated:"
+          cat release-notes.md
+      
+      - name: Package release
+        run: |
+          bash scripts/package-release.sh "${{ steps.version.outputs.release_version }}"
+      
+      - name: Verify packages
+        run: |
+          echo "Verifying release packages..."
+          
+          cd releases/
+          
+          # Verify checksums
+          for checksum_file in *.sha256; do
+            if [[ -f "$checksum_file" ]]; then
+              echo "Verifying: $checksum_file"
+              sha256sum -c "$checksum_file"
+            fi
+          done
+          
+          # Test extraction
+          echo ""
+          echo "Testing extraction..."
+          mkdir -p test-extract
+          for archive in *.tar.gz; do
+            if [[ -f "$archive" && "$archive" != *".part-"* ]]; then
+              echo "Testing: $archive"
+              tar -tzf "$archive" | head -n 5
+              break
+            fi
+          done
+          
+          rm -rf test-extract
+          
+          echo ""
+          echo "✓ Package verification complete"
+      
+      - name: Upload scrape logs
+        if: always()  # Upload logs even on failure
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrape-logs-${{ github.run_number }}
+          path: logs/
+          retention-days: 30
+      
+      - name: Upload database artifact for next run
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: irowiki-database
+          path: data/irowiki.db
+          retention-days: 90  # Keep for 3 months
+          compression-level: 9  # Maximum compression
+      
+      - name: Create GitHub Release
+        if: success() && steps.scrape-params.outputs.create_release == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.release_version }}
+          name: iRO Wiki Archive - ${{ steps.version.outputs.release_date }}
+          body_path: release-notes.md
+          files: |
+            releases/*.tar.gz*
+            releases/*.sha256
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Announce release on Discord
+        if: success() && steps.scrape-params.outputs.announce == 'true' && secrets.DISCORD_WEBHOOK_URL != ''
+        run: |
+          # Read stats for announcement
+          TOTAL_PAGES=$(grep -oP 'Total pages: \K\d+' release-notes.md || echo "N/A")
+          TOTAL_REVISIONS=$(grep -oP 'Total revisions: \K\d+' release-notes.md || echo "N/A")
+          NEW_PAGES=$(grep -oP 'New pages: \K\d+' release-notes.md || echo "0")
+          UPDATED_PAGES=$(grep -oP 'Updated pages: \K\d+' release-notes.md || echo "0")
+          
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d @- <<EOF
+          {
+            "content": "📚 New iRO Wiki Archive Released!",
+            "embeds": [{
+              "title": "iRO Wiki Archive - ${{ steps.version.outputs.release_date }}",
+              "description": "Monthly archive successfully created and published.",
+              "color": 5814783,
+              "fields": [
+                {
+                  "name": "Version",
+                  "value": "${{ steps.version.outputs.release_version }}",
+                  "inline": true
+                },
+                {
+                  "name": "Total Pages",
+                  "value": "$TOTAL_PAGES",
+                  "inline": true
+                },
+                {
+                  "name": "Total Revisions",
+                  "value": "$TOTAL_REVISIONS",
+                  "inline": true
+                },
+                {
+                  "name": "New Pages",
+                  "value": "$NEW_PAGES",
+                  "inline": true
+                },
+                {
+                  "name": "Updated Pages",
+                  "value": "$UPDATED_PAGES",
+                  "inline": true
+                },
+                {
+                  "name": "Download",
+                  "value": "[GitHub Releases](${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ steps.version.outputs.release_version }})"
+                }
+              ],
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }]
+          }
+          EOF
+      
+      - name: Diagnose scraper failure
+        if: failure() && steps.scrape.outcome == 'failure'
+        run: |
+          echo "=== Scraper Failure Diagnostics ==="
+          
+          # Show last 100 lines of log
+          echo ""
+          echo "Last 100 lines of scrape log:"
+          if [[ -f "logs/scrape.log" ]]; then
+            tail -n 100 logs/scrape.log
+          else
+            echo "No log file found"
+          fi
+          
+          # Check disk space
+          echo ""
+          echo "Disk space:"
+          df -h
+          
+          # Check database integrity if exists
+          if [[ -f "data/irowiki.db" ]]; then
+            echo ""
+            echo "Database integrity check:"
+            sqlite3 data/irowiki.db "PRAGMA integrity_check;" || echo "Database corrupted"
+          fi
+      
+      - name: Send failure notification to Discord
+        if: failure() && github.ref == 'refs/heads/main' && secrets.DISCORD_WEBHOOK_URL != ''
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          status: ${{ job.status }}
+          title: "❌ Monthly Scrape Failed"
+          description: |
+            The monthly wiki scrape has failed.
+            
+            **Workflow:** ${{ github.workflow }}
+            **Job:** ${{ github.job }}
+            **Run:** [${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            
+            Please check the logs for details.
+          color: 0xff0000
+          username: "iRO Wiki Scraper"

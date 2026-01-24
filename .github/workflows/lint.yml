@@ -1,0 +1,259 @@
+name: Lint
+
+# Linting and code quality checks
+# Runs on pull requests and pushes to main
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  lint-python:
+    name: Python Linting
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install black flake8 mypy isort pylint
+          pip install -r requirements.txt
+      
+      - name: Run Black (formatting check)
+        run: |
+          echo "=== Black: Code Formatting ==="
+          black --check --diff scraper/ tests/ || {
+            echo ""
+            echo "❌ Code formatting issues found."
+            echo "Run 'black scraper/ tests/' to fix."
+            exit 1
+          }
+          echo "✅ Code formatting is correct"
+      
+      - name: Run isort (import sorting)
+        run: |
+          echo ""
+          echo "=== isort: Import Sorting ==="
+          isort --check-only --diff scraper/ tests/ || {
+            echo ""
+            echo "❌ Import sorting issues found."
+            echo "Run 'isort scraper/ tests/' to fix."
+            exit 1
+          }
+          echo "✅ Imports are correctly sorted"
+      
+      - name: Run Flake8 (style guide)
+        run: |
+          echo ""
+          echo "=== Flake8: Style Guide Enforcement ==="
+          flake8 scraper/ tests/ \
+            --max-line-length=100 \
+            --extend-ignore=E203,W503 \
+            --statistics || {
+            echo ""
+            echo "❌ Style guide violations found."
+            exit 1
+          }
+          echo "✅ Code follows style guide"
+      
+      - name: Run MyPy (type checking)
+        run: |
+          echo ""
+          echo "=== MyPy: Type Checking ==="
+          mypy scraper/ --ignore-missing-imports || {
+            echo ""
+            echo "⚠️  Type checking issues found (not blocking)"
+          }
+        continue-on-error: true
+      
+      - name: Run Pylint (code analysis)
+        run: |
+          echo ""
+          echo "=== Pylint: Code Analysis ==="
+          pylint scraper/ \
+            --fail-under=7.0 \
+            --max-line-length=100 \
+            --disable=C0114,C0115,C0116 || {
+            echo ""
+            echo "⚠️  Code quality issues found (not blocking)"
+          }
+        continue-on-error: true
+
+  lint-go:
+    name: Go Linting
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdk
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+          cache-dependency-path: sdk/go.sum
+      
+      - name: Run go fmt
+        run: |
+          echo "=== go fmt: Code Formatting ==="
+          UNFORMATTED=$(gofmt -l .)
+          if [[ -n "$UNFORMATTED" ]]; then
+            echo "❌ Unformatted Go files:"
+            echo "$UNFORMATTED"
+            echo ""
+            echo "Run 'gofmt -w .' in sdk/ to fix."
+            exit 1
+          fi
+          echo "✅ Go code is correctly formatted"
+      
+      - name: Run go vet
+        run: |
+          echo ""
+          echo "=== go vet: Code Analysis ==="
+          go vet ./... || {
+            echo ""
+            echo "❌ Code analysis issues found."
+            exit 1
+          }
+          echo "✅ No issues found by go vet"
+      
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+          working-directory: sdk
+          args: --timeout=5m --print-issued-lines --print-linter-name
+      
+      - name: Run staticcheck
+        run: |
+          echo ""
+          echo "=== staticcheck: Static Analysis ==="
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          staticcheck ./... || {
+            echo ""
+            echo "⚠️  Static analysis issues found (not blocking)"
+          }
+        continue-on-error: true
+
+  check-yaml:
+    name: YAML Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Validate YAML files
+        run: |
+          echo "=== YAML Validation ==="
+          
+          # Check all YAML files in .github/workflows
+          for file in .github/workflows/*.yml .github/workflows/*.yaml; do
+            if [[ -f "$file" ]]; then
+              echo "Checking: $file"
+              python -c "import yaml; yaml.safe_load(open('$file'))" || {
+                echo "❌ Invalid YAML: $file"
+                exit 1
+              }
+            fi
+          done
+          
+          # Check config files
+          for file in config/*.yaml; do
+            if [[ -f "$file" ]]; then
+              echo "Checking: $file"
+              python -c "import yaml; yaml.safe_load(open('$file'))" || {
+                echo "❌ Invalid YAML: $file"
+                exit 1
+              }
+            fi
+          done
+          
+          echo "✅ All YAML files are valid"
+      
+      - name: Lint GitHub Actions workflows
+        uses: reviewdog/action-actionlint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-check
+          level: warning
+
+  check-markdown:
+    name: Markdown Linting
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Lint Markdown files
+        uses: DavidAnson/markdownlint-cli2-action@v15
+        with:
+          globs: |
+            **/*.md
+            !**/node_modules/**
+            !**/venv/**
+        continue-on-error: true
+
+  lint-summary:
+    name: Lint Summary
+    runs-on: ubuntu-latest
+    needs: [lint-python, lint-go, check-yaml, check-markdown]
+    if: always()
+    
+    steps:
+      - name: Check linting results
+        run: |
+          echo "=== Linting Summary ==="
+          echo ""
+          
+          FAILED=0
+          
+          if [[ "${{ needs.lint-python.result }}" != "success" ]]; then
+            echo "❌ Python linting failed"
+            FAILED=1
+          else
+            echo "✅ Python linting passed"
+          fi
+          
+          if [[ "${{ needs.lint-go.result }}" != "success" ]]; then
+            echo "❌ Go linting failed"
+            FAILED=1
+          else
+            echo "✅ Go linting passed"
+          fi
+          
+          if [[ "${{ needs.check-yaml.result }}" != "success" ]]; then
+            echo "❌ YAML validation failed"
+            FAILED=1
+          else
+            echo "✅ YAML validation passed"
+          fi
+          
+          if [[ "${{ needs.check-markdown.result }}" == "success" ]]; then
+            echo "✅ Markdown linting passed"
+          else
+            echo "⚠️  Markdown linting had warnings (not blocking)"
+          fi
+          
+          echo ""
+          if [[ $FAILED -eq 1 ]]; then
+            echo "Some linting checks failed. Please fix the issues above."
+            exit 1
+          else
+            echo "🎉 All linting checks passed!"
+          fi

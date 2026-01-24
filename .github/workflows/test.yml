@@ -1,0 +1,220 @@
+name: Tests
+
+# Run tests on all pull requests and pushes to main
+# Includes Python and Go tests, linting, and code coverage
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  test-python:
+    name: Python Tests (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['3.10', '3.11', '3.12']
+      fail-fast: false  # Continue even if one fails
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-xdist
+          pip install -e .
+      
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ \
+            -v \
+            --tb=short \
+            --cov=scraper \
+            --cov-report=xml \
+            --cov-report=term \
+            --cov-report=html \
+            -n auto \
+            --maxfail=5
+      
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: python
+          name: python-${{ matrix.python-version }}-${{ matrix.os }}
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      
+      - name: Upload coverage HTML report
+        if: failure() && matrix.python-version == '3.11'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html-python-${{ matrix.python-version }}
+          path: htmlcov/
+          retention-days: 7
+
+  test-go:
+    name: Go Tests (${{ matrix.os }}, Go ${{ matrix.go-version }})
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: sdk
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        go-version: ['1.21', '1.22']
+      fail-fast: false
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+          cache-dependency-path: sdk/go.sum
+      
+      - name: Download dependencies
+        run: go mod download
+      
+      - name: Run tests with race detector
+        run: |
+          go test ./... -v -race -coverprofile=coverage.out -covermode=atomic
+      
+      - name: Upload coverage to Codecov
+        if: matrix.go-version == '1.22' && matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./sdk/coverage.out
+          flags: go
+          name: go-${{ matrix.go-version }}-${{ matrix.os }}
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  lint-python:
+    name: Python Linting
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install linting tools
+        run: |
+          pip install black flake8 mypy isort
+          pip install -r requirements.txt
+      
+      - name: Run Black (code formatting)
+        run: |
+          black --check scraper/ tests/
+      
+      - name: Run isort (import sorting)
+        run: |
+          isort --check-only scraper/ tests/
+      
+      - name: Run Flake8 (style guide)
+        run: |
+          flake8 scraper/ tests/ --max-line-length=100 --extend-ignore=E203,W503
+      
+      - name: Run MyPy (type checking)
+        run: |
+          mypy scraper/ --ignore-missing-imports
+        continue-on-error: true  # Don't fail on type errors yet
+
+  lint-go:
+    name: Go Linting
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdk
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+          cache-dependency-path: sdk/go.sum
+      
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+          working-directory: sdk
+          args: --timeout=5m
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [test-python, test-go, lint-python, lint-go]
+    if: always()
+    
+    steps:
+      - name: Check test results
+        run: |
+          echo "=== Test Results Summary ==="
+          echo ""
+          
+          FAILED=0
+          
+          if [[ "${{ needs.test-python.result }}" != "success" ]]; then
+            echo "❌ Python tests failed"
+            FAILED=1
+          else
+            echo "✅ Python tests passed"
+          fi
+          
+          if [[ "${{ needs.test-go.result }}" != "success" ]]; then
+            echo "❌ Go tests failed"
+            FAILED=1
+          else
+            echo "✅ Go tests passed"
+          fi
+          
+          if [[ "${{ needs.lint-python.result }}" != "success" ]]; then
+            echo "❌ Python linting failed"
+            FAILED=1
+          else
+            echo "✅ Python linting passed"
+          fi
+          
+          if [[ "${{ needs.lint-go.result }}" != "success" ]]; then
+            echo "❌ Go linting failed"
+            FAILED=1
+          else
+            echo "✅ Go linting passed"
+          fi
+          
+          echo ""
+          if [[ $FAILED -eq 1 ]]; then
+            echo "Some tests or linting checks failed. Please review the logs above."
+            exit 1
+          else
+            echo "🎉 All tests and linting checks passed!"
+          fi
