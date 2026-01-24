@@ -2,7 +2,6 @@
 
 from datetime import datetime, timezone
 
-
 from scraper.incremental.models import NewPageInfo
 from scraper.incremental.new_page_detector import NewPageDetector
 

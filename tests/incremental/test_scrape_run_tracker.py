@@ -2,7 +2,6 @@
 
 from datetime import datetime
 
-
 from scraper.incremental.scrape_run_tracker import ScrapeRunTracker
 
 

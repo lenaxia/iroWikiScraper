@@ -3,7 +3,6 @@
 from datetime import datetime
 from xml.etree import ElementTree as ET
 
-
 from scraper.export.xml_generator import XMLGenerator
 from scraper.storage.models import Page, Revision
 

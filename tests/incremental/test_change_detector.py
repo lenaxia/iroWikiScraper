@@ -3,7 +3,6 @@
 from datetime import datetime, timezone
 from unittest.mock import Mock
 
-
 from scraper.api.recentchanges import RecentChange
 from scraper.incremental.change_detector import ChangeDetector
 from scraper.incremental.models import ChangeSet, MovedPage

@@ -2,7 +2,6 @@
 
 from datetime import datetime
 
-
 from scraper.incremental.verification import IncrementalVerifier
 from scraper.storage.models import Page, Revision
 from scraper.storage.page_repository import PageRepository

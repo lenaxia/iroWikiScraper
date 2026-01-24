@@ -3,7 +3,6 @@
 from datetime import datetime, timezone
 from unittest.mock import Mock
 
-
 from scraper.incremental.models import PageUpdateInfo
 from scraper.incremental.revision_scraper import IncrementalRevisionScraper
 
