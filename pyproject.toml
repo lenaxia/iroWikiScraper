@@ -26,6 +26,12 @@ dependencies = [
     "PyYAML>=6.0.1",
 ]
 
+[tool.setuptools]
+packages = ["scraper"]
+
+[tool.setuptools.package-data]
+scraper = ["py.typed"]
+
 [project.optional-dependencies]
 dev = [
     "pytest>=7.4.0",
