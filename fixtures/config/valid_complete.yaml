@@ -1,0 +1,20 @@
+# Valid complete configuration with all fields
+wiki:
+  base_url: "https://irowiki.org"
+  api_path: "/w/api.php"
+
+scraper:
+  rate_limit: 1.0
+  timeout: 30
+  max_retries: 3
+  user_agent: "iROWikiArchiver/1.0 (github.com/user/repo; contact@example.com)"
+
+storage:
+  data_dir: "data"
+  checkpoint_file: "data/.checkpoint.json"
+  database_file: "data/irowiki.db"
+
+logging:
+  level: "INFO"
+  log_file: "logs/scraper.log"
+  log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

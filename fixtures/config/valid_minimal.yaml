@@ -1,0 +1,6 @@
+# Valid minimal configuration - should use defaults for missing fields
+wiki:
+  base_url: "https://irowiki.org"
+
+scraper:
+  rate_limit: 2.0

@@ -1,0 +1,5 @@
+# Invalid YAML syntax
+wiki:
+  base_url: "https://irowiki.org"
+  bad_syntax: [1, 2, 3
+  # Missing closing bracket

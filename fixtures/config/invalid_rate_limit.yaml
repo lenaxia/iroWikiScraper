@@ -1,0 +1,7 @@
+# Invalid rate_limit (negative)
+wiki:
+  base_url: "https://irowiki.org"
+
+scraper:
+  rate_limit: -1.0
+  timeout: 30

@@ -1,0 +1,6 @@
+# Invalid log level
+wiki:
+  base_url: "https://irowiki.org"
+
+logging:
+  level: "INVALID_LEVEL"

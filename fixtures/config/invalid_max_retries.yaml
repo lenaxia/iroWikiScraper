@@ -1,0 +1,8 @@
+# Invalid max_retries (negative)
+wiki:
+  base_url: "https://irowiki.org"
+
+scraper:
+  rate_limit: 1.0
+  timeout: 30
+  max_retries: -3
