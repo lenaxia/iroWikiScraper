@@ -400,9 +400,10 @@ class FileDownloader:
 
             except (requests.Timeout, requests.ConnectionError) as e:
                 if attempt == self.max_retries - 1:
-                    logger.error(f"Failed to download {file_meta.filename} after {
-                            self.max_retries
-                        } attempts: {e}")
+                    logger.error(
+                        f"Failed to download {file_meta.filename} after "
+                        f"{self.max_retries} attempts: {e}"
+                    )
                     raise
 
                 wait_time = 2**attempt  # Exponential backoff

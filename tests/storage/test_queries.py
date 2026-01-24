@@ -224,8 +224,8 @@ class TestStatisticsQueries:
         for i in range(1, 11):
             namespace = 0 if i <= 5 else 1
             conn.execute(
-                f"INSERT INTO pages (page_id, namespace, title) VALUES ({i}, {namespace}, 'Page{i}')"
-            )  # noqa: E501
+                f"INSERT INTO pages (page_id, namespace, title) VALUES ({i}, {namespace}, 'Page{i}')"  # noqa: E501
+            )
 
         # Insert revisions with varied data
         for page_id in range(1, 11):

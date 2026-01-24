@@ -168,9 +168,8 @@ class PaginatedQuery:
             # Validate that data is iterable
             if not hasattr(data, "__iter__") or isinstance(data, (str, dict)):
                 raise TypeError(
-                    f"Result at path {self.result_path} is not iterable. Got type: {
-                        type(data).__name__
-                    }"
+                    f"Result at path {self.result_path} is not iterable. "
+                    f"Got type: {type(data).__name__}"
                 )
 
             # Convert to list to get count

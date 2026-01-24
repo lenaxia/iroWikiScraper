@@ -413,16 +413,16 @@ def test_files_check_constraints(tmp_database, schema_dir):
     # Negative size should fail
     with pytest.raises(sqlite3.IntegrityError, match="CHECK"):
         conn.execute(
-            "INSERT INTO files (filename, url, descriptionurl, sha1, size, mime_type, timestamp) "
-            "VALUES ('Negative.png', 'http://test.com', 'http://test.com', 'abc', -100, 'image/png', '2024-01-01')"
-        )  # noqa: E501
+            "INSERT INTO files (filename, url, descriptionurl, sha1, size, mime_type, timestamp) "  # noqa: E501
+            "VALUES ('Negative.png', 'http://test.com', 'http://test.com', 'abc', -100, 'image/png', '2024-01-01')"  # noqa: E501
+        )
 
     # Zero width should fail
     with pytest.raises(sqlite3.IntegrityError, match="CHECK"):
         conn.execute(
             "INSERT INTO files (filename, url, descriptionurl, sha1, size, width, height, mime_type, timestamp) "  # noqa: E501
-            "VALUES ('ZeroWidth.png', 'http://test.com', 'http://test.com', 'abc', 100, 0, 100, 'image/png', '2024-01-01')"
-        )  # noqa: E501
+            "VALUES ('ZeroWidth.png', 'http://test.com', 'http://test.com', 'abc', 100, 0, 100, 'image/png', '2024-01-01')"  # noqa: E501
+        )
 
     conn.close()
 
