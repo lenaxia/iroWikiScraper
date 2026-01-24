@@ -20,7 +20,6 @@ import requests
 from scraper.scrapers.file_scraper import FileDownloader, DownloadStats
 from scraper.storage.models import FileMetadata
 
-
 # ============================================================================
 # Test Fixtures and Helpers
 # ============================================================================

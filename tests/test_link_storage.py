@@ -13,7 +13,6 @@ import pytest
 from scraper.storage.models import Link
 from scraper.storage.link_storage import LinkStorage
 
-
 # ============================================================================
 # Test Utilities & Fixtures
 # ============================================================================

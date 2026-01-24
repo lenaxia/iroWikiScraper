@@ -21,20 +21,17 @@ def test_db(tmp_path):
 
     with db.get_connection() as conn:
         # Insert test pages
-        conn.execute(
-            """
+        conn.execute("""
             INSERT INTO pages (page_id, namespace, title, is_redirect)
             VALUES
                 (1, 0, 'Main Page', 0),
                 (2, 0, 'Test Page', 0),
                 (3, 0, 'Redirect Page', 1),
                 (4, 10, 'Test Template', 0)
-            """
-        )
+            """)
 
         # Insert test revisions
-        conn.execute(
-            """
+        conn.execute("""
             INSERT INTO revisions (
                 revision_id, page_id, parent_id, timestamp,
                 user, user_id, comment, content, size, sha1, minor, tags
@@ -44,8 +41,7 @@ def test_db(tmp_path):
                 (200, 2, NULL, '2024-01-15T10:00:00', 'User1', 1, 'Created', 'Test page content', 17, 'aaa123def456789012345678901234567890abcd', 0, NULL),
                 (300, 3, NULL, '2024-01-15T10:00:00', 'User1', 1, 'Redirect', '#REDIRECT [[Main Page]]', 23, 'bbb123def456789012345678901234567890abcd', 0, NULL),
                 (400, 4, NULL, '2024-01-15T10:00:00', 'User1', 1, 'Template', '{{Template content}}', 20, 'ccc123def456789012345678901234567890abcd', 0, NULL)
-            """
-        )
+            """)
         conn.commit()
 
     return db

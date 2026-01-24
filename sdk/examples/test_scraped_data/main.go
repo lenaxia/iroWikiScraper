@@ -11,7 +11,8 @@ import (
 func main() {
 	fmt.Println("=================================================================")
 	fmt.Println("Testing Go SDK with scraped iRO Wiki data")
-	fmt.Println("=================================================================\n")
+	fmt.Println("=================================================================")
+	fmt.Println()
 
 	// Open the test database
 	client, err := irowiki.OpenSQLite("/home/mikekao/personal/iRO-Wiki-Scraper/test_data/test_scrape.db")

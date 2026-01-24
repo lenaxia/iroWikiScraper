@@ -353,15 +353,15 @@ def get_db_stats(connection: sqlite3.Connection) -> Dict[str, Any]:
         "total_files": row["total_files"] or 0,
         "total_links": row["total_links"] or 0,
         "db_size_mb": round(db_size_mb, 2),
-        "avg_content_size": round(row["avg_content_size"], 2)
-        if row["avg_content_size"]
-        else 0,
-        "first_edit": datetime.fromisoformat(row["first_edit"])
-        if row["first_edit"]
-        else None,
-        "last_edit": datetime.fromisoformat(row["last_edit"])
-        if row["last_edit"]
-        else None,
+        "avg_content_size": (
+            round(row["avg_content_size"], 2) if row["avg_content_size"] else 0
+        ),
+        "first_edit": (
+            datetime.fromisoformat(row["first_edit"]) if row["first_edit"] else None
+        ),
+        "last_edit": (
+            datetime.fromisoformat(row["last_edit"]) if row["last_edit"] else None
+        ),
     }
 
 
@@ -400,12 +400,12 @@ def get_page_stats(connection: sqlite3.Connection, page_id: int) -> Dict[str, An
     return {
         "revision_count": row["revision_count"] or 0,
         "contributor_count": row["contributor_count"] or 0,
-        "first_edit": datetime.fromisoformat(row["first_edit"])
-        if row["first_edit"]
-        else None,
-        "last_edit": datetime.fromisoformat(row["last_edit"])
-        if row["last_edit"]
-        else None,
+        "first_edit": (
+            datetime.fromisoformat(row["first_edit"]) if row["first_edit"] else None
+        ),
+        "last_edit": (
+            datetime.fromisoformat(row["last_edit"]) if row["last_edit"] else None
+        ),
         "avg_edit_size": round(row["avg_edit_size"], 2) if row["avg_edit_size"] else 0,
         "total_size": row["total_size"] or 0,
     }

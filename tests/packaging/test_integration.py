@@ -47,41 +47,33 @@ def populated_db(tmp_path):
         )
 
         # Add multiple revisions
-        conn.execute(
-            """
+        conn.execute("""
             INSERT INTO revisions (revision_id, page_id, parent_id, timestamp,
                 user, user_id, comment, content, size, sha1, minor, tags)
             VALUES (1, 1, NULL, '2024-01-01T00:00:00Z', 'Admin', 1, 'Initial creation', 
                     'Welcome to the wiki!', 20, 'abc123def456789012345678901234567890abcd', 0, NULL)
-            """
-        )
-        conn.execute(
-            """
+            """)
+        conn.execute("""
             INSERT INTO revisions (revision_id, page_id, parent_id, timestamp,
                 user, user_id, comment, content, size, sha1, minor, tags)
             VALUES (2, 1, 1, '2024-01-02T00:00:00Z', 'Editor', 2, 'Updated content', 
                     'Welcome to the wiki! Updated.', 29, 'def456abc789012345678901234567890abcdef0', 0, NULL)
-            """
-        )
-        conn.execute(
-            """
+            """)
+        conn.execute("""
             INSERT INTO revisions (revision_id, page_id, parent_id, timestamp,
                 user, user_id, comment, content, size, sha1, minor, tags)
             VALUES (3, 2, NULL, '2024-01-03T00:00:00Z', 'Contributor', 3, 'New test page', 
                     'This is a test page.', 19, '123456789abcdef0123456789abcdef012345678', 0, NULL)
-            """
-        )
+            """)
 
         # Add files
-        conn.execute(
-            """
+        conn.execute("""
             INSERT INTO files (filename, timestamp, uploader, size, width, height, sha1, mime_type, url, descriptionurl)
             VALUES ('Test.png', '2024-01-01T00:00:00Z', 'Admin', 1024, 100, 100,
                     'abcdef0123456789abcdef0123456789abcdef01', 'image/png',
                     'https://irowiki.org/~iro/images/Test.png',
                     'https://irowiki.org/wiki/File:Test.png')
-            """
-        )
+            """)
 
         conn.commit()
 

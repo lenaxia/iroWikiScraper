@@ -34,21 +34,17 @@ def test_db(tmp_path):
     db.initialize_schema()
 
     with db.get_connection() as conn:
-        conn.execute(
-            """
+        conn.execute("""
             INSERT INTO pages (page_id, namespace, title, is_redirect)
             VALUES (1, 0, 'Test Page', 0)
-            """
-        )
-        conn.execute(
-            """
+            """)
+        conn.execute("""
             INSERT INTO revisions (
                 revision_id, page_id, parent_id, timestamp,
                 user, user_id, comment, content, size, sha1, minor, tags
             ) VALUES
                 (100, 1, NULL, '2024-01-15T10:00:00', 'User1', 1, 'Test', 'Content', 7, 'abc123def456789012345678901234567890abcd', 0, NULL)
-            """
-        )
+            """)
         conn.commit()
 
     return db

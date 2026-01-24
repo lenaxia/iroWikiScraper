@@ -21,7 +21,8 @@ func main() {
 
 	ctx := context.Background()
 
-	fmt.Println("=== iRO Wiki SDK - Timeline and History Features ===\n")
+	fmt.Println("=== iRO Wiki SDK - Timeline and History Features ===")
+	fmt.Println()
 
 	// 1. Get page history
 	fmt.Println("1. Getting page history for 'Main_Page'...")

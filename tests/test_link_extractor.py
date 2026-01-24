@@ -6,7 +6,6 @@ from pathlib import Path
 from scraper.storage.models import Link
 from scraper.scrapers.link_extractor import LinkExtractor
 
-
 # Fixture paths
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures" / "wikitext"
 

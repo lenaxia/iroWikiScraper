@@ -32,7 +32,9 @@ class IncrementalCheckpointState:
     completed_modified_pages: Set[int] = field(default_factory=set)
     completed_deleted_pages: Set[int] = field(default_factory=set)
     completed_moved_pages: Set[int] = field(default_factory=set)
-    current_phase: str = "init"  # init, new_pages, modified_pages, deleted_pages, moved_pages, files, complete
+    current_phase: str = (
+        "init"  # init, new_pages, modified_pages, deleted_pages, moved_pages, files, complete
+    )
     last_updated: datetime = field(default_factory=datetime.utcnow)
     run_id: int = 0
 

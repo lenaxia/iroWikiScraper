@@ -149,13 +149,11 @@ class LinkStorage:
             >>> len(links)
             1
         """
-        cursor = self.conn.execute(
-            """
+        cursor = self.conn.execute("""
             SELECT source_page_id, target_title, link_type
             FROM links
             ORDER BY source_page_id, link_type, target_title
-        """
-        )
+        """)
 
         return [Link(row[0], row[1], row[2]) for row in cursor.fetchall()]
 

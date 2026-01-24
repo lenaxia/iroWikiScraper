@@ -10,7 +10,6 @@ import pytest
 
 from scraper.utils.checkpoint import Checkpoint
 
-
 # ============================================================================
 # TEST INFRASTRUCTURE - FIXTURES AND HELPERS
 # ============================================================================

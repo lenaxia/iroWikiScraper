@@ -8,7 +8,6 @@ import yaml
 
 from scraper.config import Config, ConfigError
 
-
 # ============================================================================
 # TEST INFRASTRUCTURE - FIXTURES AND HELPERS
 # ============================================================================

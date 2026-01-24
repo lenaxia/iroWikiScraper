@@ -121,13 +121,11 @@ class XMLExporter:
         """
         with self.database.get_connection() as conn:
             # Get all pages ordered by page_id
-            pages_cursor = conn.execute(
-                """
+            pages_cursor = conn.execute("""
                 SELECT page_id, namespace, title, is_redirect
                 FROM pages
                 ORDER BY page_id
-                """
-            )
+                """)
 
             for page_row in pages_cursor:
                 # Import here to avoid circular dependency
