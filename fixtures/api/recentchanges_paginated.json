@@ -1,0 +1,40 @@
+{
+    "continue": {
+        "rccontinue": "20260115120000|12350",
+        "continue": "-||"
+    },
+    "query": {
+        "recentchanges": [
+            {
+                "rcid": 12348,
+                "type": "edit",
+                "ns": 0,
+                "title": "Item_Page_1",
+                "pageid": 200,
+                "revid": 100010,
+                "old_revid": 100009,
+                "timestamp": "2026-01-15T11:00:00Z",
+                "user": "Editor1",
+                "userid": 10,
+                "comment": "Updated item stats",
+                "oldlen": 1000,
+                "newlen": 1100
+            },
+            {
+                "rcid": 12349,
+                "type": "edit",
+                "ns": 0,
+                "title": "Item_Page_2",
+                "pageid": 201,
+                "revid": 100011,
+                "old_revid": 100010,
+                "timestamp": "2026-01-15T11:30:00Z",
+                "user": "Editor2",
+                "userid": 11,
+                "comment": "Fixed typo",
+                "oldlen": 800,
+                "newlen": 805
+            }
+        ]
+    }
+}

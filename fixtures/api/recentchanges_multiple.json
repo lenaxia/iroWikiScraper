@@ -1,0 +1,86 @@
+{
+    "batchcomplete": "",
+    "query": {
+        "recentchanges": [
+            {
+                "rcid": 12350,
+                "type": "new",
+                "ns": 0,
+                "title": "New_Monster_Page",
+                "pageid": 3000,
+                "revid": 110000,
+                "old_revid": 0,
+                "timestamp": "2026-01-20T08:00:00Z",
+                "user": "WikiEditor",
+                "userid": 50,
+                "comment": "Added new monster info",
+                "oldlen": 0,
+                "newlen": 2500
+            },
+            {
+                "rcid": 12351,
+                "type": "edit",
+                "ns": 0,
+                "title": "Geffen",
+                "pageid": 150,
+                "revid": 110001,
+                "old_revid": 109999,
+                "timestamp": "2026-01-20T09:15:00Z",
+                "user": "MapExpert",
+                "userid": 60,
+                "comment": "Updated dungeon entrance location",
+                "oldlen": 3500,
+                "newlen": 3700
+            },
+            {
+                "rcid": 12352,
+                "type": "log",
+                "ns": 0,
+                "title": "Test_Page",
+                "pageid": 0,
+                "revid": 0,
+                "old_revid": 0,
+                "timestamp": "2026-01-20T10:30:00Z",
+                "user": "Moderator",
+                "userid": 5,
+                "comment": "Test page no longer needed",
+                "logtype": "delete",
+                "logaction": "delete",
+                "oldlen": 0,
+                "newlen": 0
+            },
+            {
+                "rcid": 12353,
+                "type": "edit",
+                "ns": 1,
+                "title": "Talk:Main_Page",
+                "pageid": 1001,
+                "revid": 110002,
+                "old_revid": 110000,
+                "timestamp": "2026-01-20T11:00:00Z",
+                "user": "Contributor",
+                "userid": 70,
+                "comment": "Reply to discussion",
+                "oldlen": 500,
+                "newlen": 750
+            },
+            {
+                "rcid": 12354,
+                "type": "log",
+                "ns": 6,
+                "title": "File:Screenshot.png",
+                "pageid": 0,
+                "revid": 0,
+                "old_revid": 0,
+                "timestamp": "2026-01-20T12:00:00Z",
+                "user": "FileAdmin",
+                "userid": 80,
+                "comment": "Uploaded new screenshot",
+                "logtype": "upload",
+                "logaction": "upload",
+                "oldlen": 0,
+                "newlen": 0
+            }
+        ]
+    }
+}

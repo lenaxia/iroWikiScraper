@@ -1,0 +1,69 @@
+{
+    "batchcomplete": "",
+    "query": {
+        "recentchanges": [
+            {
+                "type": "new",
+                "ns": 0,
+                "title": "Poring",
+                "pageid": 200,
+                "revid": 10001,
+                "old_revid": 0,
+                "rcid": 1001,
+                "timestamp": "2026-01-10T10:00:00Z",
+                "user": "Alice",
+                "userid": 10,
+                "comment": "Created monster page",
+                "oldlen": 0,
+                "newlen": 800
+            },
+            {
+                "type": "edit",
+                "ns": 0,
+                "title": "Poring",
+                "pageid": 200,
+                "revid": 10002,
+                "old_revid": 10001,
+                "rcid": 1002,
+                "timestamp": "2026-01-10T11:00:00Z",
+                "user": "Bob",
+                "userid": 11,
+                "comment": "Added stats",
+                "oldlen": 800,
+                "newlen": 1200
+            },
+            {
+                "type": "edit",
+                "ns": 0,
+                "title": "Prontera",
+                "pageid": 300,
+                "revid": 20001,
+                "old_revid": 20000,
+                "rcid": 2001,
+                "timestamp": "2026-01-11T10:00:00Z",
+                "user": "Charlie",
+                "userid": 12,
+                "comment": "Updated map",
+                "oldlen": 5000,
+                "newlen": 5500
+            },
+            {
+                "type": "log",
+                "ns": 0,
+                "title": "Bad_Page",
+                "pageid": 0,
+                "revid": 0,
+                "old_revid": 0,
+                "rcid": 3001,
+                "timestamp": "2026-01-12T10:00:00Z",
+                "user": "Admin",
+                "userid": 1,
+                "comment": "Spam",
+                "logtype": "delete",
+                "logaction": "delete",
+                "oldlen": 0,
+                "newlen": 0
+            }
+        ]
+    }
+}

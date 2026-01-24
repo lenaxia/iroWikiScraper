@@ -1,0 +1,22 @@
+{
+    "batchcomplete": "",
+    "query": {
+        "recentchanges": [
+            {
+                "rcid": 12345,
+                "type": "new",
+                "ns": 0,
+                "title": "New_Page",
+                "pageid": 2500,
+                "revid": 100000,
+                "old_revid": 0,
+                "timestamp": "2026-01-15T10:30:00Z",
+                "user": "Editor",
+                "userid": 42,
+                "comment": "Created new page about Poring",
+                "oldlen": 0,
+                "newlen": 1500
+            }
+        ]
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "batchcomplete": "",
+    "query": {
+        "recentchanges": [
+            {
+                "type": "edit",
+                "ns": 0,
+                "title": "Prontera",
+                "pageid": 100,
+                "revid": 100001,
+                "old_revid": 99999,
+                "rcid": 12346,
+                "timestamp": "2026-01-15T14:20:00Z",
+                "user": "Admin",
+                "userid": 1,
+                "comment": "Updated NPC locations",
+                "oldlen": 5000,
+                "newlen": 5200
+            }
+        ]
+    }
+}

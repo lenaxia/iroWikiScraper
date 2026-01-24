@@ -1,0 +1,25 @@
+{
+    "continue": {
+        "rccontinue": "20260116090000|12348",
+        "continue": "-||"
+    },
+    "query": {
+        "recentchanges": [
+            {
+                "type": "edit",
+                "ns": 0,
+                "title": "Geffen",
+                "pageid": 101,
+                "revid": 100002,
+                "old_revid": 100000,
+                "rcid": 12348,
+                "timestamp": "2026-01-16T08:00:00Z",
+                "user": "Bob",
+                "userid": 2,
+                "comment": "Fixed typos",
+                "oldlen": 3000,
+                "newlen": 3010
+            }
+        ]
+    }
+}

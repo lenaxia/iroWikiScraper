@@ -1,0 +1,24 @@
+{
+    "batchcomplete": "",
+    "query": {
+        "recentchanges": [
+            {
+                "type": "log",
+                "ns": 0,
+                "title": "Spam_Page",
+                "pageid": 0,
+                "revid": 0,
+                "old_revid": 0,
+                "rcid": 12347,
+                "timestamp": "2026-01-16T09:00:00Z",
+                "user": "Admin",
+                "userid": 1,
+                "comment": "Spam content",
+                "logtype": "delete",
+                "logaction": "delete",
+                "oldlen": 0,
+                "newlen": 0
+            }
+        ]
+    }
+}
