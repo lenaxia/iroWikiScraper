@@ -175,15 +175,17 @@ class TestTimelineQueries:
             conn.execute(
                 f"INSERT INTO pages (page_id, namespace, title) VALUES ({i}, 0, 'Page{i}')"
             )
+            # fmt: off
             conn.execute(
                 """
                 INSERT INTO revisions
                 (revision_id, page_id, parent_id, timestamp, user, user_id, comment,
                  content, size, sha1, minor, tags)
-                VALUES (?, ?, NULL, '2024-01-01T10:00:00', 'User', 1, '', 'Content', 7, 'abc', 0, NULL)  # noqa: E501
-            """,
+                VALUES (?, ?, NULL, '2024-01-01T10:00:00', 'User', 1, '', 'Content', 7, 'abc', 0, NULL)
+            """,  # noqa: E501
                 (i * 10, i),
             )
+            # fmt: on
         conn.commit()
 
         # Test limit
