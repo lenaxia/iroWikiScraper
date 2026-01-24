@@ -4,6 +4,8 @@ import logging
 from typing import List, Dict, Any, Optional
 
 from scraper.api.client import MediaWikiAPIClient
+from scraper.api.validation import ResponseValidator
+from scraper.api.exceptions import APIResponseError
 from scraper.storage.models import Page
 
 logger = logging.getLogger(__name__)
@@ -71,6 +73,10 @@ class PageDiscovery:
         pages = []
         continue_params: Optional[Dict[str, Any]] = None
 
+        # Detect API version on first use
+        if not self.api.api_version_detected:
+            self.api._detect_api_version()
+
         logger.info(f"Starting discovery for namespace {namespace}")
 
         while True:
@@ -83,22 +89,33 @@ class PageDiscovery:
 
             # Add continuation parameters if present
             if continue_params:
+                # Validate continuation token format
+                ResponseValidator.validate_continuation(
+                    continue_params, "page discovery"
+                )
                 params.update(continue_params)
 
             # Make API request
             response = self.api.query(params)
 
+            # Validate response structure
+            query = ResponseValidator.validate_query(response, "page discovery")
+
             # Extract pages from response
-            page_list = response.get("query", {}).get("allpages", [])
+            page_list = query.get("allpages", [])
 
             for page_data in page_list:
-                page = Page(
-                    page_id=page_data["pageid"],
-                    namespace=page_data["ns"],
-                    title=page_data["title"],
-                    is_redirect="redirect" in page_data,
-                )
-                pages.append(page)
+                try:
+                    page = self._parse_page_data(page_data)
+                    pages.append(page)
+                except APIResponseError as e:
+                    # Log error but continue with other pages
+                    logger.error(
+                        f"Failed to parse page data: {e}",
+                        extra={"page_data": page_data},
+                        exc_info=True,
+                    )
+                    continue
 
             # Log progress
             if (
@@ -115,6 +132,38 @@ class PageDiscovery:
 
         logger.info(f"Namespace {namespace} complete: {len(pages)} total pages")
         return pages
+
+    def _parse_page_data(self, page_data: Dict[str, Any]) -> Page:
+        """Parse page data with validation.
+
+        Args:
+            page_data: Raw page data from API
+
+        Returns:
+            Validated Page object
+
+        Raises:
+            APIResponseError: If page data is invalid
+        """
+        # Validate required fields
+        ResponseValidator.validate_required_fields(
+            page_data, required_fields=["pageid", "ns", "title"], context="page data"
+        )
+
+        # Safely extract fields with type validation
+        page_id = ResponseValidator.safe_get(page_data, "pageid", int, "page data")
+        namespace = ResponseValidator.safe_get(page_data, "ns", int, "page data")
+        title = ResponseValidator.safe_get(page_data, "title", str, "page data")
+
+        # Optional field - safe presence check
+        is_redirect = "redirect" in page_data
+
+        return Page(
+            page_id=page_id,
+            namespace=namespace,
+            title=title,
+            is_redirect=is_redirect,
+        )
 
     def discover_all_pages(self, namespaces: Optional[List[int]] = None) -> List[Page]:
         """Discover all pages across multiple namespaces.

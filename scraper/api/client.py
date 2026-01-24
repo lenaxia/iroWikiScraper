@@ -74,6 +74,12 @@ class MediaWikiAPIClient:
             else RateLimiter(requests_per_second=1.0)
         )
 
+        # API version detection and resilience
+        self.api_version: Optional[str] = None
+        self.api_version_detected: bool = False
+        self.api_warnings_seen: set = set()
+        self.warning_count: int = 0
+
     def _request(self, action: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """
         Make API request with retry logic.
@@ -237,13 +243,31 @@ class MediaWikiAPIClient:
                 http_status=response.status_code,
             )
 
-        # Log warnings but don't raise
+        # Track and log warnings with deduplication
         if "warnings" in data:
             for warning_type, warning_data in data["warnings"].items():
-                logger.warning(
-                    f"API warning: {warning_type}",
-                    extra={"warning_type": warning_type, "warning_data": warning_data},
-                )
+                # Create unique warning signature
+                warning_sig = f"{warning_type}:{str(warning_data)[:100]}"
+
+                if warning_sig not in self.api_warnings_seen:
+                    # NEW warning - log prominently
+                    self.api_warnings_seen.add(warning_sig)
+                    self.warning_count += 1
+
+                    logger.warning(
+                        f"NEW API WARNING #{self.warning_count}: {warning_type}",
+                        extra={
+                            "warning_type": warning_type,
+                            "warning_data": warning_data,
+                            "warning_number": self.warning_count,
+                        },
+                    )
+                else:
+                    # Known warning - debug level
+                    logger.debug(
+                        f"API warning (known): {warning_type}",
+                        extra={"warning_type": warning_type},
+                    )
 
         logger.debug(
             "API request successful", extra={"response_keys": list(data.keys())}
@@ -330,3 +354,59 @@ class MediaWikiAPIClient:
             >>> pages = data['query']['allpages']
         """
         return self._request("query", params)
+
+    def _detect_api_version(self) -> None:
+        """Detect MediaWiki version and validate compatibility.
+
+        This method queries the API for version information and logs warnings
+        if the detected version is not in the tested versions list.
+
+        The version is only detected once per client instance.
+        """
+        if self.api_version_detected:
+            return
+
+        try:
+            response = self.query({"meta": "siteinfo", "siprop": "general"})
+
+            general = response.get("query", {}).get("general", {})
+            version_string = general.get("generator", "Unknown")
+            self.api_version = version_string
+
+            logger.info(f"MediaWiki version: {self.api_version}")
+
+            # Check if version is tested/supported
+            tested_versions = ["1.44", "1.45", "1.46"]
+            if version_string != "Unknown" and not any(
+                v in version_string for v in tested_versions
+            ):
+                logger.warning(
+                    f"Untested MediaWiki version: {self.api_version}. "
+                    f"Scraper tested on: {', '.join(tested_versions)}. "
+                    f"Some features may not work correctly."
+                )
+
+            self.api_version_detected = True
+
+        except Exception as e:
+            logger.warning(
+                f"Could not detect MediaWiki version: {e}. "
+                f"Proceeding without version check."
+            )
+            self.api_version = "Unknown"
+            self.api_version_detected = True
+
+    def get_warning_summary(self) -> Dict[str, Any]:
+        """Get summary of API warnings encountered.
+
+        Returns:
+            Dictionary with warning statistics including:
+            - total_unique_warnings: Number of unique warnings seen
+            - warnings: List of warning signatures
+            - api_version: Detected MediaWiki version
+        """
+        return {
+            "total_unique_warnings": len(self.api_warnings_seen),
+            "warnings": list(self.api_warnings_seen),
+            "api_version": self.api_version,
+        }
