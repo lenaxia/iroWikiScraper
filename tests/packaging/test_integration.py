@@ -55,8 +55,8 @@ def populated_db(tmp_path):
             INSERT INTO revisions (revision_id, page_id, parent_id, timestamp,
                 user, user_id, comment, content, size, sha1, minor, tags)
             VALUES (2, 1, 1, '2024-01-02T00:00:00Z', 'Editor', 2, 'Updated content',
-                    'Welcome to the wiki! Updated.', 29, 'def456abc789012345678901234567890abcdef0', 0, NULL)  # noqa: E501
-            """)
+                    'Welcome to the wiki! Updated.', 29, 'def456abc789012345678901234567890abcdef0', 0, NULL)
+            """)  # noqa: E501
         conn.execute("""
             INSERT INTO revisions (revision_id, page_id, parent_id, timestamp,
                 user, user_id, comment, content, size, sha1, minor, tags)
@@ -65,13 +65,15 @@ def populated_db(tmp_path):
             """)
 
         # Add files
+        # fmt: off
         conn.execute("""
-            INSERT INTO files (filename, timestamp, uploader, size, width, height, sha1, mime_type, url, descriptionurl)  # noqa: E501
+            INSERT INTO files (filename, timestamp, uploader, size, width, height, sha1, mime_type, url, descriptionurl)
             VALUES ('Test.png', '2024-01-01T00:00:00Z', 'Admin', 1024, 100, 100,
                     'abcdef0123456789abcdef0123456789abcdef01', 'image/png',
                     'https://irowiki.org/~iro/images/Test.png',
                     'https://irowiki.org/wiki/File:Test.png')
-            """)
+            """)  # noqa: E501
+        # fmt: on
 
         conn.commit()
 

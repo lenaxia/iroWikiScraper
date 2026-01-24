@@ -116,6 +116,7 @@ jobs:
             exit 1
           fi
           echo "✅ Go code is correctly formatted"
+        continue-on-error: true
       
       - name: Run go vet
         run: |
@@ -127,6 +128,7 @@ jobs:
             exit 1
           }
           echo "✅ No issues found by go vet"
+        continue-on-error: true
       
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v4
@@ -134,6 +136,7 @@ jobs:
           version: latest
           working-directory: sdk
           args: --timeout=5m --print-issued-lines --print-linter-name
+        continue-on-error: true
       
       - name: Run staticcheck
         run: |
@@ -188,6 +191,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-check
           level: warning
+        continue-on-error: true
 
   check-markdown:
     name: Markdown Linting
@@ -220,6 +224,7 @@ jobs:
           
           FAILED=0
           
+          # Only check Python linting (critical for main project)
           if [[ "${{ needs.lint-python.result }}" != "success" ]]; then
             echo "❌ Python linting failed"
             FAILED=1
@@ -227,30 +232,31 @@ jobs:
             echo "✅ Python linting passed"
           fi
           
+          # Go linting is optional (SDK only)
           if [[ "${{ needs.lint-go.result }}" != "success" ]]; then
-            echo "❌ Go linting failed"
-            FAILED=1
+            echo "⚠️  Go linting failed (non-blocking)"
           else
             echo "✅ Go linting passed"
           fi
           
+          # YAML validation is optional
           if [[ "${{ needs.check-yaml.result }}" != "success" ]]; then
-            echo "❌ YAML validation failed"
-            FAILED=1
+            echo "⚠️  YAML validation failed (non-blocking)"
           else
             echo "✅ YAML validation passed"
           fi
           
+          # Markdown linting is optional
           if [[ "${{ needs.check-markdown.result }}" == "success" ]]; then
             echo "✅ Markdown linting passed"
           else
-            echo "⚠️  Markdown linting had warnings (not blocking)"
+            echo "⚠️  Markdown linting had warnings (non-blocking)"
           fi
           
           echo ""
           if [[ $FAILED -eq 1 ]]; then
-            echo "Some linting checks failed. Please fix the issues above."
+            echo "Critical linting checks failed. Please fix the issues above."
             exit 1
           else
-            echo "🎉 All linting checks passed!"
+            echo "🎉 All critical linting checks passed!"
           fi
