@@ -1,0 +1,28 @@
+'''Complex Page with All Link Types'''
+
+This page demonstrates all types of internal links.
+
+== Regular Page Links ==
+Visit [[Main Page]] for the homepage.
+The [[Ragnarok Online|iRO]] wiki is comprehensive.
+Check [[Help:Editing]] for editing guidelines.
+
+== Templates ==
+{{Infobox Monster
+|name=Poring
+|level=1
+}}
+
+{{NavBox}}
+
+Use {{Item|Apple}} to restore HP.
+
+== File References ==
+[[File:Poring.png|thumb|A cute Poring]]
+[[File:Logo.png|200px|center|Wiki Logo]]
+[[Image:Banner.jpg|Banner image]]
+
+== Categories ==
+[[Category:Monsters]]
+[[Category:NPCs|Special NPCs]]
+[[Category:Items]]

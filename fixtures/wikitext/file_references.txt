@@ -1,0 +1,21 @@
+'''File References Page'''
+
+This page contains various file references.
+
+== Images ==
+[[File:Monster_Poring.png|thumb|right|200px|A Poring monster]]
+[[File:Icon_Apple.png|32px|Apple icon]]
+[[Image:Map_Prontera.jpg|Map of Prontera]]
+
+== Gallery ==
+<gallery>
+File:Item1.png|Item 1
+File:Item2.png|Item 2
+File:Item3.png|Item 3
+</gallery>
+
+Direct link: [[File:Screenshot.png]]
+
+== Media Files ==
+[[File:Music_Theme.ogg|Theme music]]
+[[File:Video_Tutorial.webm|Tutorial video]]

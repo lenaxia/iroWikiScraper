@@ -1,0 +1,12 @@
+'''Categories Page'''
+
+This page belongs to multiple categories.
+
+Some content about monsters and items.
+
+[[Category:Monsters]]
+[[Category:Level 1 Monsters|Poring]]
+[[Category:Cute Monsters|*]]
+[[Category:Common Enemies]]
+[[Category:Drops]]
+[[Category:Prontera Field]]

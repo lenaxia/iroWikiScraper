@@ -1,0 +1,23 @@
+'''Malformed Wikitext'''
+
+This page has malformed wikitext to test error handling.
+
+Unclosed bracket: [[Unclosed Link
+
+Missing closing brackets: [[Link
+
+Nested incorrectly: [[Out [[Inner]] Out]]
+
+Template unclosed: {{Template
+
+Triple brackets: [[[Triple]]]
+
+Empty link: [[]]
+
+Empty template: {{}}
+
+Mixed: [[Valid Link]] and [[Broken
+
+Normal link after errors: [[Normal Page]]
+
+{{ValidTemplate}} after errors.

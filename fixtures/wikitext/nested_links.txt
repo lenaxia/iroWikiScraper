@@ -1,0 +1,30 @@
+'''Nested and Complex Structures'''
+
+This page has nested links and complex structures.
+
+{{Infobox Monster
+|name=[[Poring]]
+|location=[[Prontera]] [[Field]]
+|image=[[File:Poring.png]]
+}}
+
+Table with links:
+{| class="wikitable"
+|-
+! Monster !! Level !! Location
+|-
+| [[Poring]] || 1 || [[Prontera Field]]
+|-
+| [[Drops]] || 2 || [[Prontera Field]]
+|}
+
+Lists:
+* [[Apple]] - restores HP
+* [[Orange]] - also restores HP
+* See also: [[Consumables]]
+
+Template with template: {{ItemBox|{{Item|Apple}}}}
+
+Link in comment: <!-- [[This link is commented out]] -->
+
+External link (should ignore): [https://example.com External]

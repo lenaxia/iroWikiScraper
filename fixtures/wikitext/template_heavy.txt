@@ -1,0 +1,23 @@
+This page uses many templates.
+
+{{Stub}}
+{{Cleanup}}
+
+{{Infobox Item
+|name=Apple
+|type=Consumable
+|weight=1
+}}
+
+Use {{Item|Apple}} to heal {{HP|50}} points.
+
+{{NavBox Consumables}}
+
+{{See also|Orange|Banana}}
+
+Crafted using {{Recipe
+|material1=Wheat
+|material2=Sugar
+}}
+
+{{DEFAULTSORT:Apple}}

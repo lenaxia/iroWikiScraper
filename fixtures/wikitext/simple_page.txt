@@ -1,0 +1,7 @@
+This is a simple page with some basic links.
+
+You can find more information on [[Main Page]] and [[Help]].
+
+For monsters, check out [[Poring]] and [[Drops]].
+
+The [[Equipment]] page has details on gear.
