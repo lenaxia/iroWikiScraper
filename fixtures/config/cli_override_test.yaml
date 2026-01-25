@@ -1,0 +1,11 @@
+# Config file for testing CLI override precedence
+# These values should be overridden by CLI arguments
+
+scraper:
+  rate_limit: 1.5
+
+storage:
+  database_file: "config_file.db"
+
+logging:
+  level: "WARNING"

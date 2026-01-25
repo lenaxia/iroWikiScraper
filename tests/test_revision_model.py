@@ -234,22 +234,22 @@ class TestRevisionModel:
             )
 
     def test_revision_invalid_parent_id_greater_than_revision_id(self):
-        """Test that parent_id >= revision_id raises ValueError."""
-        with pytest.raises(
-            ValueError, match="parent_id .* must be less than revision_id"
-        ):
-            Revision(
-                revision_id=2002,
-                page_id=2,
-                parent_id=2002,  # Equal to revision_id
-                timestamp=datetime(2024, 1, 15, 10, 30, 0),
-                user="User",
-                user_id=1,
-                comment="Comment",
-                content="Content",
-                size=50,
-                sha1="abc",
-            )
+        """Test that parent_id >= revision_id is now allowed (MediaWiki can have non-chronological IDs)."""
+        # This used to raise ValueError, but we removed that constraint
+        # because MediaWiki revision IDs are not strictly chronological
+        revision = Revision(
+            revision_id=2002,
+            page_id=2,
+            parent_id=2002,  # Equal to revision_id - now allowed
+            timestamp=datetime(2024, 1, 15, 10, 30, 0),
+            user="User",
+            user_id=1,
+            comment="Comment",
+            content="Content",
+            size=50,
+            sha1="abc",
+        )
+        assert revision.parent_id == 2002
 
     def test_revision_invalid_timestamp_not_datetime(self):
         """Test that non-datetime timestamp raises ValueError."""
@@ -286,7 +286,7 @@ class TestRevisionModel:
     def test_revision_invalid_user_id_negative(self):
         """Test that negative user_id raises ValueError."""
         with pytest.raises(
-            ValueError, match="user_id must be a positive integer or None"
+            ValueError, match="user_id must be a non-negative integer or None"
         ):
             Revision(
                 revision_id=1001,

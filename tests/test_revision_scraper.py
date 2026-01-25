@@ -262,7 +262,7 @@ class TestRevisionScraperParseRevision:
             "sha1": "abc123",
             "minor": "",  # Presence indicates minor edit
             "tags": ["visual edit"],
-            "slots": {"main": {"content": "Test content"}},
+            "slots": {"main": {"*": "Test content"}},
         }
 
         revision = scraper._parse_revision(rev_data, page_id=1)
@@ -291,7 +291,7 @@ class TestRevisionScraperParseRevision:
             "comment": "Created page",
             "size": 50,
             "sha1": "xyz",
-            "slots": {"main": {"content": "First content"}},
+            "slots": {"main": {"*": "First content"}},
         }
 
         revision = scraper._parse_revision(rev_data, page_id=1)
@@ -311,7 +311,7 @@ class TestRevisionScraperParseRevision:
             "comment": "Edit by hidden user",
             "size": 50,
             "sha1": "xyz",
-            "slots": {"main": {"content": "Content"}},
+            "slots": {"main": {"*": "Content"}},
         }
 
         revision = scraper._parse_revision(rev_data, page_id=1)
@@ -332,7 +332,7 @@ class TestRevisionScraperParseRevision:
             "comment": "Major edit",
             "size": 50,
             "sha1": "xyz",
-            "slots": {"main": {"content": "Content"}},
+            "slots": {"main": {"*": "Content"}},
             # No "minor" key - not a minor edit
         }
 
@@ -354,7 +354,7 @@ class TestRevisionScraperParseRevision:
             "size": 50,
             "sha1": "xyz",
             "tags": [],  # Empty tags
-            "slots": {"main": {"content": "Content"}},
+            "slots": {"main": {"*": "Content"}},
         }
 
         revision = scraper._parse_revision(rev_data, page_id=1)
