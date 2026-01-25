@@ -324,15 +324,23 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Announce release on Discord
-        if: success() && steps.scrape-params.outputs.announce == 'true' && secrets.DISCORD_WEBHOOK_URL != ''
+        if: success() && steps.scrape-params.outputs.announce == 'true'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
+          # Skip if webhook not configured
+          if [[ -z "$DISCORD_WEBHOOK_URL" ]]; then
+            echo "Discord webhook not configured, skipping announcement"
+            exit 0
+          fi
+          
           # Read stats for announcement
           TOTAL_PAGES=$(grep -oP 'Total pages: \K\d+' release-notes.md || echo "N/A")
           TOTAL_REVISIONS=$(grep -oP 'Total revisions: \K\d+' release-notes.md || echo "N/A")
           NEW_PAGES=$(grep -oP 'New pages: \K\d+' release-notes.md || echo "0")
           UPDATED_PAGES=$(grep -oP 'Updated pages: \K\d+' release-notes.md || echo "0")
           
-          curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+          curl -X POST "$DISCORD_WEBHOOK_URL" \
             -H "Content-Type: application/json" \
             -d @- <<EOF
           {
@@ -404,19 +412,27 @@ jobs:
           fi
       
       - name: Send failure notification to Discord
-        if: failure() && github.ref == 'refs/heads/main' && secrets.DISCORD_WEBHOOK_URL != ''
-        uses: sarisia/actions-status-discord@v1
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          status: ${{ job.status }}
-          title: "❌ Monthly Scrape Failed"
-          description: |
-            The monthly wiki scrape has failed.
-            
-            **Workflow:** ${{ github.workflow }}
-            **Job:** ${{ github.job }}
-            **Run:** [${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            
-            Please check the logs for details.
-          color: 0xff0000
-          username: "iRO Wiki Scraper"
+        if: failure() && github.ref == 'refs/heads/main'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          # Skip if webhook not configured
+          if [[ -z "$DISCORD_WEBHOOK_URL" ]]; then
+            echo "Discord webhook not configured, skipping notification"
+            exit 0
+          fi
+          
+          # Send notification using curl instead of action
+          curl -X POST "$DISCORD_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d @- <<EOF
+          {
+            "content": "❌ Monthly Scrape Failed",
+            "embeds": [{
+              "title": "Workflow Failed: ${{ github.workflow }}",
+              "description": "The monthly wiki scrape has failed.\n\n**Job:** ${{ github.job }}\n**Run:** [${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\n\nPlease check the logs for details.",
+              "color": 16711680,
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }]
+          }
+          EOF
