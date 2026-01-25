@@ -1,3 +1,4 @@
+# Force refresh - fixed secret checks in if conditions
 name: Manual Scrape
 
 # Manual workflow for on-demand scraping
