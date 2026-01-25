@@ -199,24 +199,24 @@ jobs:
           echo "Configuration file created:"
           cat config.yaml
       
-      - name: Run incremental scrape
+      - name: Run scrape
         id: scrape
         run: |
-          # Build scraper command
-          SCRAPER_CMD="python -m scraper scrape"
+          # Determine command based on scrape type
+          if [[ "${{ steps.scrape-params.outputs.scrape_type }}" == "full" ]]; then
+            if [[ "${{ steps.scrape-params.outputs.force }}" == "true" ]]; then
+              SCRAPER_CMD="python -m scraper full --force"
+            else
+              SCRAPER_CMD="python -m scraper full"
+            fi
+          else
+            SCRAPER_CMD="python -m scraper incremental"
+          fi
+          
+          # Add global options
           SCRAPER_CMD="$SCRAPER_CMD --config config.yaml"
           SCRAPER_CMD="$SCRAPER_CMD --database data/irowiki.db"
           SCRAPER_CMD="$SCRAPER_CMD --log-level INFO"
-          
-          if [[ "${{ steps.scrape-params.outputs.scrape_type }}" == "full" ]]; then
-            SCRAPER_CMD="$SCRAPER_CMD --force-full"
-          else
-            SCRAPER_CMD="$SCRAPER_CMD --incremental"
-          fi
-          
-          if [[ "${{ steps.scrape-params.outputs.force }}" == "true" ]]; then
-            SCRAPER_CMD="$SCRAPER_CMD --force"
-          fi
           
           # Run scraper with output streaming
           echo "Executing: $SCRAPER_CMD"
