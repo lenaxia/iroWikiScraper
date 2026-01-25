@@ -209,9 +209,17 @@ jobs:
           compression-level: 9
       
       - name: Send success notification
-        if: success() && github.event.inputs.notify == 'true' && secrets.DISCORD_WEBHOOK_URL != ''
+        if: success() && github.event.inputs.notify == 'true'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+          # Skip if webhook not configured
+          if [[ -z "$DISCORD_WEBHOOK_URL" ]]; then
+            echo "Discord webhook not configured, skipping notification"
+            exit 0
+          fi
+          
+          curl -X POST "$DISCORD_WEBHOOK_URL" \
             -H "Content-Type: application/json" \
             -d @- <<EOF
           {
@@ -241,15 +249,26 @@ jobs:
           EOF
       
       - name: Send failure notification
-        if: failure() && github.event.inputs.notify == 'true' && secrets.DISCORD_WEBHOOK_URL != ''
-        uses: sarisia/actions-status-discord@v1
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          status: ${{ job.status }}
-          title: "❌ Manual Scrape Failed"
-          description: |
-            Manual scrape triggered by @${{ github.actor }} has failed.
-            
-            **Reason:** ${{ github.event.inputs.reason }}
-            **Scrape type:** ${{ github.event.inputs.scrape_type }}
-          color: 0xff0000
+        if: failure() && github.event.inputs.notify == 'true'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          # Skip if webhook not configured
+          if [[ -z "$DISCORD_WEBHOOK_URL" ]]; then
+            echo "Discord webhook not configured, skipping notification"
+            exit 0
+          fi
+          
+          curl -X POST "$DISCORD_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d @- <<EOF
+          {
+            "content": "❌ Manual Scrape Failed",
+            "embeds": [{
+              "title": "Manual scrape failed",
+              "description": "Manual scrape triggered by @${{ github.actor }} has failed.\n\n**Reason:** ${{ github.event.inputs.reason }}\n**Scrape type:** ${{ github.event.inputs.scrape_type }}",
+              "color": 16711680,
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }]
+          }
+          EOF
