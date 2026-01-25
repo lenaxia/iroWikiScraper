@@ -141,13 +141,13 @@ echo "SELECT 'Database size' as Property, '$DB_SIZE_HUMAN' as Value;" | sqlite3 
 
 # Get last scrape run info if available
 if sqlite3 "$DATABASE" "SELECT name FROM sqlite_master WHERE type='table' AND name='scrape_runs';" | grep -q "scrape_runs"; then
-    sqlite3 "$DATABASE" <<SQL
+    sqlite3 "$DATABASE" -markdown <<SQL
 SELECT 'Last scrape' as Property, 
        datetime(MAX(start_time), 'localtime') as Value
 FROM scrape_runs;
 
-SELECT 'Scrape type' as Property,
-       scrape_type as Value
+SELECT 'Scrape status' as Property,
+       status as Value
 FROM scrape_runs
 ORDER BY start_time DESC
 LIMIT 1;

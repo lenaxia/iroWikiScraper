@@ -209,7 +209,9 @@ class IncrementalRevisionScraper:
             parent_id=rev_data.get("parentid") or None,  # Convert 0 to None
             timestamp=timestamp,
             user=rev_data.get("user", ""),
-            user_id=rev_data.get("userid") or None,  # Convert 0 to None
+            user_id=rev_data.get("userid")
+            if "userid" in rev_data
+            else None,  # 0 is valid for anonymous edits
             comment=rev_data.get("comment", ""),
             content=content,
             size=rev_data.get("size", 0),

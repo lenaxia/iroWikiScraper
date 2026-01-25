@@ -143,11 +143,12 @@ class RevisionScraper:
             Parsed Revision object
         """
         # Extract content from slots structure
+        # MediaWiki returns content in slots.main.* (not slots.main.content)
         content = ""
         if self.include_content:
             slots = rev_data.get("slots", {})
             main_slot = slots.get("main", {})
-            content = main_slot.get("content", "")
+            content = main_slot.get("*", "")
 
         # Parse timestamp (ISO 8601 format from MediaWiki)
         timestamp_str = rev_data.get("timestamp", "")

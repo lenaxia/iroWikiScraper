@@ -121,12 +121,8 @@ class Revision:
                 raise ValueError(
                     f"parent_id must be a positive integer or None, got: {self.parent_id}"
                 )
-            # Parent ID should be less than current revision ID (temporal ordering)
-            if self.parent_id >= self.revision_id:
-                raise ValueError(
-                    f"parent_id ({self.parent_id}) must be less than "
-                    f"revision_id ({self.revision_id})"
-                )
+            # Note: We don't enforce parent_id < revision_id because MediaWiki
+            # revision IDs are not strictly chronological (can be reordered/restored)
 
         # Validate timestamp
         if not isinstance(self.timestamp, datetime):
@@ -138,12 +134,12 @@ class Revision:
         if not isinstance(self.user, str):
             raise ValueError(f"user must be a string, got: {type(self.user)}")
 
-        # Validate user_id (can be None for deleted/anonymous users)
+        # Validate user_id (can be None for deleted users, or 0 for anonymous edits)
         if self.user_id is not None and (
-            not isinstance(self.user_id, int) or self.user_id <= 0
+            not isinstance(self.user_id, int) or self.user_id < 0
         ):
             raise ValueError(
-                f"user_id must be a positive integer or None, got: {self.user_id}"
+                f"user_id must be a non-negative integer or None, got: {self.user_id}"
             )
 
         # Validate comment (can be empty string)
