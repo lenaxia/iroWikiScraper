@@ -22,7 +22,7 @@
               "main": {
                 "contentmodel": "wikitext",
                 "contentformat": "text/x-wiki",
-                "content": "Welcome to the wiki!\n\n== Getting Started ==\nThis is the main page."
+                "*": "Welcome to the wiki!\n\n== Getting Started ==\nThis is the main page."
               }
             }
           }

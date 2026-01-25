@@ -19,7 +19,7 @@
             "minor": false,
             "slots": {
               "main": {
-                "content": "Poring is a cute monster."
+                "*": "Poring is a cute monster."
               }
             }
           },
@@ -36,7 +36,7 @@
             "tags": ["visual edit"],
             "slots": {
               "main": {
-                "content": "Poring is a cute monster.\n\n== Stats ==\nHP: 50"
+                "*": "Poring is a cute monster.\n\n== Stats ==\nHP: 50"
               }
             }
           },
@@ -52,7 +52,7 @@
             "minor": true,
             "slots": {
               "main": {
-                "content": "Poring is a cute monster.\n\n== Stats ==\nHP: 50\nATK: 5"
+                "*": "Poring is a cute monster.\n\n== Stats ==\nHP: 50\nATK: 5"
               }
             }
           }

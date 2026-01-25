@@ -18,7 +18,7 @@
             "sha1": "oldsha1",
             "slots": {
               "main": {
-                "content": "Old content"
+                "*": "Old content"
               }
             }
           }

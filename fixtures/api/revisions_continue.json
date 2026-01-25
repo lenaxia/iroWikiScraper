@@ -21,7 +21,7 @@
             "sha1": "sha5001",
             "slots": {
               "main": {
-                "content": "Content for revision 5001"
+                "*": "Content for revision 5001"
               }
             }
           }
