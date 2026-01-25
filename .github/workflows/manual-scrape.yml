@@ -123,17 +123,21 @@ jobs:
       - name: Run scraper
         id: scrape
         run: |
-          CMD="python -m scraper scrape --config config.yaml"
-          
+          # Determine command based on scrape type
           if [[ "${{ github.event.inputs.scrape_type }}" == "full" ]]; then
-            CMD="$CMD --force-full"
+            if [[ "${{ github.event.inputs.force }}" == "true" ]]; then
+              CMD="python -m scraper full --force"
+            else
+              CMD="python -m scraper full"
+            fi
           else
-            CMD="$CMD --incremental"
+            CMD="python -m scraper incremental"
           fi
           
-          if [[ "${{ github.event.inputs.force }}" == "true" ]]; then
-            CMD="$CMD --force"
-          fi
+          # Add global options
+          CMD="$CMD --config config.yaml"
+          CMD="$CMD --database data/irowiki.db"
+          CMD="$CMD --log-level INFO"
           
           echo "Running: $CMD"
           $CMD 2>&1 | tee logs/scrape.log
