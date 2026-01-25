@@ -40,8 +40,8 @@ SELECT '---' as Metric, '---' as Count;
 
 SELECT 'Total pages' as Metric, COUNT(*) as Count FROM pages;
 SELECT 'Total revisions' as Metric, COUNT(*) as Count FROM revisions;
-SELECT 'Total users' as Metric, COUNT(DISTINCT user_name) as Count FROM revisions WHERE user_name IS NOT NULL;
-SELECT 'Total files' as Metric, COUNT(*) as Count FROM files WHERE file_exists = 1;
+SELECT 'Total users' as Metric, COUNT(DISTINCT user) as Count FROM revisions WHERE user IS NOT NULL;
+SELECT 'Total files' as Metric, COUNT(*) as Count FROM files;
 
 -- Recent activity (last 30 days)
 SELECT '' as '';
@@ -67,10 +67,10 @@ FROM revisions
 WHERE timestamp >= datetime('now', '-30 days');
 
 SELECT 'Active users' as Metric,
-       COUNT(DISTINCT user_name) as Count
+       COUNT(DISTINCT user) as Count
 FROM revisions 
 WHERE timestamp >= datetime('now', '-30 days') 
-  AND user_name IS NOT NULL;
+  AND user IS NOT NULL;
 
 -- Namespace breakdown
 SELECT '' as '';
@@ -114,11 +114,11 @@ SELECT 'User' as User, 'Edits' as Edits;
 SELECT '---' as User, '---' as Edits;
 
 SELECT 
-    COALESCE(user_name, 'Anonymous') as User,
+    COALESCE(user, 'Anonymous') as User,
     COUNT(*) as Edits
 FROM revisions
 WHERE timestamp >= datetime('now', '-30 days')
-GROUP BY user_name
+GROUP BY user
 ORDER BY COUNT(*) DESC
 LIMIT 10;
 
