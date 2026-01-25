@@ -1,0 +1,255 @@
+name: Manual Scrape
+
+# Manual workflow for on-demand scraping
+# Allows maintainers to trigger scrapes with custom parameters
+
+on:
+  workflow_dispatch:
+    inputs:
+      scrape_type:
+        description: 'Type of scrape to run'
+        required: true
+        default: 'incremental'
+        type: choice
+        options:
+          - incremental
+          - full
+      
+      force:
+        description: 'Force full scrape even if database exists'
+        required: false
+        default: false
+        type: boolean
+      
+      create_release:
+        description: 'Create GitHub release after scrape'
+        required: false
+        default: false
+        type: boolean
+      
+      notify:
+        description: 'Send notifications on completion/failure'
+        required: false
+        default: false
+        type: boolean
+      
+      reason:
+        description: 'Reason for manual trigger (for logging)'
+        required: false
+        default: 'Manual trigger'
+        type: string
+
+jobs:
+  manual-scrape:
+    name: Manual Scrape (${{ github.event.inputs.scrape_type }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 4320  # 3 days max
+    
+    steps:
+      - name: Log trigger information
+        run: |
+          echo "=== Manual Scrape Triggered ==="
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Trigger time: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo "Branch: ${{ github.ref_name }}"
+          echo ""
+          echo "=== Parameters ==="
+          echo "Scrape type: ${{ github.event.inputs.scrape_type }}"
+          echo "Force: ${{ github.event.inputs.force }}"
+          echo "Create release: ${{ github.event.inputs.create_release }}"
+          echo "Notify: ${{ github.event.inputs.notify }}"
+          echo "Reason: ${{ github.event.inputs.reason }}"
+      
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      
+      - name: Create directories
+        run: |
+          mkdir -p data/ downloads/ logs/ releases/
+      
+      - name: Download previous database
+        uses: actions/download-artifact@v4
+        with:
+          name: irowiki-database
+          path: data/
+        continue-on-error: true
+      
+      - name: Create configuration
+        run: |
+          cat > config.yaml <<'EOF'
+          base_url: https://irowiki.org
+          
+          database:
+            path: data/irowiki.db
+            type: sqlite
+          
+          rate_limit:
+            requests_per_second: 2
+            burst: 5
+            respect_retry_after: true
+          
+          incremental:
+            enabled: true
+            lookback_hours: 720
+            force_full: false
+          
+          logging:
+            level: INFO
+            format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            file: logs/scrape.log
+          
+          timeouts:
+            connect: 30
+            read: 60
+            total: 300
+          
+          retry:
+            max_attempts: 5
+            backoff_factor: 2
+          EOF
+      
+      - name: Run scraper
+        id: scrape
+        run: |
+          CMD="python -m scraper scrape --config config.yaml"
+          
+          if [[ "${{ github.event.inputs.scrape_type }}" == "full" ]]; then
+            CMD="$CMD --force-full"
+          else
+            CMD="$CMD --incremental"
+          fi
+          
+          if [[ "${{ github.event.inputs.force }}" == "true" ]]; then
+            CMD="$CMD --force"
+          fi
+          
+          echo "Running: $CMD"
+          $CMD 2>&1 | tee logs/scrape.log
+          
+          EXIT_CODE=${PIPESTATUS[0]}
+          if [[ $EXIT_CODE -ne 0 ]]; then
+            echo "::error::Scraper failed with exit code $EXIT_CODE"
+            exit $EXIT_CODE
+          fi
+          
+          echo "✓ Scrape completed successfully"
+        env:
+          PYTHONUNBUFFERED: "1"
+      
+      - name: Generate version tag
+        if: github.event.inputs.create_release == 'true'
+        id: version
+        run: |
+          VERSION="v$(date +%Y-%m-%d)"
+          RELEASE_VERSION="${VERSION}.manual-${{ github.run_number }}"
+          RELEASE_DATE="$(date +%Y-%m-%d)"
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "release_version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+          echo "release_date=$RELEASE_DATE" >> $GITHUB_OUTPUT
+      
+      - name: Generate statistics
+        if: github.event.inputs.create_release == 'true'
+        run: |
+          bash scripts/generate-stats.sh data/irowiki.db > release-notes.md || echo "Statistics generation not available"
+      
+      - name: Package release
+        if: github.event.inputs.create_release == 'true'
+        run: |
+          bash scripts/package-release.sh "${{ steps.version.outputs.release_version }}" || echo "Packaging not available"
+      
+      - name: Create GitHub Release
+        if: success() && github.event.inputs.create_release == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.release_version }}
+          name: iRO Wiki Archive - Manual - ${{ steps.version.outputs.release_date }}
+          body: |
+            Manual scrape triggered by @${{ github.actor }}
+            
+            **Reason:** ${{ github.event.inputs.reason }}
+            **Scrape type:** ${{ github.event.inputs.scrape_type }}
+            
+            See release-notes.md for detailed statistics.
+          files: |
+            releases/*.tar.gz*
+            releases/*.sha256
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manual-scrape-logs-${{ github.run_number }}
+          path: logs/
+          retention-days: 30
+      
+      - name: Upload database
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: irowiki-database
+          path: data/irowiki.db
+          retention-days: 90
+          compression-level: 9
+      
+      - name: Send success notification
+        if: success() && github.event.inputs.notify == 'true'
+        run: |
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d @- <<EOF
+          {
+            "embeds": [{
+              "title": "✅ Manual Scrape Completed",
+              "description": "${{ github.event.inputs.reason }}",
+              "color": 5814783,
+              "fields": [
+                {
+                  "name": "Triggered by",
+                  "value": "${{ github.actor }}",
+                  "inline": true
+                },
+                {
+                  "name": "Scrape type",
+                  "value": "${{ github.event.inputs.scrape_type }}",
+                  "inline": true
+                },
+                {
+                  "name": "Logs",
+                  "value": "[View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+                }
+              ],
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }]
+          }
+          EOF
+      
+      - name: Send failure notification
+        if: failure() && github.event.inputs.notify == 'true'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          status: ${{ job.status }}
+          title: "❌ Manual Scrape Failed"
+          description: |
+            Manual scrape triggered by @${{ github.actor }} has failed.
+            
+            **Reason:** ${{ github.event.inputs.reason }}
+            **Scrape type:** ${{ github.event.inputs.scrape_type }}
+          color: 0xff0000
