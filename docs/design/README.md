@@ -109,7 +109,7 @@ Small bug fixes and minor tweaks don't need design docs.
 <!-- Maintain this list as documents are added -->
 
 ### Architecture
-- *No documents yet*
+- [2026-01-26: goKore Integration](2026-01-26_01_gokore_integration.md) - Integration with goKore bot manager as shared resource
 
 ### Database
 - *No documents yet*
