@@ -334,11 +334,11 @@ class DatabaseReader:
                 r.revision_id,
                 r.content,
                 r.timestamp,
-                r.contributor_name,
+                r.user as contributor_name,
                 p.is_redirect
             FROM pages p
             JOIN (
-                SELECT page_id, revision_id, content, timestamp, contributor_name
+                SELECT page_id, revision_id, content, timestamp, user
                 FROM revisions
                 WHERE (page_id, timestamp) IN (
                     SELECT page_id, MAX(timestamp)
