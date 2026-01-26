@@ -1,11 +1,14 @@
-# iRO Wiki Vector Client (Go)
+# iRO Wiki Vector Utilities (Go)
 
-Go client library for semantic search on iRO Wiki vector databases.
+Go utilities for working with iRO Wiki vector databases. This package provides helper types and functions for loading metadata and working with search results.
+
+**Note:** This package provides utilities only. You'll need to use the [Qdrant Go client](https://github.com/qdrant/go-client) directly for vector database operations.
 
 ## Installation
 
 ```bash
 go get github.com/lenaxia/iroWikiScraper/sdk/vector
+go get github.com/qdrant/go-client
 ```
 
 ## Quick Start
@@ -19,81 +22,30 @@ import (
 	"log"
 
 	"github.com/lenaxia/iroWikiScraper/sdk/vector"
+	qdrant "github.com/qdrant/go-client/qdrant"
 )
 
 func main() {
-	// Create embedder (you need to provide your own implementation)
-	embedder := &MyEmbedder{}  // Implement vector.Embedder interface
+	// Load metadata
+	metadata, err := vector.LoadMetadata("path/to/vector_db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Database: %s, %d chunks from %d pages\n", 
+		metadata.Model, metadata.TotalChunks, metadata.TotalPages)
 
-	// Initialize client
-	client, err := vector.NewQdrantClient(
-		"path/to/qdrant_storage",
-		"irowiki",
-		embedder,
-	)
+	// Create Qdrant client
+	client, err := qdrant.NewClient(&qdrant.Config{
+		Host: "localhost",
+		Port: 6334,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer client.Close()
 
-	// Search
-	results, err := client.Search(context.Background(), "best weapon for undead", 5)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Display results
-	for _, result := range results {
-		fmt.Printf("%s: %.3f\n", result.PageTitle, result.Score)
-		fmt.Printf("  %s...\n", result.Content[:200])
-	}
-}
-```
-
-## Implementing an Embedder
-
-You need to provide your own embedding implementation:
-
-```go
-type MyEmbedder struct {
-	// Your embedding model
-}
-
-func (e *MyEmbedder) Embed(text string) ([]float32, error) {
-	// Call your embedding API or model
-	// Return embedding vector
-	return embeddings, nil
-}
-```
-
-### Using OpenAI
-
-```go
-import "github.com/sashabaranov/go-openai"
-
-type OpenAIEmbedder struct {
-	client *openai.Client
-}
-
-func NewOpenAIEmbedder(apiKey string) *OpenAIEmbedder {
-	return &OpenAIEmbedder{
-		client: openai.NewClient(apiKey),
-	}
-}
-
-func (e *OpenAIEmbedder) Embed(text string) ([]float32, error) {
-	resp, err := e.client.CreateEmbeddings(
-		context.Background(),
-		openai.EmbeddingRequest{
-			Input: []string{text},
-			Model: openai.AdaEmbeddingV2,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp.Data[0].Embedding, nil
+	// Perform search (you'll need to generate embeddings separately)
+	// See https://github.com/qdrant/go-client for full API
 }
 ```
 
@@ -103,101 +55,157 @@ func (e *OpenAIEmbedder) Embed(text string) ([]float32, error) {
 
 ```go
 type SearchResult struct {
-	PageTitle    string
-	SectionTitle *string
-	Content      string
-	Score        float32
-	ChunkType    string
-	Namespace    int
-	PageID       int
+	PageTitle    string  `json:"page_title"`
+	SectionTitle *string `json:"section_title,omitempty"`
+	Content      string  `json:"content"`
+	Score        float32 `json:"score"`
+	ChunkType    string  `json:"chunk_type"`
+	Namespace    int     `json:"namespace"`
+	PageID       int     `json:"page_id"`
 }
 
 type Metadata struct {
-	GeneratedAt   string
-	Model         string
-	EmbeddingDim  int
-	ChunkLevel    string
-	TotalPages    int
-	TotalChunks   int
-	ChunksPerPage float64
+	GeneratedAt   string  `json:"generated_at"`
+	Model         string  `json:"model"`
+	EmbeddingDim  int     `json:"embedding_dim"`
+	ChunkLevel    string  `json:"chunk_level"`
+	TotalPages    int     `json:"total_pages"`
+	TotalChunks   int     `json:"total_chunks"`
+	ChunksPerPage float64 `json:"chunks_per_page"`
 }
 ```
 
-### VectorClient Interface
+### Functions
 
 ```go
-type VectorClient interface {
-	Search(ctx context.Context, query string, limit int) ([]SearchResult, error)
-	SearchWithFilters(ctx context.Context, query string, limit int, filters map[string]interface{}) ([]SearchResult, error)
-	GetMetadata() (*Metadata, error)
-	Close() error
-}
+// LoadMetadata loads metadata.json from the vector database directory
+func LoadMetadata(dbPath string) (*Metadata, error)
 ```
 
-### QdrantClient
+## Complete Example with Qdrant
 
 ```go
-func NewQdrantClient(dbPath string, collectionName string, embedder Embedder) (*QdrantClient, error)
-```
+package main
 
-**Methods:**
-- `Search(ctx context.Context, query string, limit int) ([]SearchResult, error)`
-- `SearchWithFilters(ctx context.Context, query string, limit int, filters map[string]interface{}) ([]SearchResult, error)`
-- `GetMetadata() (*Metadata, error)`
-- `Close() error`
+import (
+	"context"
+	"fmt"
+	"log"
 
-## Advanced Usage
-
-### Search with Filters
-
-```go
-// Search only in main namespace
-results, err := client.SearchWithFilters(
-	context.Background(),
-	"poison resistance",
-	5,
-	map[string]interface{}{
-		"namespace": 0,
-	},
+	"github.com/lenaxia/iroWikiScraper/sdk/vector"
+	qdrant "github.com/qdrant/go-client/qdrant"
 )
-```
 
-### Context with Timeout
-
-```go
-ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-defer cancel()
-
-results, err := client.Search(ctx, "query", 10)
-```
-
-## Example: RAG Integration
-
-```go
-func buildRAGContext(client vector.VectorClient, query string, maxTokens int) (string, error) {
-	// Retrieve relevant chunks
-	results, err := client.Search(context.Background(), query, 20)
+func main() {
+	// Load metadata
+	metadata, err := vector.LoadMetadata("./vector_qdrant_minilm_section")
 	if err != nil {
-		return "", err
+		log.Fatal(err)
 	}
 
-	// Build context within token limit
-	var context strings.Builder
-	tokens := 0
+	// Create Qdrant client
+	client, err := qdrant.NewClient(&qdrant.Config{
+		Host: "localhost",
+		Port: 6334,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Close()
 
-	for _, result := range results {
-		chunkTokens := len(result.Content) / 4  // Rough estimate
-		if tokens+chunkTokens > maxTokens {
-			break
+	// Generate query embedding (you need an embedding model)
+	queryEmbedding := getEmbedding("best weapon for undead")
+
+	// Search
+	searchResult, err := client.Query(context.Background(), &qdrant.QueryPoints{
+		CollectionName: "irowiki",
+		Query:          qdrant.NewQuery(queryEmbedding...),
+		Limit:          qdrant.PtrOf(uint64(5)),
+		WithPayload:    qdrant.NewWithPayload(true),
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Process results
+	for _, point := range searchResult {
+		result := vector.SearchResult{
+			Score: point.Score,
+		}
+		
+		// Extract payload
+		if payload := point.Payload; payload != nil {
+			if v, ok := payload["page_title"]; ok {
+				if s, ok := v.GetKind().(*qdrant.Value_StringValue); ok {
+					result.PageTitle = s.StringValue
+				}
+			}
+			if v, ok := payload["content"]; ok {
+				if s, ok := v.GetKind().(*qdrant.Value_StringValue); ok {
+					result.Content = s.StringValue
+				}
+			}
 		}
 
-		fmt.Fprintf(&context, "[%s]\n%s\n\n", result.PageTitle, result.Content)
-		tokens += chunkTokens
+		fmt.Printf("%s: %.3f\n", result.PageTitle, result.Score)
+		fmt.Printf("  %s...\n", result.Content[:min(200, len(result.Content))])
 	}
+}
 
-	return context.String(), nil
+func getEmbedding(text string) []float32 {
+	// Implement using your embedding model
+	// E.g., sentence-transformers, OpenAI, etc.
+	return []float32{}
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 ```
+
+## Generating Embeddings
+
+You'll need to generate embeddings separately. Here are some options:
+
+### Option 1: Using sentence-transformers via HTTP
+
+Run a local embedding server:
+```bash
+pip install sentence-transformers flask
+python -m flask run
+```
+
+Then call it from Go using HTTP requests.
+
+### Option 2: Using OpenAI API
+
+```go
+import "github.com/sashabaranov/go-openai"
+
+func getEmbedding(text string) ([]float32, error) {
+	client := openai.NewClient("your-api-key")
+	resp, err := client.CreateEmbeddings(
+		context.Background(),
+		openai.EmbeddingRequest{
+			Input: []string{text},
+			Model: openai.AdaEmbeddingV2,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Data[0].Embedding, nil
+}
+```
+
+### Option 3: Using a Go ML library
+
+Consider libraries like:
+- [gorgonia](https://github.com/gorgonia/gorgonia) for tensor operations
+- [onnxruntime-go](https://github.com/yalue/onnxruntime_go) to run ONNX models
 
 ## License
 
