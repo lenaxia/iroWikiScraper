@@ -331,14 +331,21 @@ class DatabaseReader:
                 p.page_id,
                 p.title as page_title,
                 p.namespace,
-                p.latest_revision_id,
                 r.revision_id,
                 r.content,
                 r.timestamp,
                 r.contributor_name,
                 p.is_redirect
             FROM pages p
-            JOIN revisions r ON p.latest_revision_id = r.revision_id
+            JOIN (
+                SELECT page_id, revision_id, content, timestamp, contributor_name
+                FROM revisions
+                WHERE (page_id, timestamp) IN (
+                    SELECT page_id, MAX(timestamp)
+                    FROM revisions
+                    GROUP BY page_id
+                )
+            ) r ON p.page_id = r.page_id
             WHERE p.namespace IN ({placeholders})
                 AND p.is_redirect = 0
                 AND LENGTH(r.content) > 0
