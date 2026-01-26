@@ -35,12 +35,14 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-vector.txt
       
-      - name: Download latest database artifact
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          workflow: scrape.yml
-          name: irowiki-database
-          path: data/
+      - name: Download database from release
+        run: |
+          mkdir -p data
+          gh release download ${{ github.event.release.tag_name || github.event.inputs.release_tag }} \
+            --pattern "irowiki-database-*.tar.gz" \
+            --dir data
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Extract database
         run: |
