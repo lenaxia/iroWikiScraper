@@ -69,22 +69,25 @@ Will update this as the scrape progresses:
 - Pages scraped: TBD
 - Revisions scraped: TBD
 
-### Final: Scrape Complete
-- End time: TBD
-- Total duration: TBD
-- Total pages: TBD
-- Total revisions: TBD
-- Total content: TBD MB
-- Database size: TBD
-- Performance: TBD pages/hour, TBD revisions/hour
+### Final: Scrape Complete ✅
+- **End time:** 2026-01-26 02:26:45 UTC
+- **Total duration:** 3 hours 7 minutes 17 seconds (11,237 seconds)
+- **Total pages:** 10,516
+- **Total revisions:** 84,486
+- **Total content:** 960.45 MB
+- **Database size:** 1.1 GB (compressed: 159 MB)
+- **Performance:** 3,369 pages/hour, 27,067 revisions/hour
+- **Average:** 8.03 revisions per page
 
 ## Post-Scrape Tasks
 
-- [ ] Verify data integrity
-- [ ] Create release package
-- [ ] Upload to GitHub releases
-- [ ] Update documentation with timing
+- [x] Verify data integrity
+- [x] Create release package
+- [x] Upload to GitHub releases
+- [x] Update documentation with timing
 - [ ] Add to README as reference for future scrapes
+
+**Release URL:** https://github.com/lenaxia/iroWikiScraper/releases/tag/v2026-01-26
 
 ## Notes
 
