@@ -2,6 +2,33 @@
 
 Since irowiki.org blocks GitHub Actions IP addresses, the recommended workflow is to run scrapes locally and publish releases manually.
 
+## What Gets Scraped
+
+### ✅ Included by Default
+- **Page content** - All wiki pages and revision history
+- **File metadata** - Filenames, URLs, sizes, dimensions, upload dates
+- **Links** - Internal page links and references
+- **Users** - Contributor information
+
+### ⚠️ Images (Optional)
+By default, only image **metadata** is scraped (URLs, sizes, etc.), not the actual image files.
+
+**Why?** 
+- Keeps database small (50-200 MB vs 500 MB - 5+ GB)
+- Faster scraping
+- Users can fetch images on-demand from URLs
+
+**To download images:**
+```bash
+# After scraping, download all images
+./scripts/download-images.sh
+
+# Or only specific types
+./scripts/download-images.sh --mime-type 'image/png' --max-size 5
+```
+
+See [Image Download Options](#image-download-options) below for details.
+
 ## Quick Start
 
 ### Initial Full Scrape
@@ -171,6 +198,81 @@ du -h data/irowiki.db
 # Vacuum database to reclaim space
 sqlite3 data/irowiki.db "VACUUM;"
 ```
+
+## Image Download Options
+
+### Option 1: Metadata Only (Default) ⭐ Recommended
+
+**What you get:**
+- File URLs, sizes, dimensions, SHA1 hashes
+- Users can fetch images on-demand from irowiki.org
+- Database: ~50-200 MB
+
+**Good for:**
+- Most users who just need text content
+- Quick scrapes and small releases
+- When disk space is limited
+
+**Usage:** Just run the normal scrape - metadata is included automatically.
+
+### Option 2: Download All Images
+
+**What you get:**
+- Complete offline archive
+- All images preserved even if wiki goes down
+- Database: ~50-200 MB + Images: ~500 MB - 5+ GB
+
+**Good for:**
+- Complete archival
+- Offline mirrors
+- When you need guaranteed access
+
+**Usage:**
+```bash
+# 1. Scrape wiki (gets metadata)
+./scripts/local-scrape-and-release.sh
+
+# 2. Download all images
+./scripts/download-images.sh
+
+# 3. Package everything
+cd data
+tar -czf irowiki-images-$(date +%Y-%m-%d).tar.gz images/
+
+# 4. Create separate release for images (optional)
+gh release upload v$(date +%Y-%m-%d) irowiki-images-$(date +%Y-%m-%d).tar.gz
+```
+
+### Option 3: Selective Download
+
+**Download only specific images:**
+
+```bash
+# Only PNG images under 5MB
+./scripts/download-images.sh --mime-type 'image/png' --max-size 5
+
+# Only game item images (would need custom filter)
+sqlite3 data/irowiki.db "SELECT filename FROM files WHERE filename LIKE '%Item%'" | \
+  while read f; do wget -P data/images/ "$(sqlite3 data/irowiki.db "SELECT url FROM files WHERE filename='$f'")"; done
+```
+
+### Image Storage Options
+
+**GitHub Releases:**
+- Pros: Free, integrated with repo
+- Cons: 2GB limit per file, 10GB per release
+- Best for: Metadata-only or small image sets
+
+**External Storage:**
+- Pros: Unlimited size, CDN support
+- Cons: Costs money, separate infrastructure
+- Options: AWS S3, Backblaze B2, DigitalOcean Spaces
+- Best for: Complete archives with many images
+
+**Torrent:**
+- Pros: Distributed, no hosting costs
+- Cons: Requires seeders, complex setup
+- Best for: Large community-driven archives
 
 ## Next Steps
 
