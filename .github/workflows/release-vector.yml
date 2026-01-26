@@ -156,6 +156,12 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
+          cache-dependency-path: sdk/vector/go.sum
+      
+      - name: Download Go dependencies
+        run: |
+          cd sdk/vector
+          go mod download
       
       - name: Build Go library
         run: |
