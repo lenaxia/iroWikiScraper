@@ -14,6 +14,10 @@ env:
   PYTHON_VERSION: '3.11'
   GO_VERSION: '1.22'
 
+permissions:
+  contents: write  # Required to upload release assets
+  packages: write  # Required for package publishing
+
 jobs:
   generate-vector-databases:
     name: Generate Vector Databases
@@ -200,68 +204,57 @@ jobs:
           ls -R artifacts/
       
       - name: Upload vector databases to release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.event.release.tag_name || github.event.inputs.release_tag }}
-          files: |
-            artifacts/vector-databases/*.tar.gz
-            artifacts/vector-databases/checksums.txt
-            artifacts/python-vector-client/*
-            artifacts/go-vector-client/*.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Generate release notes addendum
         run: |
-          cat >> release_notes.md <<'EOF'
+          TAG="${{ github.event.release.tag_name || github.event.inputs.release_tag }}"
+          echo "Uploading to release: $TAG"
           
+          # Upload vector databases
+          gh release upload "$TAG" \
+            artifacts/vector-databases/*.tar.gz \
+            artifacts/vector-databases/checksums.txt \
+            --clobber
+          
+          # Upload Python client
+          gh release upload "$TAG" \
+            artifacts/python-vector-client/* \
+            --clobber
+          
+          # Upload Go client
+          gh release upload "$TAG" \
+            artifacts/go-vector-client/*.tar.gz \
+            --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Add release notes
+        run: |
+          TAG="${{ github.event.release.tag_name || github.event.inputs.release_tag }}"
+          echo "Adding vector database documentation to release notes..."
+          
+          gh release edit "$TAG" --notes-file - <<'EOF'
           ## Vector Databases
           
-          Pre-vectorized databases for semantic search and RAG:
+          Pre-vectorized databases for semantic search and RAG applications.
           
           ### Qdrant (Recommended for Production)
-          - `irowiki-qdrant-minilm-section-*.tar.gz` - Section-level chunking with MiniLM embeddings
+          - Fast, scalable vector search engine
+          - Section-level chunking with all-MiniLM-L6-v2 embeddings (384 dimensions)
+          - ~300K chunks from 10,516 pages
           
-          ### ChromaDB (Development-Friendly)
-          - `irowiki-chromadb-minilm-section-*.tar.gz` - Section-level chunking with MiniLM embeddings
+          ### ChromaDB (Development-Friendly)  
+          - Easy to use, SQLite-based
+          - Same chunking and embeddings as Qdrant
+          - Great for prototyping and local development
           
-          ## Client Libraries
+          ### Client Libraries
           
-          ### Python
-          - `irowiki_vector_client-*.whl` - Install with: `pip install irowiki_vector_client-*.whl`
+          **Python:** Install with pip install irowiki_vector_client-*.whl
+          **Go:** Extract and import github.com/lenaxia/iroWikiScraper/sdk/vector
           
-          ### Go
-          - `irowiki-go-vector-client-*.tar.gz` - Extract and use as Go module
-          
-          ## Quick Start
-          
-          ### Python
-          \`\`\`python
-          from irowiki_vector_client import QdrantClient
-          
-          client = QdrantClient("path/to/qdrant_storage")
-          results = client.search("best weapon for undead", limit=5)
-          \`\`\`
-          
-          ### Go
-          \`\`\`go
-          import "github.com/lenaxia/iroWikiScraper/sdk/vector"
-          
-          client := vector.NewQdrantClient("path/to/qdrant_storage")
-          results, _ := client.Search("best weapon for undead", 5)
-          \`\`\`
-          
-          See [Vector Database Documentation](https://github.com/lenaxia/iroWikiScraper/blob/main/docs/VECTOR_DATABASE.md) for details.
+          See Vector Database Documentation at https://github.com/lenaxia/iroWikiScraper/blob/main/docs/VECTOR_DATABASE.md
           EOF
-      
-      - name: Update release description
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.event.release.tag_name || github.event.inputs.release_tag }}
-          body_path: release_notes.md
-          append_body: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish-python-package:
     name: Publish Python Package to PyPI
