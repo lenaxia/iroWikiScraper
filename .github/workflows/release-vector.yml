@@ -1,0 +1,287 @@
+name: Release with Vector Databases
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to attach artifacts to'
+        required: true
+        type: string
+
+env:
+  PYTHON_VERSION: '3.11'
+  GO_VERSION: '1.22'
+
+jobs:
+  generate-vector-databases:
+    name: Generate Vector Databases
+    runs-on: ubuntu-latest
+    timeout-minutes: 360  # 6 hours for full vectorization
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-vector.txt
+      
+      - name: Download latest database artifact
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: scrape.yml
+          name: irowiki-database
+          path: data/
+      
+      - name: Extract database
+        run: |
+          cd data
+          tar -xzf irowiki-database-*.tar.gz
+          ls -lh
+      
+      - name: Generate Qdrant database (MiniLM, section-level)
+        run: |
+          python scripts/vectorize-wiki.py \
+            --db data/irowiki.db \
+            --output vector_qdrant_minilm_section \
+            --vector-db qdrant \
+            --model all-MiniLM-L6-v2 \
+            --chunk-level section \
+            --batch-size 32
+      
+      - name: Generate ChromaDB database (MiniLM, section-level)
+        run: |
+          python scripts/vectorize-wiki.py \
+            --db data/irowiki.db \
+            --output vector_chromadb_minilm_section \
+            --vector-db chromadb \
+            --model all-MiniLM-L6-v2 \
+            --chunk-level section \
+            --batch-size 32
+      
+      - name: Generate additional configurations (optional)
+        if: github.event.inputs.generate_all == 'true'
+        run: |
+          # BGE Large model
+          python scripts/vectorize-wiki.py \
+            --db data/irowiki.db \
+            --output vector_qdrant_bge_section \
+            --vector-db qdrant \
+            --model BAAI/bge-large-en-v1.5 \
+            --chunk-level section \
+            --batch-size 16
+          
+          # Page-level chunking
+          python scripts/vectorize-wiki.py \
+            --db data/irowiki.db \
+            --output vector_qdrant_minilm_page \
+            --vector-db qdrant \
+            --model all-MiniLM-L6-v2 \
+            --chunk-level page \
+            --batch-size 32
+      
+      - name: Package Qdrant database
+        run: |
+          tar -czf irowiki-qdrant-minilm-section-${{ github.event.release.tag_name || github.event.inputs.release_tag }}.tar.gz \
+            vector_qdrant_minilm_section/
+      
+      - name: Package ChromaDB database
+        run: |
+          tar -czf irowiki-chromadb-minilm-section-${{ github.event.release.tag_name || github.event.inputs.release_tag }}.tar.gz \
+            vector_chromadb_minilm_section/
+      
+      - name: Generate checksums
+        run: |
+          sha256sum irowiki-*.tar.gz > checksums.txt
+      
+      - name: Upload vector databases as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vector-databases
+          path: |
+            irowiki-*.tar.gz
+            checksums.txt
+          retention-days: 7
+
+  build-python-client:
+    name: Build Python Vector Client
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install build tools
+        run: |
+          pip install build wheel twine
+      
+      - name: Build Python package
+        run: |
+          cd python-vector-client
+          python -m build
+      
+      - name: Upload Python package
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-vector-client
+          path: python-vector-client/dist/*
+          retention-days: 7
+
+  build-go-client:
+    name: Build Go Vector Client
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      
+      - name: Build Go library
+        run: |
+          cd sdk/vector
+          go build -v ./...
+          go test -v ./...
+      
+      - name: Create Go module archive
+        run: |
+          cd sdk/vector
+          go mod vendor
+          tar -czf ../../irowiki-go-vector-client-${{ github.event.release.tag_name || github.event.inputs.release_tag }}.tar.gz \
+            --exclude='.git' \
+            .
+      
+      - name: Upload Go client
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-vector-client
+          path: irowiki-go-vector-client-*.tar.gz
+          retention-days: 7
+
+  upload-to-release:
+    name: Upload to GitHub Release
+    needs: [generate-vector-databases, build-python-client, build-go-client]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+      
+      - name: Display structure
+        run: |
+          ls -R artifacts/
+      
+      - name: Upload vector databases to release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.release.tag_name || github.event.inputs.release_tag }}
+          files: |
+            artifacts/vector-databases/*.tar.gz
+            artifacts/vector-databases/checksums.txt
+            artifacts/python-vector-client/*
+            artifacts/go-vector-client/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Generate release notes addendum
+        run: |
+          cat >> release_notes.md <<'EOF'
+          
+          ## Vector Databases
+          
+          Pre-vectorized databases for semantic search and RAG:
+          
+          ### Qdrant (Recommended for Production)
+          - `irowiki-qdrant-minilm-section-*.tar.gz` - Section-level chunking with MiniLM embeddings
+          
+          ### ChromaDB (Development-Friendly)
+          - `irowiki-chromadb-minilm-section-*.tar.gz` - Section-level chunking with MiniLM embeddings
+          
+          ## Client Libraries
+          
+          ### Python
+          - `irowiki_vector_client-*.whl` - Install with: `pip install irowiki_vector_client-*.whl`
+          
+          ### Go
+          - `irowiki-go-vector-client-*.tar.gz` - Extract and use as Go module
+          
+          ## Quick Start
+          
+          ### Python
+          \`\`\`python
+          from irowiki_vector_client import QdrantClient
+          
+          client = QdrantClient("path/to/qdrant_storage")
+          results = client.search("best weapon for undead", limit=5)
+          \`\`\`
+          
+          ### Go
+          \`\`\`go
+          import "github.com/lenaxia/iroWikiScraper/sdk/vector"
+          
+          client := vector.NewQdrantClient("path/to/qdrant_storage")
+          results, _ := client.Search("best weapon for undead", 5)
+          \`\`\`
+          
+          See [Vector Database Documentation](https://github.com/lenaxia/iroWikiScraper/blob/main/docs/VECTOR_DATABASE.md) for details.
+          EOF
+      
+      - name: Update release description
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.release.tag_name || github.event.inputs.release_tag }}
+          body_path: release_notes.md
+          append_body: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-python-package:
+    name: Publish Python Package to PyPI
+    needs: [build-python-client]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    
+    steps:
+      - name: Download Python package
+        uses: actions/download-artifact@v4
+        with:
+          name: python-vector-client
+          path: dist/
+      
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          skip-existing: true
+
+  notify-completion:
+    name: Notify Completion
+    needs: [upload-to-release]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Send notification
+        run: |
+          echo "Release ${{ github.event.release.tag_name || github.event.inputs.release_tag }} complete!"
+          echo "Vector databases and clients uploaded successfully."
