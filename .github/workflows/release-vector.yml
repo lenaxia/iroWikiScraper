@@ -115,7 +115,7 @@ jobs:
           sha256sum irowiki-*.tar.gz > checksums.txt
       
       - name: Upload vector databases as artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: vector-databases
           path: |
@@ -146,7 +146,7 @@ jobs:
           python -m build
       
       - name: Upload Python package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: python-vector-client
           path: python-vector-client/dist/*
@@ -187,7 +187,7 @@ jobs:
             .
       
       - name: Upload Go client
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: go-vector-client
           path: irowiki-go-vector-client-*.tar.gz
