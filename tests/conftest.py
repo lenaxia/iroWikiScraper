@@ -411,3 +411,35 @@ def mock_full_scraper():
     database = MagicMock()
 
     return MockFullScraper(config, api_client, database)
+
+
+@pytest.fixture
+def mock_checkpoint_manager():
+    """
+    Provide mock CheckpointManager for CLI testing.
+
+    Returns:
+        MockCheckpointManager instance that doesn't load real checkpoints
+    """
+    from tests.mocks.mock_cli_components import MockCheckpointManager
+
+    manager = MockCheckpointManager(Path("data/.checkpoint.json"))
+    # By default, no checkpoint exists
+    manager.checkpoint_exists = False
+    manager.checkpoint = None
+    return manager
+
+
+@pytest.fixture
+def patch_checkpoint_manager(mock_checkpoint_manager):
+    """
+    Patch CheckpointManager in CLI commands to prevent loading real files.
+
+    Use this fixture in CLI tests to mock checkpoint functionality.
+    """
+    from unittest.mock import patch
+
+    with patch(
+        "scraper.cli.commands.CheckpointManager", return_value=mock_checkpoint_manager
+    ):
+        yield mock_checkpoint_manager
