@@ -222,9 +222,9 @@ class TestMetadataGeneration:
             "namespaces": [0],
             "total_pages": total_pages,
             "total_chunks": total_chunks,
-            "chunks_per_page": round(total_chunks / total_pages, 2)
-            if total_pages > 0
-            else 0,
+            "chunks_per_page": (
+                round(total_chunks / total_pages, 2) if total_pages > 0 else 0
+            ),
         }
 
         writer.save_metadata(metadata)

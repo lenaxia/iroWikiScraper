@@ -6,7 +6,7 @@ The `release-vector.yml` workflow automatically generates vector databases and c
 
 ## Workflow Diagram
 
-```
+```text
 GitHub Release Published
     ↓
 ┌─────────────────────────────────────────┐
@@ -48,6 +48,7 @@ GitHub Release Published
 ## Triggers
 
 ### Automatic (Release Published)
+
 ```yaml
 on:
   release:
@@ -57,6 +58,7 @@ on:
 When you publish a release on GitHub, the workflow runs automatically.
 
 ### Manual (Workflow Dispatch)
+
 ```yaml
 on:
   workflow_dispatch:
@@ -72,10 +74,12 @@ Manually trigger from Actions tab with a specific release tag.
 ## Jobs
 
 ### 1. `generate-vector-databases`
+
 **Duration:** ~6 hours  
 **Runner:** `ubuntu-latest`
 
 **Steps:**
+
 1. Download latest SQLite database from artifacts
 2. Generate Qdrant database with MiniLM embeddings
 3. Generate ChromaDB database with MiniLM embeddings
@@ -84,15 +88,18 @@ Manually trigger from Actions tab with a specific release tag.
 6. Generate SHA256 checksums
 
 **Outputs:**
+
 - `irowiki-qdrant-minilm-section-{tag}.tar.gz` (~500 MB)
 - `irowiki-chromadb-minilm-section-{tag}.tar.gz` (~250 MB)
 - `checksums.txt`
 
 ### 2. `build-python-client`
+
 **Duration:** ~5 minutes  
 **Runner:** `ubuntu-latest`
 
 **Steps:**
+
 1. Build Python package using `python -m build`
 2. Create wheel (`.whl`) and source distribution (`.tar.gz`)
 3. Upload artifacts

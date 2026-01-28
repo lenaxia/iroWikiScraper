@@ -99,15 +99,12 @@ class TestMalformedInputs:
         """Test chunking with various unicode characters"""
         chunker = WikiChunker()
 
-        unicode_content = (
-            """
+        unicode_content = """
         This has various unicode: 
         émojis 🎮, 中文, العربية, עברית, 日本語
         Special chars: © ® ™ € ¥ £
         Math: ∑ ∫ ∂ √ ∞
-        """
-            * 10
-        )  # Repeat to meet minimum size
+        """ * 10  # Repeat to meet minimum size
 
         page_data = {
             "page_id": 1,

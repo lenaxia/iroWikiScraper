@@ -9,6 +9,11 @@ on:
         description: 'Release tag to attach artifacts to'
         required: true
         type: string
+      generate_all:
+        description: 'Generate all model/chunking variants (takes 24+ hours)'
+        required: false
+        type: boolean
+        default: false
 
 env:
   PYTHON_VERSION: '3.11'
