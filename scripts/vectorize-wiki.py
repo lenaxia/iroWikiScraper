@@ -19,9 +19,9 @@ import sqlite3
 import sys
 import time
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Iterator, List, Optional, Dict, Any
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, Iterator, List, Optional
 
 import numpy as np
 from tqdm import tqdm
@@ -411,7 +411,7 @@ class QdrantWriter(VectorDBWriter):
 
         try:
             from qdrant_client import QdrantClient
-            from qdrant_client.models import Distance, VectorParams, PointStruct
+            from qdrant_client.models import Distance, PointStruct, VectorParams
 
             self.QdrantClient = QdrantClient
             self.Distance = Distance

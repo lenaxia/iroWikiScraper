@@ -4,14 +4,15 @@ Unit tests for VectorDBWriter classes
 Tests both Qdrant and ChromaDB implementations.
 """
 
-import pytest
+import json
 import sys
 from pathlib import Path
-import json
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
-from vectorize_wiki import QdrantWriter, ChromaDBWriter
+from vectorize_wiki import ChromaDBWriter, QdrantWriter
 
 
 class TestQdrantWriter:
@@ -322,8 +323,8 @@ class TestChromaDBWriter:
         assert writer.collection.count() == 0
 
         # Add some data
-        from vectorize_wiki import Chunk
         import numpy as np
+        from vectorize_wiki import Chunk
 
         chunk = Chunk(
             page_id=1,

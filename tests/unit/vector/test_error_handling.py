@@ -4,16 +4,17 @@ Error handling and unhappy path tests for vectorization
 Tests failure modes, edge cases, and error recovery.
 """
 
-import pytest
 import sys
 from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
 from vectorize_wiki import (
+    Chunk,
     DatabaseReader,
     WikiChunker,
-    Chunk,
 )
 
 
@@ -240,8 +241,8 @@ class TestVectorDBErrorHandling:
         """Test ChromaDB with invalid metadata types"""
         pytest.importorskip("chromadb")
 
-        from vectorize_wiki import ChromaDBWriter
         import numpy as np
+        from vectorize_wiki import ChromaDBWriter
 
         output_path = temp_vector_storage / "chromadb"
         writer = ChromaDBWriter(

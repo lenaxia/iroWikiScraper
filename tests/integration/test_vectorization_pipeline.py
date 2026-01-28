@@ -4,18 +4,19 @@ Integration tests for full vectorization pipeline
 Tests end-to-end workflows from database to vector DB.
 """
 
-import pytest
+import json
 import sys
 from pathlib import Path
-import json
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
 from vectorize_wiki import (
-    DatabaseReader,
-    WikiChunker,
-    QdrantWriter,
     ChromaDBWriter,
+    DatabaseReader,
+    QdrantWriter,
+    WikiChunker,
 )
 
 

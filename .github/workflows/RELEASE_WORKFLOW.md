@@ -105,43 +105,52 @@ Manually trigger from Actions tab with a specific release tag.
 3. Upload artifacts
 
 **Outputs:**
+
 - `irowiki_vector_client-1.0.0-py3-none-any.whl`
 - `irowiki_vector_client-1.0.0.tar.gz`
 
 ### 3. `build-go-client`
+
 **Duration:** ~3 minutes  
 **Runner:** `ubuntu-latest`
 
 **Steps:**
+
 1. Build Go library
 2. Run tests
 3. Vendor dependencies
 4. Create archive
 
 **Outputs:**
+
 - `irowiki-go-vector-client-{tag}.tar.gz`
 
 ### 4. `upload-to-release`
+
 **Duration:** ~2 minutes  
 **Runner:** `ubuntu-latest`
 
 **Steps:**
+
 1. Download all artifacts from previous jobs
 2. Upload to GitHub release
 3. Generate and append release notes
 
 **Artifacts Uploaded:**
+
 - All vector databases
 - Python wheel
 - Go package
 - Checksums
 
 ### 5. `publish-python-package` (Optional)
+
 **Duration:** ~1 minute  
 **Runner:** `ubuntu-latest`  
 **Condition:** Only on release publish (not manual trigger)
 
 **Steps:**
+
 1. Download Python package
 2. Publish to PyPI using API token
 

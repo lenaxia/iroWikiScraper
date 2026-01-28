@@ -4,14 +4,15 @@ Unit tests for WikiChunker class
 Tests all chunking strategies, WikiText cleaning, and edge cases.
 """
 
-import pytest
 import sys
 from pathlib import Path
+
+import pytest
 
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
-from vectorize_wiki import WikiChunker, Chunk
+from vectorize_wiki import Chunk, WikiChunker
 
 
 class TestWikiTextCleaning:
