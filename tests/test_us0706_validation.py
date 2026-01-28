@@ -22,9 +22,7 @@ Tests edge cases including:
 import logging
 import sqlite3
 import time
-from datetime import UTC, datetime
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
 import pytest
 import requests
@@ -39,7 +37,7 @@ from scraper.api.exceptions import (
 from scraper.cli.commands import full_scrape_command
 from scraper.orchestration.full_scraper import FullScraper, ScrapeResult
 from scraper.orchestration.retry import is_transient_error, retry_with_backoff
-from scraper.storage.models import Page, Revision
+from scraper.storage.models import Page
 
 
 class TestAcceptanceCriteria1ErrorCategories:
@@ -103,7 +101,7 @@ class TestAcceptanceCriteria2NamespaceLevelErrors:
         scraper.page_discovery.discover_namespace = mock_discover
 
         with caplog.at_level(logging.ERROR):
-            result = scraper.scrape(namespaces=[0, 4])
+            _ = scraper.scrape(namespaces=[0, 4])
 
         # Error should be logged
         assert any("namespace 0" in msg.lower() for msg in caplog.messages)
@@ -127,7 +125,7 @@ class TestAcceptanceCriteria2NamespaceLevelErrors:
 
         scraper.page_discovery.discover_namespace = mock_discover
 
-        result = scraper.scrape(namespaces=[0, 4])
+        _ = scraper.scrape(namespaces=[0, 4])
 
         # Both namespaces should be attempted
         assert call_count == 2

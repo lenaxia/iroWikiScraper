@@ -6,7 +6,6 @@ This script shows how to extract internal links from wikitext content.
 """
 
 from scraper.scrapers.link_extractor import LinkExtractor
-from scraper.storage.models import Link
 
 
 def main():
@@ -16,23 +15,23 @@ def main():
     # Example wikitext content
     wikitext = """
     '''Poring''' is a level 1 monster in [[Ragnarok Online]].
-    
+
     == Description ==
     Porings are cute pink blobs found in [[Prontera Field]].
     See the [[Monster Database]] for more information.
-    
+
     == Drops ==
     * [[Apple]]
     * [[Jellopy]]
-    
+
     {{Infobox Monster
     |name=Poring
     |level=1
     |hp=50
     }}
-    
+
     [[File:Poring.png|thumb|A Poring monster]]
-    
+
     [[Category:Monsters]]
     [[Category:Level 1 Monsters]]
     """

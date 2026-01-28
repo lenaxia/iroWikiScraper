@@ -8,7 +8,6 @@ Validates that the CLI does not interfere with normal terminal functionality:
 """
 
 import signal
-import sys
 from io import StringIO
 from unittest.mock import MagicMock, patch
 
@@ -221,7 +220,7 @@ class TestOutputFormatting:
                         main()
 
                         stderr_output = mock_stderr.getvalue()
-                        stdout_output = mock_stdout.getvalue()
+                        mock_stdout.getvalue()
 
                         # Error should go to stderr, not stdout
                         assert "ERROR" in stderr_output

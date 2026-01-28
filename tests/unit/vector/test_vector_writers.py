@@ -12,7 +12,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
-from vectorize_wiki import ChromaDBWriter, QdrantWriter
+from vectorize_wiki import ChromaDBWriter, QdrantWriter  # noqa: E402
 
 
 class TestQdrantWriter:
@@ -379,8 +379,6 @@ class TestVectorDBWriterEdgeCases:
     def test_chromadb_empty_chunks(self, temp_vector_storage, mock_embedding_model):
         """Test adding empty list of chunks"""
         pytest.importorskip("chromadb")
-
-        import numpy as np
 
         output_path = temp_vector_storage / "chromadb"
         writer = ChromaDBWriter(

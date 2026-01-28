@@ -67,14 +67,14 @@ def test_known_page():
         return False
 
     if len(latest.content) > 0:
-        print(f"\n   Content preview (first 200 chars):")
+        print("\n   Content preview (first 200 chars):")
         print(f"   {'-' * 66}")
         print(f"   {latest.content[:200]}")
         print(f"   {'-' * 66}")
         print("   ✓ Content retrieved successfully")
 
     # Now verify by getting content directly from API
-    print(f"\n4. Cross-checking with direct API call...")
+    print("\n4. Cross-checking with direct API call...")
     api_response = client.query(
         {
             "prop": "revisions",
@@ -91,15 +91,15 @@ def test_known_page():
     api_size = api_rev["size"]
 
     if api_content == latest.content:
-        print(f"   ✓ Content matches API response exactly!")
+        print("   ✓ Content matches API response exactly!")
     else:
-        print(f"   ✗ ERROR: Content mismatch!")
+        print("   ✗ ERROR: Content mismatch!")
         print(f"   - Scraped length: {len(latest.content)}")
         print(f"   - API length: {len(api_content)}")
         return False
 
     if api_size == latest.size:
-        print(f"   ✓ Size matches API response!")
+        print("   ✓ Size matches API response!")
     else:
         print(f"   ✗ WARNING: Size mismatch (scraped: {latest.size}, API: {api_size})")
 
@@ -126,20 +126,20 @@ def test_anonymous_edits():
 
     # Count anonymous edits
     anon_count = sum(1 for r in revisions if r.user_id == 0)
-    print(f"\n2. Checking for anonymous edits...")
+    print("\n2. Checking for anonymous edits...")
     print(f"   - Found {anon_count} revision(s) with user_id=0")
 
     if anon_count > 0:
-        print(f"   ✓ Anonymous edits handled successfully!")
+        print("   ✓ Anonymous edits handled successfully!")
         # Show one example
         anon_rev = next(r for r in revisions if r.user_id == 0)
-        print(f"\n   Example anonymous edit:")
+        print("\n   Example anonymous edit:")
         print(f"   - Revision ID: {anon_rev.revision_id}")
         print(f"   - User: {anon_rev.user}")
         print(f"   - Has content: {len(anon_rev.content) > 0}")
         return True
     else:
-        print(f"   ⚠ No anonymous edits in this page's history")
+        print("   ⚠ No anonymous edits in this page's history")
         return True  # Still pass, just no anonymous edits on this page
 
 
@@ -165,7 +165,7 @@ def test_database_storage():
         scraper = RevisionScraper(client, include_content=True)
 
         # Scrape a small page
-        print(f"\n2. Scraping namespace 4 (Project pages)...")
+        print("\n2. Scraping namespace 4 (Project pages)...")
         response = client.query({"list": "allpages", "apnamespace": 4, "aplimit": 3})
         pages = response.get("query", {}).get("allpages", [])
 
@@ -207,7 +207,7 @@ def test_database_storage():
             total_revisions += len(revisions)
             total_content_bytes += sum(len(r.content) for r in revisions)
 
-        print(f"\n3. Verifying database content...")
+        print("\n3. Verifying database content...")
         conn = sqlite3.connect(db_file)
         cursor = conn.cursor()
 
@@ -219,11 +219,11 @@ def test_database_storage():
         if db_count != total_revisions:
             print(f"   ✗ ERROR: Expected {total_revisions} revisions, got {db_count}")
             return False
-        print(f"   ✓ Revision count matches!")
+        print("   ✓ Revision count matches!")
 
         # Check content
         cursor.execute("""
-            SELECT 
+            SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN LENGTH(content) > 0 THEN 1 ELSE 0 END) as with_content,
                 SUM(LENGTH(content)) as total_bytes,
@@ -232,29 +232,29 @@ def test_database_storage():
         """)
         stats = cursor.fetchone()
 
-        print(f"\n   Content statistics:")
+        print("\n   Content statistics:")
         print(f"   - Total revisions: {stats[0]}")
         print(f"   - With content: {stats[1]}")
         print(f"   - Total bytes: {stats[2]:,}")
         print(f"   - Average bytes: {stats[3]:.1f}")
 
         if stats[2] == 0:
-            print(f"   ✗ ERROR: No content in database!")
+            print("   ✗ ERROR: No content in database!")
             return False
 
         if stats[2] != total_content_bytes:
-            print(f"   ✗ ERROR: Content size mismatch!")
+            print("   ✗ ERROR: Content size mismatch!")
             print(f"      Expected: {total_content_bytes:,} bytes")
             print(f"      Got: {stats[2]:,} bytes")
             return False
 
-        print(f"   ✓ Content stored correctly in database!")
+        print("   ✓ Content stored correctly in database!")
 
         # Sample a random revision and verify its content
         cursor.execute("""
-            SELECT revision_id, content, size 
-            FROM revisions 
-            WHERE LENGTH(content) > 0 
+            SELECT revision_id, content, size
+            FROM revisions
+            WHERE LENGTH(content) > 0
             LIMIT 1
         """)
         sample = cursor.fetchone()
@@ -265,7 +265,7 @@ def test_database_storage():
             print(f"   - Content length in DB: {len(content)} bytes")
             print(f"   - Size field: {size} bytes")
             print(f"   - Preview: {content[:100]}")
-            print(f"   ✓ Content is readable from database!")
+            print("   ✓ Content is readable from database!")
 
         conn.close()
 

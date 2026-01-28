@@ -7,7 +7,6 @@ This module tests that:
 4. FAQ section exists and covers key questions
 """
 
-import re
 import subprocess
 from pathlib import Path
 
@@ -244,7 +243,7 @@ class TestREADMEDocumentation:
     def test_readme_documents_key_flags(self, readme_content):
         """Test README documents important flags."""
         # Key flags should be documented
-        content_lower = readme_content.lower()
+        readme_content.lower()
 
         # At least some key flags should be mentioned
         has_flags = any(
@@ -622,7 +621,7 @@ class TestConfigurationExamples:
 
         # Count comment lines
         lines = content.split("\n")
-        comment_lines = [l for l in lines if l.strip().startswith("#")]
+        comment_lines = [line for line in lines if line.strip().startswith("#")]
 
         assert len(comment_lines) >= 10, "Example config should have helpful comments"
 

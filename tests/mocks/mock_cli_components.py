@@ -1,12 +1,11 @@
 """Mock components for CLI command testing."""
 
-from argparse import Namespace
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional
 
-from scraper.storage.models import Page, Revision
+from scraper.storage.models import Page
 
 
 @dataclass
@@ -73,7 +72,6 @@ class MockConfig:
 
     def validate(self):
         """Mock validate method."""
-        pass
 
     @staticmethod
     def from_yaml(path: str):

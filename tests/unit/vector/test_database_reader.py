@@ -11,7 +11,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
-from vectorize_wiki import DatabaseReader
+from vectorize_wiki import DatabaseReader  # noqa: E402
 
 
 class TestDatabaseReader:
@@ -325,7 +325,7 @@ class TestDatabaseReaderDataIntegrity:
             INSERT INTO pages VALUES (100, 'Test/Page:With-Special_Chars', 0, 200, 0)
         """)
         cursor.execute("""
-            INSERT INTO revisions VALUES (200, 100, NULL, '2024-01-01T00:00:00Z', 
+            INSERT INTO revisions VALUES (200, 100, NULL, '2024-01-01T00:00:00Z',
                                          'Editor', 'Content with unicode: é ñ ü')
         """)
         conn.commit()

@@ -9,15 +9,12 @@ This module tests comprehensive edge cases for configuration loading:
 - File loading fails vs validation fails
 """
 
-import sys
 from argparse import Namespace
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
 from scraper.cli.commands import _load_config
-from scraper.config import Config, ConfigError
 
 # ============================================================================
 # EDGE CASE 1: Empty Config File

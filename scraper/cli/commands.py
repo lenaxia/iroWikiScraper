@@ -5,8 +5,7 @@ import logging
 import sys
 from argparse import Namespace
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any, Dict
+from typing import Dict
 
 from scraper.api.client import MediaWikiAPIClient
 from scraper.api.rate_limiter import RateLimiter
@@ -179,7 +178,7 @@ def _prompt_resume(checkpoint_manager: CheckpointManager) -> bool:
 
     # Display checkpoint info
     print(f"\nFound existing scrape checkpoint from {checkpoint.started_at}")
-    print(f"\nProgress:")
+    print("\nProgress:")
 
     completed_ns = checkpoint.progress.get("namespaces_completed", [])
     current_ns = checkpoint.progress.get("current_namespace", 0)
@@ -208,7 +207,7 @@ def _get_namespace_stats(database: Database) -> Dict[int, Dict[str, int]]:
 
     # Query pages and revisions per namespace
     query = """
-        SELECT 
+        SELECT
             p.namespace,
             COUNT(DISTINCT p.page_id) as page_count,
             COUNT(r.revision_id) as revision_count
@@ -259,7 +258,7 @@ def _print_full_scrape_statistics(result: ScrapeResult, database: Database) -> N
     # Namespace breakdown
     namespace_stats = _get_namespace_stats(database)
     if namespace_stats:
-        print(f"\nBreakdown by namespace:")
+        print("\nBreakdown by namespace:")
         for ns_id in sorted(namespace_stats.keys()):
             stats = namespace_stats[ns_id]
             ns_name = NAMESPACE_NAMES.get(ns_id, str(ns_id))
@@ -314,7 +313,7 @@ def _print_incremental_scrape_statistics(stats: IncrementalStats) -> None:
     print(f"  Moved pages:       {_format_number(stats.pages_moved)}")
 
     # Data updated
-    print(f"\nData updated:")
+    print("\nData updated:")
     print(f"  Revisions added:   {_format_number(stats.revisions_added)}")
     print(f"  Files downloaded:  {_format_number(stats.files_downloaded)}")
 
@@ -427,7 +426,7 @@ def full_scrape_command(args: Namespace) -> int:
                 if page_count > 0:
                     logger.error(
                         f"Database already contains {page_count} pages. "
-                        f"Use --force to scrape anyway."
+                        "Use --force to scrape anyway."
                     )
                     return 1
 
@@ -457,7 +456,7 @@ def full_scrape_command(args: Namespace) -> int:
             discovery = PageDiscovery(api_client)
             pages = discovery.discover_all_pages(namespaces)
 
-            print(f"\nDRY RUN COMPLETE")
+            print("\nDRY RUN COMPLETE")
             print(f"Would scrape {_format_number(len(pages))} pages")
 
             # Show breakdown by namespace
@@ -539,13 +538,13 @@ def full_scrape_command(args: Namespace) -> int:
 
         # Only show progress messages if not outputting JSON
         if not output_json:
-            print(f"Starting full scrape...")
+            print("Starting full scrape...")
             if resume:
                 print("Resuming from checkpoint...")
             if namespaces:
                 print(f"Namespaces: {namespaces}")
             else:
-                print(f"Namespaces: all common namespaces (0-15)")
+                print("Namespaces: all common namespaces (0-15)")
 
         # Run scrape
         progress_callback = None if (args.quiet or output_json) else _print_progress
@@ -594,7 +593,7 @@ def incremental_scrape_command(args: Namespace) -> int:
         if not db_path.exists():
             logger.error(
                 f"Database not found: {db_path}. "
-                f"Run 'scraper full' first to create baseline."
+                "Run 'scraper full' first to create baseline."
             )
             return 1
 
@@ -619,7 +618,7 @@ def incremental_scrape_command(args: Namespace) -> int:
         output_json = hasattr(args, "format") and args.format == "json"
 
         if not output_json:
-            print(f"Starting incremental scrape...")
+            print("Starting incremental scrape...")
 
         # Run incremental scrape
         stats = scraper.scrape_incremental()
@@ -635,7 +634,7 @@ def incremental_scrape_command(args: Namespace) -> int:
     except FirstRunRequiresFullScrapeError as e:
         logger.error(str(e))
         print(f"\nERROR: {e}")
-        print(f"Run 'scraper full' first to create baseline.")
+        print("Run 'scraper full' first to create baseline.")
         return 1
     except KeyboardInterrupt:
         logger.info("Scrape interrupted by user")

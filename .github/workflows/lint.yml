@@ -79,7 +79,7 @@ jobs:
           echo "=== Pylint: Code Analysis ==="
           pylint scraper/ \
             --fail-under=7.0 \
-            --max-line-length=100 \
+            --max-line-length=88 \
             --disable=C0114,C0115,C0116 || {
             echo ""
             echo "⚠️  Code quality issues found (not blocking)"

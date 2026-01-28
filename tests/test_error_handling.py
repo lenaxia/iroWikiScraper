@@ -12,9 +12,7 @@ Tests comprehensive error handling including:
 import logging
 import sqlite3
 import time
-from argparse import Namespace
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
 import pytest
 import requests
@@ -26,10 +24,8 @@ from scraper.api.exceptions import (
     RateLimitError,
     ServerError,
 )
-from scraper.cli.commands import full_scrape_command
-from scraper.orchestration.full_scraper import FullScraper, ScrapeResult
+from scraper.orchestration.full_scraper import ScrapeResult
 from scraper.storage.models import Page, Revision
-from tests.mocks.mock_cli_components import MockConfig, MockDatabase
 
 
 class TestErrorClassification:
@@ -198,7 +194,7 @@ class TestNamespaceLevelErrors:
         scraper.page_discovery.discover_namespace = mock_discover
 
         with caplog.at_level(logging.ERROR):
-            result = scraper.scrape(namespaces=[0])
+            _ = scraper.scrape(namespaces=[0])
 
         # Check that error was logged with namespace context
         assert any("namespace 0" in record.message.lower() for record in caplog.records)
@@ -226,7 +222,7 @@ class TestPageLevelErrors:
         page_repo.insert_pages_batch(pages)
 
         # Mock revision scraper to fail on page 2
-        original_fetch = scraper.revision_scraper.fetch_revisions
+        _ = scraper.revision_scraper.fetch_revisions
 
         def mock_fetch(page_id):
             if page_id == 2:

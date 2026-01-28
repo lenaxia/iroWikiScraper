@@ -8,7 +8,6 @@ and storage operations.
 import logging
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import Callable, List, Optional
 
 from scraper.api.client import MediaWikiAPIClient

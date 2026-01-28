@@ -22,7 +22,7 @@ def analyze_database(db_path):
     print("-" * 80)
 
     cursor.execute("""
-        SELECT 
+        SELECT
             COUNT(*) as total_pages,
             COUNT(DISTINCT namespace) as namespaces
         FROM pages
@@ -32,7 +32,7 @@ def analyze_database(db_path):
     print(f"Namespaces:                 {pages_stats['namespaces']}")
 
     cursor.execute("""
-        SELECT 
+        SELECT
             COUNT(*) as total_revisions,
             COUNT(DISTINCT page_id) as pages_with_revisions,
             AVG(CAST(LENGTH(content) AS FLOAT)) as avg_content_size,
@@ -58,7 +58,7 @@ def analyze_database(db_path):
     print("-" * 80)
 
     cursor.execute("""
-        SELECT 
+        SELECT
             COUNT(*) as total,
             SUM(CASE WHEN LENGTH(content) > 0 THEN 1 ELSE 0 END) as with_content,
             SUM(CASE WHEN LENGTH(content) = 0 AND size = 0 THEN 1 ELSE 0 END) as empty_valid,
@@ -86,7 +86,7 @@ def analyze_database(db_path):
         print(f"  ❌ FAILURE: {missing_content} revisions missing content!")
         return False
     else:
-        print(f"  ✅ SUCCESS: All non-empty revisions have content!")
+        print("  ✅ SUCCESS: All non-empty revisions have content!")
     print()
 
     # Anonymous edits (user_id=0)
@@ -94,7 +94,7 @@ def analyze_database(db_path):
     print("-" * 80)
 
     cursor.execute("""
-        SELECT 
+        SELECT
             COUNT(*) as total_anon,
             COUNT(DISTINCT page_id) as pages_with_anon
         FROM revisions
@@ -105,9 +105,9 @@ def analyze_database(db_path):
     if anon_stats["total_anon"] > 0:
         print(f"Anonymous revisions:        {anon_stats['total_anon']:,}")
         print(f"Pages with anonymous edits: {anon_stats['pages_with_anon']:,}")
-        print(f"  ✅ SUCCESS: user_id=0 handled correctly!")
+        print("  ✅ SUCCESS: user_id=0 handled correctly!")
     else:
-        print(f"No anonymous edits found in this sample")
+        print("No anonymous edits found in this sample")
     print()
 
     # Sample content verification
@@ -115,7 +115,7 @@ def analyze_database(db_path):
     print("-" * 80)
 
     cursor.execute("""
-        SELECT 
+        SELECT
             r.revision_id,
             p.title,
             r.user,
@@ -147,7 +147,7 @@ def analyze_database(db_path):
     print("-" * 80)
 
     cursor.execute("""
-        SELECT 
+        SELECT
             p.namespace,
             CASE p.namespace
                 WHEN 0 THEN 'Main'
@@ -184,7 +184,7 @@ def analyze_database(db_path):
     print("-" * 80)
 
     cursor.execute("""
-        SELECT 
+        SELECT
             p.title,
             COUNT(r.revision_id) as revision_count,
             SUM(LENGTH(r.content)) as total_content
@@ -226,7 +226,7 @@ def analyze_database(db_path):
         print(
             f"   - {rev_stats['total_content_bytes'] / (1024 * 1024):.1f} MB of wiki content archived"
         )
-        print(f"   - All revisions have content or are legitimately empty")
+        print("   - All revisions have content or are legitimately empty")
         print("=" * 80)
         return True
     else:

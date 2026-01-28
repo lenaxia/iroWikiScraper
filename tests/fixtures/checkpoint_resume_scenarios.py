@@ -1,7 +1,6 @@
 """Test fixtures for checkpoint resume scenarios (US-0711)."""
 
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any, Dict, List
 
 from scraper.storage.models import Page

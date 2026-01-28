@@ -8,14 +8,8 @@ This module tests all acceptance criteria for progress tracking and logging:
 5. Summary Output
 """
 
-import io
 import logging
-import sys
-from argparse import Namespace
-from pathlib import Path
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 from scraper.cli.commands import (
     _print_progress,
@@ -23,8 +17,6 @@ from scraper.cli.commands import (
     full_scrape_command,
 )
 from tests.mocks.mock_cli_components import (
-    MockConfig,
-    MockFullScraper,
     MockScrapeResult,
 )
 

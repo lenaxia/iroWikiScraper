@@ -26,7 +26,7 @@ def main():
     # Initialize storage
     print_section("1. Initialize Storage")
     storage = LinkStorage()
-    print(f"✓ Storage initialized")
+    print("✓ Storage initialized")
     print(f"  Initial count: {storage.get_link_count()}")
     print(f"  Initial stats: {storage.get_stats()}")
 

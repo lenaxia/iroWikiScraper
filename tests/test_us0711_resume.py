@@ -11,12 +11,6 @@ Test Infrastructure → Tests → Implementation order followed.
 """
 
 import json
-import logging
-from argparse import Namespace
-from pathlib import Path
-from unittest.mock import MagicMock, call, patch
-
-import pytest
 
 from scraper.storage.models import Page
 
@@ -34,37 +28,31 @@ class TestCheckpointTracking:
         """Test checkpoint file is created when scrape starts."""
         # This will be implemented with CheckpointManager
         # For now, we're testing the interface
-        pass
 
     def test_checkpoint_records_last_completed_namespace(
         self, checkpoint_file, checkpoint_resume_scenarios
     ):
         """Test checkpoint records last completed namespace."""
-        pass
 
     def test_checkpoint_records_last_completed_page(
         self, checkpoint_file, checkpoint_resume_scenarios
     ):
         """Test checkpoint records last completed page in namespace."""
-        pass
 
     def test_checkpoint_includes_scrape_parameters(
         self, checkpoint_file, checkpoint_resume_scenarios
     ):
         """Test checkpoint includes scrape parameters (namespaces, rate limit)."""
-        pass
 
     def test_checkpoint_updated_periodically(
         self, checkpoint_file, checkpoint_resume_scenarios
     ):
         """Test checkpoint is updated every N pages (configurable)."""
-        pass
 
     def test_checkpoint_includes_timestamp(
         self, checkpoint_file, checkpoint_resume_scenarios
     ):
         """Test checkpoint includes started_at and last_update timestamps."""
-        pass
 
 
 # ==================================================================
@@ -104,19 +92,16 @@ class TestResumeDetection:
         create_checkpoint_file(checkpoint_file, scenario["checkpoint"])
 
         # User prompt testing will be in CLI commands
-        pass
 
     def test_resume_flag_auto_resumes_without_prompt(
         self, checkpoint_file, create_checkpoint_file, checkpoint_resume_scenarios
     ):
         """Test --resume flag skips prompt and auto-resumes."""
-        pass
 
     def test_no_resume_flag_ignores_checkpoint(
         self, checkpoint_file, create_checkpoint_file, checkpoint_resume_scenarios
     ):
         """Test --no-resume flag ignores existing checkpoint."""
-        pass
 
 
 # ==================================================================
@@ -146,7 +131,7 @@ class TestResumeLogic:
         scenarios = checkpoint_resume_scenarios
         scenario = scenarios.create_checkpoint_scenario_partial()
 
-        checkpoint = scenario["checkpoint"]
+        scenario["checkpoint"]
         expected_skip = scenario["expected_skip"]
 
         # Namespace 4 has 15 pages completed
@@ -166,12 +151,10 @@ class TestResumeLogic:
     def test_verify_existing_data_before_skip(self):
         """Test scraper verifies data exists in DB before skipping."""
         # Verify page exists in database before marking as skipped
-        pass
 
     def test_handle_database_rollback_on_interruption(self):
         """Test database transaction rollback on interruption."""
         # Ensure no partial data from interrupted transaction
-        pass
 
 
 # ==================================================================
@@ -332,36 +315,32 @@ class TestCLIFlagIntegration:
         from scraper.cli.args import create_parser
 
         parser = create_parser()
-        args = parser.parse_args(["full", "--resume"])
+        parser.parse_args(["full", "--resume"])
 
         # Should have resume attribute
         # Will be implemented in CLI args
-        pass
 
     def test_no_resume_flag_present(self):
         """Test --no-resume flag is present in CLI parser."""
         from scraper.cli.args import create_parser
 
-        parser = create_parser()
+        create_parser()
         # Will be implemented
-        pass
 
     def test_clean_flag_present(self):
         """Test --clean flag is present in CLI parser."""
         from scraper.cli.args import create_parser
 
-        parser = create_parser()
+        create_parser()
         # Will be implemented
-        pass
 
     def test_mutually_exclusive_resume_flags(self):
         """Test --resume and --no-resume are mutually exclusive."""
         from scraper.cli.args import create_parser
 
-        parser = create_parser()
+        create_parser()
         # Should raise error if both specified
         # Will be implemented
-        pass
 
 
 # ==================================================================
@@ -434,7 +413,6 @@ class TestProgressDisplay:
     def test_display_estimated_time_saved(self):
         """Test CLI displays estimated time saved by resuming."""
         # Based on pages already completed and rate limit
-        pass
 
 
 # ==================================================================
@@ -456,22 +434,18 @@ class TestResumeIntegration:
         # 4. Resume scrape
         # 5. Verify correct pages scraped
         # 6. Verify checkpoint deleted on completion
-        pass
 
     def test_resume_with_cli_commands(self):
         """Test resume integration with CLI commands."""
         # This will test the full CLI flow
-        pass
 
     def test_resume_after_error(self):
         """Test resume after error condition."""
         # Simulate error during scrape, verify resume works
-        pass
 
     def test_resume_after_keyboard_interrupt(self):
         """Test resume after Ctrl+C interruption."""
         # Simulate KeyboardInterrupt, verify checkpoint saved
-        pass
 
 
 # ==================================================================
@@ -484,11 +458,9 @@ class TestResumeEdgeCases:
 
     def test_resume_with_all_namespaces_complete(self, checkpoint_resume_scenarios):
         """Test resume when all namespaces already complete."""
-        pass
 
     def test_resume_with_single_page_remaining(self):
         """Test resume with only one page left to scrape."""
-        pass
 
     def test_resume_with_corrupted_checkpoint(
         self, checkpoint_file, create_checkpoint_file

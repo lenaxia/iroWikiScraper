@@ -1,13 +1,9 @@
 """Tests for RecentChangesClient and RecentChange model."""
 
-import json
 from datetime import datetime, timezone
-from unittest.mock import Mock
 
 import pytest
-import requests
 
-from scraper.api.exceptions import APIError, NetworkError
 from scraper.api.recentchanges import RecentChange, RecentChangesClient
 from tests.mocks.mock_http_session import MockResponse
 
@@ -482,7 +478,7 @@ class TestPagination:
         start = datetime(2026, 1, 1, tzinfo=timezone.utc)
         end = datetime(2026, 1, 31, tzinfo=timezone.utc)
 
-        changes = rc_client.get_recent_changes(start, end)
+        rc_client.get_recent_changes(start, end)
 
         # Check that second request included continue parameters
         # Note: mock_session.last_request_params will have params from last call
@@ -617,7 +613,6 @@ class TestErrorHandling:
 
     def test_handles_network_error(self, api_client, mock_session):
         """Test handling network errors during request."""
-        from scraper.api.exceptions import NetworkError
 
         # Make all retries fail with timeout
         mock_session.set_response_sequence(

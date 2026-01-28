@@ -4,21 +4,13 @@ Tests US-0703 acceptance criteria for full scrape command.
 """
 
 import logging
-import sys
-from argparse import Namespace
-from collections import Counter
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 from scraper.cli.commands import full_scrape_command, incremental_scrape_command
 from scraper.incremental.page_scraper import FirstRunRequiresFullScrapeError
 from tests.mocks.mock_cli_components import (
-    MockConfig,
     MockDatabase,
-    MockFullScraper,
-    MockIncrementalPageScraper,
     MockIncrementalStats,
     MockPageDiscovery,
     MockScrapeResult,
@@ -595,7 +587,7 @@ class TestFullScrapeCommand:
                             "scraper.cli.commands.FullScraper",
                             return_value=mock_full_scraper,
                         ):
-                            exit_code = full_scrape_command(cli_args_full)
+                            _ = full_scrape_command(cli_args_full)
 
         captured = capsys.readouterr()
         assert "FULL SCRAPE COMPLETE" in captured.out
@@ -715,7 +707,7 @@ class TestFullScrapeCommand:
                             "scraper.cli.commands.FullScraper",
                             return_value=mock_full_scraper,
                         ):
-                            exit_code = full_scrape_command(cli_args_full)
+                            _ = full_scrape_command(cli_args_full)
 
         captured = capsys.readouterr()
         # Should show first 3 errors (changed from 5)
@@ -1155,11 +1147,11 @@ class TestIncrementalScrapeCommand:
 
         with patch("scraper.cli.commands._load_config", return_value=mock_config):
             with patch("scraper.cli.commands.Path.exists", return_value=True):
-                with patch("scraper.cli.commands._create_database") as mock_db:
+                with patch("scraper.cli.commands._create_database"):
                     with patch(
                         "scraper.cli.commands.MediaWikiAPIClient",
                         return_value=MagicMock(),
-                    ) as mock_api:
+                    ):
                         with patch(
                             "scraper.cli.commands.RateLimiter", return_value=MagicMock()
                         ):

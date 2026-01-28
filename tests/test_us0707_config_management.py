@@ -11,10 +11,9 @@ Test Coverage:
 - AC5: Validation (validate after merge, exit on invalid, show which value)
 """
 
-import sys
 from argparse import Namespace
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 

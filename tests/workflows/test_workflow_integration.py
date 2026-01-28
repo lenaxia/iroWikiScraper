@@ -3,10 +3,7 @@
 Tests US-0708 acceptance criteria for GitHub Actions integration.
 """
 
-import subprocess
 from pathlib import Path
-from typing import Dict, List
-from unittest.mock import MagicMock, patch
 
 import pytest
 import yaml

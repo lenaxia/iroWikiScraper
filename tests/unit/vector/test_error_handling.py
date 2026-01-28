@@ -11,7 +11,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
-from vectorize_wiki import (
+from vectorize_wiki import (  # noqa: E402
     Chunk,
     DatabaseReader,
     WikiChunker,
@@ -101,7 +101,7 @@ class TestMalformedInputs:
         chunker = WikiChunker()
 
         unicode_content = """
-        This has various unicode: 
+        This has various unicode:
         émojis 🎮, 中文, العربية, עברית, 日本語
         Special chars: © ® ™ € ¥ £
         Math: ∑ ∫ ∂ √ ∞
@@ -292,7 +292,7 @@ class TestResourceExhaustion:
 
             # Iterator should still be usable
             try:
-                second = next(iterator)
+                next(iterator)
             except StopIteration:
                 # OK if only one page
                 pass
@@ -359,7 +359,7 @@ class TestEdgeCaseContent:
 
         start = time.time()
 
-        chunks = list(chunker.chunk_section_level(page_data))
+        list(chunker.chunk_section_level(page_data))
 
         elapsed = time.time() - start
 
@@ -432,7 +432,7 @@ class TestConcurrentAccess:
             for reader in readers:
                 try:
                     reader.__exit__(None, None, None)
-                except:
+                except Exception:
                     pass
 
 

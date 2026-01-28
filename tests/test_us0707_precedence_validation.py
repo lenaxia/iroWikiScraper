@@ -55,7 +55,7 @@ scraper:
 
 storage:
   database_file: "from_file.db"
-  
+
 logging:
   level: "ERROR"
 """)

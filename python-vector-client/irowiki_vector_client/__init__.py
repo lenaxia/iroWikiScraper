@@ -182,9 +182,9 @@ class ChromaDBClient(BaseVectorClient):
                     "page_title": metadata.get("page_title"),
                     "section_title": metadata.get("section_title"),
                     "content": results["documents"][0][i],
-                    "distance": results["distances"][0][i]
-                    if "distances" in results
-                    else None,
+                    "distance": (
+                        results["distances"][0][i] if "distances" in results else None
+                    ),
                     "chunk_type": metadata.get("chunk_type"),
                     "namespace": metadata.get("namespace"),
                     "page_id": metadata.get("page_id"),

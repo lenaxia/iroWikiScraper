@@ -5,9 +5,7 @@ and result calculation.
 """
 
 from datetime import datetime
-from unittest.mock import MagicMock, Mock, call, patch
-
-import pytest
+from unittest.mock import Mock, patch
 
 from scraper.orchestration.full_scraper import FullScraper, ScrapeResult
 from scraper.storage.models import Page, Revision
@@ -93,7 +91,7 @@ class TestFullScraperInitialization:
             patch("scraper.orchestration.full_scraper.PageRepository") as mock_pr,
             patch("scraper.orchestration.full_scraper.RevisionRepository") as mock_rr,
         ):
-            scraper = FullScraper(config, api_client, database)
+            _ = FullScraper(config, api_client, database)
 
             mock_pd.assert_called_once_with(api_client)
             mock_rs.assert_called_once_with(api_client)
@@ -306,9 +304,7 @@ class TestFullScraperScrapeMethod:
             callback_calls.append((stage, current, total))
 
         # Execute scrape with callback
-        result = self.scraper.scrape(
-            namespaces=[0], progress_callback=progress_callback
-        )
+        _ = self.scraper.scrape(namespaces=[0], progress_callback=progress_callback)
 
         # Verify callback was called
         assert len(callback_calls) > 0

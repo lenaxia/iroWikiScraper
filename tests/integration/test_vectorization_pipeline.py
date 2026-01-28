@@ -12,7 +12,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
-from vectorize_wiki import (
+from vectorize_wiki import (  # noqa: E402
     ChromaDBWriter,
     DatabaseReader,
     QdrantWriter,
@@ -199,7 +199,7 @@ class TestMetadataGeneration:
         total_chunks = 0
 
         with DatabaseReader(str(test_database)) as db:
-            page_count = db.count_pages()
+            db.count_pages()
 
             for page_data in db.iter_pages():
                 total_pages += 1
@@ -341,7 +341,7 @@ class TestErrorHandling:
 
         # Should not crash
         try:
-            chunks = list(chunker.chunk_section_level(bad_page))
+            list(chunker.chunk_section_level(bad_page))
         except KeyError:
             # Expected for missing required fields
             pass

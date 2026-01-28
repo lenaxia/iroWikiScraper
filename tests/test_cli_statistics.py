@@ -5,18 +5,11 @@ including formatting, error reporting, and JSON output functionality.
 """
 
 import json
-from argparse import Namespace
 from datetime import timedelta
-from pathlib import Path
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 from scraper.cli.commands import full_scrape_command, incremental_scrape_command
 from tests.mocks.mock_cli_components import (
-    MockConfig,
-    MockFullScraper,
-    MockIncrementalPageScraper,
     MockIncrementalStats,
     MockScrapeResult,
 )

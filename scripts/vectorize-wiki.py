@@ -327,7 +327,7 @@ class DatabaseReader:
         placeholders = ",".join("?" * len(self.namespaces))
 
         query = f"""
-            SELECT 
+            SELECT
                 p.page_id,
                 p.title as page_title,
                 p.namespace,
@@ -487,7 +487,7 @@ class ChromaDBWriter(VectorDBWriter):
         # Delete if exists
         try:
             self.client.delete_collection(name=self.collection_name)
-        except:
+        except Exception:
             pass
 
         # Create collection
@@ -503,7 +503,7 @@ class ChromaDBWriter(VectorDBWriter):
         documents = []
 
         for chunk in chunks:
-            chunk_dict = chunk.to_dict()
+            chunk.to_dict()
             # ChromaDB requires metadata values to be strings, ints, floats, or bools
             metadata = {
                 "page_id": chunk.page_id,
@@ -542,16 +542,16 @@ def main():
 Examples:
   # Default: section-level chunking with MiniLM, output to Qdrant
   python scripts/vectorize-wiki.py --db data/irowiki.db --output qdrant_storage
-  
+
   # Use different embedding model
   python scripts/vectorize-wiki.py --model bge-large-en-v1.5
-  
+
   # Paragraph-level chunking
   python scripts/vectorize-wiki.py --chunk-level paragraph
-  
+
   # Output to ChromaDB
   python scripts/vectorize-wiki.py --vector-db chromadb --output chroma_storage
-  
+
   # Include File namespace (images metadata)
   python scripts/vectorize-wiki.py --namespaces 0 6
         """,

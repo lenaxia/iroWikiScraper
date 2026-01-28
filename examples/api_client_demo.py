@@ -53,7 +53,7 @@ def main():
     try:
         result = client.query({"list": "allpages", "aplimit": 5, "apnamespace": 0})
         pages = result["query"]["allpages"]
-        print(f"First 5 pages in Main namespace:")
+        print("First 5 pages in Main namespace:")
         for page in pages:
             print(f"  - {page.get('title', 'N/A')}")
     except APIError as e:

@@ -15,24 +15,19 @@ Test Coverage:
 """
 
 import json
-import os
 import shutil
-import sqlite3
 import tempfile
-from datetime import UTC, datetime
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
 import pytest
 
 from scraper.api.client import MediaWikiAPIClient
 from scraper.api.rate_limiter import RateLimiter
-from scraper.cli.commands import full_scrape_command, incremental_scrape_command
 from scraper.config import Config
 from scraper.orchestration.checkpoint import CheckpointManager
 from scraper.orchestration.full_scraper import FullScraper
 from scraper.storage.database import Database
-from scraper.storage.models import Page, Revision
 
 
 class MockHTTPResponse:
@@ -447,9 +442,7 @@ class TestE2EFullScrapeWorkflow:
             def mock_discover_pages(namespaces, progress_callback=None, result=None):
                 # Only discover namespace 0, then interrupt
                 if not interrupt_after_ns0[0]:
-                    pages = original_discover(
-                        [namespaces[0]], progress_callback, result
-                    )
+                    _ = original_discover([namespaces[0]], progress_callback, result)
                     interrupt_after_ns0[0] = True
                     # Raise KeyboardInterrupt after namespace 0 is discovered
                     raise KeyboardInterrupt("Simulated interruption after NS 0")
@@ -459,7 +452,7 @@ class TestE2EFullScrapeWorkflow:
 
             # First scrape (partial) - will be interrupted
             try:
-                result1 = scraper.scrape(namespaces=[0, 4], resume=False)
+                _ = scraper.scrape(namespaces=[0, 4], resume=False)
             except KeyboardInterrupt:
                 pass  # Expected interruption
 
@@ -481,7 +474,7 @@ class TestE2EFullScrapeWorkflow:
             # Act: Resume scrape with normal discovery
             checkpoint_manager2 = CheckpointManager(self.checkpoint_path)
             scraper2 = FullScraper(config, api_client, database, checkpoint_manager2)
-            result2 = scraper2.scrape(namespaces=[0, 4], resume=True)
+            _ = scraper2.scrape(namespaces=[0, 4], resume=True)
 
             # Assert: Verify completion
             cursor = conn.execute("SELECT COUNT(*) FROM pages")
@@ -693,7 +686,7 @@ storage:
 
             # Act: Force scrape (simulate by allowing duplicate insert)
             # In real implementation, force would clear and re-insert
-            result2 = scraper.scrape(namespaces=[0])
+            _ = scraper.scrape(namespaces=[0])
 
             # Assert: Verify data is still consistent
             cursor = conn.execute("SELECT COUNT(*) FROM pages")

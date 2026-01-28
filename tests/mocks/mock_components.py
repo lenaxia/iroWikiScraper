@@ -1,7 +1,6 @@
 """Mock components for testing FullScraper orchestration."""
 
-from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 from scraper.storage.models import Page, Revision
 

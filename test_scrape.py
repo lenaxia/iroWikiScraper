@@ -12,13 +12,12 @@ from pathlib import Path
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from scraper.api.client import MediaWikiAPIClient
-from scraper.storage.database import Database
-from scraper.storage.page_repository import PageRepository
-from scraper.storage.revision_repository import RevisionRepository
-from scraper.scrapers.revision_scraper import RevisionScraper
-from scraper.storage.models import Page, Revision
-from datetime import datetime
+from scraper.api.client import MediaWikiAPIClient  # noqa: E402
+from scraper.storage.database import Database  # noqa: E402
+from scraper.storage.page_repository import PageRepository  # noqa: E402
+from scraper.storage.revision_repository import RevisionRepository  # noqa: E402
+from scraper.scrapers.revision_scraper import RevisionScraper  # noqa: E402
+from scraper.storage.models import Page, Revision  # noqa: E402
 
 # Configure logging
 logging.basicConfig(
@@ -90,7 +89,7 @@ def main():
             print(f"  ✓ Page saved: {title}")
 
             # Get revisions
-            print(f"  → Fetching revisions...")
+            print("  → Fetching revisions...")
             revisions = revision_scraper.fetch_revisions(page_id)
 
             revision_count = 0
@@ -134,7 +133,7 @@ def main():
     print("\n" + "=" * 70)
     print("SCRAPE COMPLETE")
     print("=" * 70)
-    print(f"\nResults:")
+    print("\nResults:")
     print(f"  ✓ Pages scraped: {stats['pages_scraped']}")
     print(f"  ✓ Revisions scraped: {stats['revisions_scraped']}")
     print(f"  ✗ Pages failed: {stats['pages_failed']}")

@@ -12,9 +12,6 @@ This module tests all edge cases mentioned in the validation requirements:
 
 import logging
 from io import StringIO
-from unittest.mock import MagicMock, patch
-
-import pytest
 
 from scraper.cli.commands import _print_progress, _setup_logging
 

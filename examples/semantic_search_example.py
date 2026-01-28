@@ -57,7 +57,7 @@ def search_qdrant(query: str, vector_path: str, model_name: str, top_k: int = 5)
         if payload.get("section_title"):
             print(f"    Section: {payload.get('section_title')}")
         print(f"    Type: {payload.get('chunk_type')}")
-        print(f"    Content preview:")
+        print("    Content preview:")
         content = payload.get("content", "")
         preview = content[:200] + "..." if len(content) > 200 else content
         print(f"    {preview}")
@@ -101,7 +101,7 @@ def search_chromadb(query: str, vector_path: str, model_name: str, top_k: int = 
         if metadata.get("section_title"):
             print(f"    Section: {metadata.get('section_title')}")
         print(f"    Type: {metadata.get('chunk_type')}")
-        print(f"    Content preview:")
+        print("    Content preview:")
         preview = document[:200] + "..." if len(document) > 200 else document
         print(f"    {preview}")
 
@@ -114,10 +114,10 @@ def main():
 Examples:
   # Search in Qdrant database
   python examples/semantic_search_example.py "best weapon for undead"
-  
+
   # Search in ChromaDB database
   python examples/semantic_search_example.py --vector-db chromadb "glast heim location"
-  
+
   # Get more results
   python examples/semantic_search_example.py --top-k 10 "poison resistance"
         """,

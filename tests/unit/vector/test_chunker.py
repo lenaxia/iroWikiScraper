@@ -12,7 +12,7 @@ import pytest
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
-from vectorize_wiki import Chunk, WikiChunker
+from vectorize_wiki import Chunk, WikiChunker  # noqa: E402
 
 
 class TestWikiTextCleaning:
@@ -327,7 +327,7 @@ Section content here.
         assert "Test Section" in test_chunk.content
         assert "Section content" in test_chunk.content
 
-    def test_chunk_section_indices(self):
+    def test_chunk_section_indices(self, sample_wiki_content):
         """Test that chunk indices are sequential"""
         page_data = {
             "page_id": 1,

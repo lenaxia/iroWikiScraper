@@ -16,24 +16,20 @@ import json
 import shutil
 import tempfile
 import time
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 
 from scraper.api.client import MediaWikiAPIClient
-from scraper.api.rate_limiter import RateLimiter
 from scraper.config import Config
 from scraper.orchestration.checkpoint import CheckpointManager
-from scraper.orchestration.full_scraper import FullScraper, ScrapeResult
+from scraper.orchestration.full_scraper import FullScraper
 from scraper.orchestration.retry import retry_with_backoff
-from scraper.scrapers.page_scraper import PageDiscovery
-from scraper.scrapers.revision_scraper import RevisionScraper
 from scraper.storage.database import Database
 from scraper.storage.models import Page, Revision
 from scraper.storage.page_repository import PageRepository
-from scraper.storage.revision_repository import RevisionRepository
 
 
 class TestFullScraperDatabaseIntegration:
@@ -115,7 +111,7 @@ class TestFullScraperDatabaseIntegration:
         )
 
         # Act: Run scrape
-        result = scraper.scrape(namespaces=[0])
+        _ = scraper.scrape(namespaces=[0])
 
         # Assert: Verify database contents
         conn = self.database.get_connection()
@@ -175,7 +171,7 @@ class TestFullScraperDatabaseIntegration:
         scraper.revision_scraper.fetch_revisions = Mock(return_value=mock_revisions)
 
         # Act: Run scrape
-        result = scraper.scrape(namespaces=[0])
+        _ = scraper.scrape(namespaces=[0])
 
         # Assert: Verify data is committed
         # Create new connection to ensure data is persisted
@@ -447,7 +443,7 @@ class TestProgressTrackingIntegration:
             progress_calls.append((stage, current, total))
 
         # Act: Run scrape with progress callback
-        result = scraper.scrape(namespaces=[0], progress_callback=progress_callback)
+        _ = scraper.scrape(namespaces=[0], progress_callback=progress_callback)
 
         # Assert: Verify progress was reported
         assert len(progress_calls) > 0, "Progress callback should be called"
@@ -494,7 +490,7 @@ class TestProgressTrackingIntegration:
         scraper.revision_scraper.fetch_revisions = Mock(return_value=[])
 
         # Act: Run scrape
-        result = scraper.scrape(namespaces=[0])
+        _ = scraper.scrape(namespaces=[0])
 
         # Assert: Verify checkpoint tracked progress
         # Note: checkpoint is cleared on success, so check database instead

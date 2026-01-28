@@ -138,7 +138,7 @@ jobs:
       
       - name: Run Flake8 (style guide)
         run: |
-          flake8 scraper/ tests/ --max-line-length=100 --extend-ignore=E203,W503
+          flake8 scraper/ tests/
       
       - name: Run MyPy (type checking)
         run: |

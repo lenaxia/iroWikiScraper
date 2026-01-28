@@ -6,16 +6,12 @@ but mocked API responses.
 
 import os
 import tempfile
-from datetime import datetime
-from unittest.mock import Mock, patch
-
-import pytest
+from unittest.mock import Mock
 
 from scraper.api.client import MediaWikiAPIClient
 from scraper.config import Config
-from scraper.orchestration.full_scraper import FullScraper, ScrapeResult
+from scraper.orchestration.full_scraper import FullScraper
 from scraper.storage.database import Database
-from scraper.storage.models import Page, Revision
 
 
 class TestFullScraperIntegration:
@@ -344,9 +340,7 @@ class TestFullScraperIntegration:
             callback_history.append((stage, current, total))
 
         # Execute scrape with callback
-        result = self.scraper.scrape(
-            namespaces=[0], progress_callback=progress_callback
-        )
+        _ = self.scraper.scrape(namespaces=[0], progress_callback=progress_callback)
 
         # Verify callbacks were invoked
         assert len(callback_history) > 0

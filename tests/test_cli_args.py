@@ -3,7 +3,6 @@
 Tests US-0702 acceptance criteria for argument parsing functionality.
 """
 
-import sys
 from pathlib import Path
 
 import pytest

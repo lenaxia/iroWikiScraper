@@ -46,10 +46,10 @@ def build_context_qdrant(
     print(f"Loading model: {model_name}")
     model = SentenceTransformer(model_name)
 
-    print(f"Connecting to Qdrant...")
+    print("Connecting to Qdrant...")
     client = QdrantClient(path=vector_path)
 
-    print(f"Embedding query...")
+    print("Embedding query...")
     query_vector = model.encode(query)
 
     print(f"Retrieving top {top_k} relevant chunks...")
@@ -79,7 +79,7 @@ def build_context_qdrant(
         header = f"[{page_title}"
         if section_title:
             header += f" - {section_title}"
-        header += f"]"
+        header += "]"
 
         formatted = f"{header}\n{content}"
         context_parts.append(formatted)
@@ -105,7 +105,7 @@ def build_context_qdrant(
 
 def build_rag_prompt(query: str, context: str) -> str:
     """Build the full prompt with context and query"""
-    prompt = f"""You are an expert on Ragnarok Online (iRO). Answer the following question using ONLY the provided wiki context. If the context doesn't contain enough information, say so.
+    prompt = """You are an expert on Ragnarok Online (iRO). Answer the following question using ONLY the provided wiki context. If the context doesn't contain enough information, say so.
 
 Wiki Context:
 {context}
@@ -140,10 +140,10 @@ def main():
 Examples:
   # Basic RAG query
   python examples/rag_example.py "What's the best weapon for a Knight?"
-  
+
   # Larger context window
   python examples/rag_example.py --max-context 4000 "Explain the refining system"
-  
+
   # More retrieval candidates
   python examples/rag_example.py --top-k 30 "How do I make money at low level?"
         """,
