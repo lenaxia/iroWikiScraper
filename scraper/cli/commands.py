@@ -74,7 +74,7 @@ def _load_config(args: Namespace) -> Config:
     if args.config:
         logger.info(f"Loading configuration from {args.config}")
         try:
-            config = Config.from_yaml(args.config, validate=False)
+            config = Config.from_yaml(args.config)
         except ConfigError as e:
             logger.error(f"Failed to load config: {e}")
             sys.exit(1)

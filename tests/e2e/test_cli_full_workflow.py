@@ -295,9 +295,9 @@ class TestE2EFullScrapeWorkflow:
 
             # Assert: Verify results
             assert result.success, f"Scrape should succeed, errors: {result.errors}"
-            assert (
-                result.pages_count == 5
-            ), "Should discover 5 pages (3 in ns 0, 2 in ns 4)"
+            assert result.pages_count == 5, (
+                "Should discover 5 pages (3 in ns 0, 2 in ns 4)"
+            )
             assert result.revisions_count == 6, "Should scrape 6 total revisions"
             assert result.namespaces_scraped == [0, 4]
             assert len(result.failed_pages) == 0, "Should have no failures"
@@ -457,9 +457,9 @@ class TestE2EFullScrapeWorkflow:
                 pass  # Expected interruption
 
             # Verify checkpoint exists (should persist after interruption)
-            assert (
-                self.checkpoint_path.exists()
-            ), "Checkpoint should be created after interruption"
+            assert self.checkpoint_path.exists(), (
+                "Checkpoint should be created after interruption"
+            )
 
             # Verify only namespace 0 was scraped
             conn = database.get_connection()
@@ -493,9 +493,9 @@ class TestE2EFullScrapeWorkflow:
             assert len(duplicates) == 0, "Should have no duplicate pages"
 
             # Checkpoint should be cleared after successful completion
-            assert (
-                not checkpoint_manager.exists()
-            ), "Checkpoint should be cleared after success"
+            assert not checkpoint_manager.exists(), (
+                "Checkpoint should be cleared after success"
+            )
 
         database.close()
 
@@ -586,7 +586,7 @@ storage:
         self.config_path.write_text(config_yaml)
 
         # Load config from file
-        config = Config.from_yaml(str(self.config_path), validate=False)
+        config = Config.from_yaml(str(self.config_path))
         assert config.scraper.rate_limit == 1.0, "Config file value should be loaded"
 
         # Simulate CLI override
@@ -594,9 +594,9 @@ storage:
         config.storage.database_file = self.db_path
 
         # Verify override
-        assert (
-            config.scraper.rate_limit == 5.0
-        ), "CLI argument should override config file"
+        assert config.scraper.rate_limit == 5.0, (
+            "CLI argument should override config file"
+        )
         assert config.storage.database_file == self.db_path
 
     def test_multiple_namespace_scrape(self):
@@ -724,9 +724,9 @@ class TestE2ERobustness:
         checkpoint_manager = CheckpointManager(checkpoint_path)
 
         # Assert: Should handle gracefully
-        assert (
-            not checkpoint_manager.exists()
-        ), "Corrupted checkpoint should be considered non-existent"
+        assert not checkpoint_manager.exists(), (
+            "Corrupted checkpoint should be considered non-existent"
+        )
 
     def test_malformed_api_response(self):
         """Test handling of malformed API responses."""

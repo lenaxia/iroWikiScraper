@@ -39,10 +39,16 @@ class PageRepository:
         """
         cursor = self.conn.execute(
             """
-            INSERT INTO pages (namespace, title, is_redirect, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO pages (page_id, namespace, title, is_redirect, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(page_id) DO UPDATE SET
+                namespace = excluded.namespace,
+                title = excluded.title,
+                is_redirect = excluded.is_redirect,
+                updated_at = excluded.updated_at
         """,
             (
+                page.page_id,
                 page.namespace,
                 page.title,
                 1 if page.is_redirect else 0,
@@ -52,16 +58,20 @@ class PageRepository:
         )
 
         self.conn.commit()
-        page_id = cursor.lastrowid
 
-        logger.debug(f"Inserted page: {page.namespace}:{page.title} (id={page_id})")
+        # Return the page_id (either newly inserted or existing)
+        page_id = page.page_id
+
+        logger.debug(
+            f"Inserted/updated page: {page.namespace}:{page.title} (id={page_id})"
+        )
         return page_id
 
     def insert_pages_batch(self, pages: List[Page]) -> None:
         """
         Insert multiple pages in batch (efficient).
 
-        Uses INSERT OR REPLACE for idempotency based on (namespace, title) unique constraint.
+        Uses ON CONFLICT on page_id to handle duplicates idempotently.
 
         Args:
             pages: List of Page instances to insert
@@ -72,15 +82,18 @@ class PageRepository:
         now = datetime.utcnow().isoformat()
 
         data = [
-            (p.namespace, p.title, 1 if p.is_redirect else 0, now, now) for p in pages
+            (p.page_id, p.namespace, p.title, 1 if p.is_redirect else 0, now, now)
+            for p in pages
         ]
 
-        # Use INSERT OR IGNORE first, then UPDATE for existing pages
+        # Use page_id as the primary conflict resolution key
         self.conn.executemany(
             """
-            INSERT INTO pages (namespace, title, is_redirect, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT(namespace, title) DO UPDATE SET
+            INSERT INTO pages (page_id, namespace, title, is_redirect, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(page_id) DO UPDATE SET
+                namespace = excluded.namespace,
+                title = excluded.title,
                 is_redirect = excluded.is_redirect,
                 updated_at = excluded.updated_at
         """,
