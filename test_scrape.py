@@ -5,19 +5,19 @@ Test script to scrape a few pages from iRO Wiki.
 This will scrape a small set of pages and save them to a test database.
 """
 
-import sys
 import logging
+import sys
 from pathlib import Path
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from scraper.api.client import MediaWikiAPIClient  # noqa: E402
+from scraper.scrapers.revision_scraper import RevisionScraper  # noqa: E402
 from scraper.storage.database import Database  # noqa: E402
+from scraper.storage.models import Page, Revision  # noqa: E402
 from scraper.storage.page_repository import PageRepository  # noqa: E402
 from scraper.storage.revision_repository import RevisionRepository  # noqa: E402
-from scraper.scrapers.revision_scraper import RevisionScraper  # noqa: E402
-from scraper.storage.models import Page, Revision  # noqa: E402
 
 # Configure logging
 logging.basicConfig(

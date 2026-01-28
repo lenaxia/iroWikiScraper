@@ -4,9 +4,9 @@ iRO Wiki Vector Client
 Python client library for semantic search on iRO Wiki vector databases.
 """
 
-from pathlib import Path
-from typing import List, Dict, Any, Optional
 import json
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 class BaseVectorClient:

@@ -3,6 +3,7 @@
 
 import sqlite3
 import sys
+
 from scraper.api.client import MediaWikiAPIClient
 from scraper.scrapers.revision_scraper import RevisionScraper
 from scraper.storage.database import Database
@@ -149,8 +150,8 @@ def test_database_storage():
     print("TEST 3: Testing database storage")
     print("=" * 70)
 
-    import tempfile
     import os
+    import tempfile
 
     # Create temporary database
     db_file = tempfile.mktemp(suffix=".db")

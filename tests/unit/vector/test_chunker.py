@@ -9,6 +9,12 @@ from pathlib import Path
 
 import pytest
 
+# Skip all tests if numpy is not available (optional dependency)
+pytest.importorskip("numpy")
+
+# Skip all tests if numpy is not available (optional dependency)
+pytest.importorskip("numpy")
+
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 

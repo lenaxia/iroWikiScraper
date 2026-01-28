@@ -184,4 +184,6 @@ Examples:
         help="Output format for statistics (default: text)",
     )
 
+    # Note: set_defaults(func=...) is called in __main__.py to avoid circular imports
+
     return parser
