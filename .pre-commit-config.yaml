@@ -1,0 +1,69 @@
+# Pre-commit hooks for code quality
+# Install with: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Black - Python code formatter
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: ['--line-length=88']
+        files: ^(scraper|tests)/.*\.py$
+
+  # isort - Import sorting
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ['--profile', 'black', '--line-length=88']
+        files: ^(scraper|tests)/.*\.py$
+
+  # Flake8 - Python linting
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        args: ['--config=.flake8']
+        files: ^(scraper|tests)/.*\.py$
+        additional_dependencies:
+          - flake8-docstrings
+          - flake8-bugbear
+
+  # Autoflake - Remove unused imports
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.2.1
+    hooks:
+      - id: autoflake
+        args:
+          - --in-place
+          - --remove-all-unused-imports
+          - --remove-unused-variables
+          - --ignore-init-module-imports
+        files: ^(scraper|tests)/.*\.py$
+
+  # General hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^.*\.(md|txt)$
+      - id: end-of-file-fixer
+        exclude: ^.*\.(md|txt)$
+      - id: check-yaml
+        args: ['--unsafe']  # Allow custom tags in GitHub workflows
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Prettier - YAML and markdown formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        types_or: [yaml, markdown]
+        exclude: ^(CHANGELOG\.md|.*\.j2)$

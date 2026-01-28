@@ -350,3 +350,64 @@ def sample_links():
         Link(source_page_id=1, target_title="Category:Test", link_type="category"),
         Link(source_page_id=2, target_title="Main Page", link_type="page"),
     ]
+
+
+# =============================================================================
+# CLI Testing Fixtures
+# =============================================================================
+
+
+@pytest.fixture
+def cli_args_full():
+    """
+    Provide CLI arguments for full scrape command testing.
+
+    Returns:
+        Namespace with all required CLI arguments for full scrape
+    """
+    from argparse import Namespace
+
+    return Namespace(
+        command="full",
+        database=Path("data/test.db"),
+        config=None,
+        log_level="INFO",
+        rate_limit=2.0,
+        namespace=None,
+        force=False,
+        dry_run=False,
+        quiet=False,
+        resume=False,
+        format="text",
+    )
+
+
+@pytest.fixture
+def mock_config():
+    """
+    Provide mock configuration for CLI testing.
+
+    Returns:
+        MockConfig instance
+    """
+    from tests.mocks.mock_cli_components import MockConfig
+
+    return MockConfig()
+
+
+@pytest.fixture
+def mock_full_scraper():
+    """
+    Provide mock FullScraper for CLI testing.
+
+    Returns:
+        MockFullScraper instance
+    """
+    from tests.mocks.mock_cli_components import MockConfig, MockFullScraper
+    from unittest.mock import MagicMock
+
+    config = MockConfig()
+    api_client = MagicMock()
+    database = MagicMock()
+
+    return MockFullScraper(config, api_client, database)
