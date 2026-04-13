@@ -20,7 +20,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "requests>=2.31.0",
+    "requests>=2.33.1",
     "tqdm>=4.66.0",
     "PyYAML>=6.0.1",
 ]
