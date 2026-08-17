@@ -531,7 +531,18 @@ def full_scrape_command(args: Namespace) -> int:
             rate_limiter=rate_limiter,
         )
 
-        scraper = FullScraper(config, api_client, database, checkpoint_manager)
+        scraper = FullScraper(
+            config,
+            api_client,
+            database,
+            checkpoint_manager,
+            scrape_links=not getattr(args, "no_links", False),
+            scrape_files=not getattr(args, "no_files", False),
+            download_files=(
+                not getattr(args, "no_files", False)
+                and not getattr(args, "no_download", False)
+            ),
+        )
 
         # Determine namespaces
         namespaces = args.namespace if args.namespace else None
@@ -641,4 +652,114 @@ def incremental_scrape_command(args: Namespace) -> int:
         return 130
     except Exception as e:
         logger.error(f"Incremental scrape failed: {e}", exc_info=True)
+        return 1
+
+
+def backfill_command(args: Namespace) -> int:
+    """Execute backfill command.
+
+    Fills files, links and run metadata into an existing database and retries
+    any pages that have no revisions. Does not re-scrape revision history.
+
+    Args:
+        args: Parsed command-line arguments
+
+    Returns:
+        Exit code (0 for success, non-zero for failure)
+    """
+    try:
+        _setup_logging(args.log_level)
+        config = _load_config(args)
+
+        db_path = config.storage.database_file
+        if not db_path.exists():
+            logger.error(f"Database not found: {db_path}. Run 'scraper full' first.")
+            return 1
+
+        database = _create_database(config)
+        rate_limiter = RateLimiter(requests_per_second=config.scraper.rate_limit)
+        api_client = MediaWikiAPIClient(
+            base_url=config.wiki.base_url,
+            user_agent=config.scraper.user_agent,
+            timeout=config.scraper.timeout,
+            max_retries=config.scraper.max_retries,
+            rate_limiter=rate_limiter,
+        )
+
+        # Ensure download directory exists
+        download_dir = config.storage.data_dir / "files"
+        download_dir.mkdir(parents=True, exist_ok=True)
+
+        from scraper.orchestration.backfill import Backfiller
+
+        backfiller = Backfiller(config, api_client, database, download_dir=download_dir)
+
+        output_json = hasattr(args, "format") and args.format == "json"
+        progress_callback = None if (args.quiet or output_json) else _print_progress
+
+        if not output_json:
+            print("Starting backfill...")
+
+        result = backfiller.run(
+            do_failed_pages=not args.no_failed_pages,
+            do_links=not args.no_links,
+            do_files=not args.no_files,
+            download_files=not args.no_files and not args.no_download,
+            progress_callback=progress_callback,
+        )
+
+        if output_json:
+            data = {
+                "operation": "backfill",
+                "success": len(result.errors) == 0,
+                "timestamp": datetime.now(UTC).isoformat(),
+                "duration_seconds": result.duration,
+                "statistics": {
+                    "failed_pages_retried": result.failed_pages_retried,
+                    "failed_pages_fixed": result.failed_pages_fixed,
+                    "revisions_added": result.revisions_added,
+                    "pages_linked": result.pages_linked,
+                    "links_added": result.links_added,
+                    "files_stored": result.files_stored,
+                    "files_downloaded": result.files_downloaded,
+                    "files_skipped": result.files_skipped,
+                    "files_failed": result.files_failed,
+                },
+                "errors": result.errors,
+            }
+            print(json.dumps(data, indent=2))
+        else:
+            print(f"\n{'=' * 60}")
+            print("BACKFILL COMPLETE")
+            print(f"{'=' * 60}")
+            print(
+                f"Failed pages fixed:  {result.failed_pages_fixed}"
+                f" / {result.failed_pages_retried} retried"
+            )
+            print(f"Revisions added:     {_format_number(result.revisions_added)}")
+            print(
+                f"Links added:         {_format_number(result.links_added)}"
+                f" (from {_format_number(result.pages_linked)} pages)"
+            )
+            print(f"File metadata:       {_format_number(result.files_stored)}")
+            print(
+                f"Files downloaded:    {_format_number(result.files_downloaded)}"
+                f" ({result.files_skipped} skipped, {result.files_failed} failed)"
+            )
+            print(f"Duration:            {_format_duration(result.duration)}")
+            if result.errors:
+                print(f"\nErrors ({len(result.errors)}):")
+                for err in result.errors[:5]:
+                    print(f"  - {err}")
+                if len(result.errors) > 5:
+                    print(f"  ... and {len(result.errors) - 5} more")
+            print(f"{'=' * 60}")
+
+        return 0 if len(result.errors) == 0 else 1
+
+    except KeyboardInterrupt:
+        logger.info("Backfill interrupted by user")
+        return 130
+    except Exception as e:
+        logger.error(f"Backfill failed: {e}", exc_info=True)
         return 1

@@ -109,23 +109,32 @@ class FileDiscovery:
             progress_callback=self._progress_callback,
         )
 
-        # Iterate through all results
-        for file_data in query:
-            try:
-                file_metadata = self._parse_file_data(file_data)
-                files.append(file_metadata)
+        # Iterate through all results.
+        #
+        # If the wiki has no files (or the response omits the allimages key),
+        # PaginatedQuery raises KeyError while navigating the result path. That
+        # is not an error condition -- it simply means there is nothing to
+        # discover -- so we treat it as an empty result set.
+        try:
+            for file_data in query:
+                try:
+                    file_metadata = self._parse_file_data(file_data)
+                    files.append(file_metadata)
 
-                # Log progress at intervals
-                if len(files) % self.progress_interval == 0:
-                    logger.info(f"Discovered {len(files)} files so far...")
+                    # Log progress at intervals
+                    if len(files) % self.progress_interval == 0:
+                        logger.info(f"Discovered {len(files)} files so far...")
 
-            except Exception as e:
-                logger.error(
-                    f"Failed to parse file data: {file_data}. Error: {e}",
-                    exc_info=True,
-                )
-                # Continue with other files
-                continue
+                except Exception as e:
+                    logger.error(
+                        f"Failed to parse file data: {file_data}. Error: {e}",
+                        exc_info=True,
+                    )
+                    # Continue with other files
+                    continue
+        except KeyError:
+            logger.info("No 'allimages' data returned by API; assuming zero files")
+            return []
 
         logger.info(f"File discovery complete: {len(files)} total files discovered")
         return files
@@ -167,9 +176,15 @@ class FileDiscovery:
         timestamp = datetime.strptime(timestamp_str, "%Y-%m-%dT%H:%M:%SZ")
 
         # Use defensive parsing with .get() for optional fields
-        # width and height may not be present for non-images (videos, PDFs, etc.)
-        width = file_data.get("width")
-        height = file_data.get("height")
+        # width and height may not be present for non-images (videos, PDFs, etc.).
+        # MediaWiki also reports width/height of 0 for files it cannot render as
+        # images (e.g. audio, or images stored with a text/* mime type). The DB
+        # schema only permits NULL or a positive integer, so normalise any
+        # missing/zero/negative dimension to None ("unknown").
+        raw_width = file_data.get("width")
+        raw_height = file_data.get("height")
+        width = raw_width if isinstance(raw_width, int) and raw_width > 0 else None
+        height = raw_height if isinstance(raw_height, int) and raw_height > 0 else None
 
         # User may be empty string for deleted users
         uploader = file_data.get("user", "")

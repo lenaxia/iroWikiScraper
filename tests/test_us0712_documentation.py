@@ -79,7 +79,7 @@ class TestBuiltInHelp:
         help_text = run_help_command(["--help"])
 
         assert "usage: scraper" in help_text
-        assert "{full,incremental}" in help_text
+        assert "{full,incremental,backfill}" in help_text
 
     def test_main_help_shows_description(self):
         """Test main --help shows description."""

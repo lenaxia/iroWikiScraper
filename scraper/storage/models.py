@@ -155,8 +155,12 @@ class Revision:
             raise ValueError(f"size must be a non-negative integer, got: {self.size}")
 
         # Validate sha1
-        if not isinstance(self.sha1, str) or len(self.sha1) == 0:
-            raise ValueError(f"sha1 must be a non-empty string, got: {self.sha1}")
+        # Note: MediaWiki returns an empty sha1 for revisions whose content has
+        # been suppressed/deleted (RevisionDelete). We must preserve these
+        # revisions rather than dropping the entire page, so an empty string is
+        # allowed here (the DB column is NOT NULL, and "" satisfies that).
+        if not isinstance(self.sha1, str):
+            raise ValueError(f"sha1 must be a string, got: {type(self.sha1)}")
 
         # Validate minor flag
         if not isinstance(self.minor, bool):

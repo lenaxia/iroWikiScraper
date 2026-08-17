@@ -443,3 +443,61 @@ def patch_checkpoint_manager(mock_checkpoint_manager):
         "scraper.cli.commands.CheckpointManager", return_value=mock_checkpoint_manager
     ):
         yield mock_checkpoint_manager
+
+
+@pytest.fixture
+def cli_args_incremental():
+    """
+    Provide CLI arguments for incremental scrape command testing.
+
+    Returns:
+        Namespace with all required CLI arguments for incremental scrape
+    """
+    from argparse import Namespace
+
+    return Namespace(
+        command="incremental",
+        database=Path("data/test.db"),
+        config=None,
+        log_level="INFO",
+        rate_limit=2.0,
+        quiet=False,
+        format="text",
+    )
+
+
+@pytest.fixture
+def mock_incremental_scraper():
+    """
+    Provide mock IncrementalPageScraper for CLI testing.
+
+    Returns:
+        MockIncrementalPageScraper instance
+    """
+    from tests.mocks.mock_cli_components import MockIncrementalPageScraper
+    from unittest.mock import MagicMock
+
+    api_client = MagicMock()
+    database = MagicMock()
+    download_dir = Path("data/files")
+
+    return MockIncrementalPageScraper(api_client, database, download_dir)
+
+
+@pytest.fixture
+def temp_db_file(temp_db_path):
+    """
+    Create an actual temp database file that exists.
+
+    This is used to make Path.exists() return True without patching.
+
+    Args:
+        temp_db_path: Path to temp database
+
+    Yields:
+        Path object to the temp file
+    """
+    path = Path(temp_db_path)
+    path.touch()
+    yield path
+    # Cleanup handled by temp_db_path fixture

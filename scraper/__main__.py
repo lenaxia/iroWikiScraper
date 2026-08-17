@@ -5,7 +5,11 @@ import signal
 import sys
 
 from scraper.cli import create_parser
-from scraper.cli.commands import full_scrape_command, incremental_scrape_command
+from scraper.cli.commands import (
+    backfill_command,
+    full_scrape_command,
+    incremental_scrape_command,
+)
 
 
 def signal_handler(signum, frame):
@@ -28,6 +32,8 @@ def main() -> int:
             return full_scrape_command(args)
         elif args.command == "incremental":
             return incremental_scrape_command(args)
+        elif args.command == "backfill":
+            return backfill_command(args)
         else:
             parser.print_help()
             return 1

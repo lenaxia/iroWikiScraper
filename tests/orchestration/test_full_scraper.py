@@ -109,7 +109,14 @@ class TestFullScraperScrapeMethod:
         self.database = Mock()
 
         # Create scraper with mocked components
-        self.scraper = FullScraper(self.config, self.api_client, self.database)
+        self.scraper = FullScraper(
+            self.config,
+            self.api_client,
+            self.database,
+            scrape_links=False,
+            scrape_files=False,
+            download_files=False,
+        )
 
         # Replace components with mocks
         self.mock_page_discovery = MockPageDiscovery()
@@ -475,7 +482,14 @@ class TestFullScraperDiscoverPages:
         self.api_client = Mock()
         self.database = Mock()
 
-        self.scraper = FullScraper(self.config, self.api_client, self.database)
+        self.scraper = FullScraper(
+            self.config,
+            self.api_client,
+            self.database,
+            scrape_links=False,
+            scrape_files=False,
+            download_files=False,
+        )
 
         self.mock_page_discovery = MockPageDiscovery()
         self.mock_page_repo = MockPageRepository()
@@ -547,7 +561,14 @@ class TestFullScraperScrapeRevisions:
         self.api_client = Mock()
         self.database = Mock()
 
-        self.scraper = FullScraper(self.config, self.api_client, self.database)
+        self.scraper = FullScraper(
+            self.config,
+            self.api_client,
+            self.database,
+            scrape_links=False,
+            scrape_files=False,
+            download_files=False,
+        )
 
         self.mock_revision_scraper = MockRevisionScraper()
         self.mock_revision_repo = MockRevisionRepository()

@@ -53,7 +53,8 @@ class TestFullScrapeCommand:
         assert mock_full_scraper.scrape_called
 
     def test_command_returns_one_on_failure(
-        self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper):
+        self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper
+    ):
         """Test command returns 1 on scrape failure."""
         # Setup mock result with errors
         result = MockScrapeResult(
@@ -82,7 +83,8 @@ class TestFullScrapeCommand:
         assert exit_code == 1
 
     def test_command_returns_130_on_keyboard_interrupt(
-        self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper):
+        self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper
+    ):
         """Test command returns 130 on KeyboardInterrupt."""
         mock_full_scraper.set_exception(KeyboardInterrupt())
 
@@ -103,7 +105,8 @@ class TestFullScrapeCommand:
         assert exit_code == 130
 
     def test_command_returns_one_on_exception(
-        self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper):
+        self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper
+    ):
         """Test command returns 1 on general exception."""
         mock_full_scraper.set_exception(RuntimeError("Test error"))
 
@@ -124,7 +127,13 @@ class TestFullScrapeCommand:
         assert exit_code == 1
 
     def test_force_flag_bypasses_existing_data_check(
-        self, cli_args_full, mock_config, mock_full_scraper, patch_checkpoint_manager, temp_db_path):
+        self,
+        cli_args_full,
+        mock_config,
+        mock_full_scraper,
+        patch_checkpoint_manager,
+        temp_db_path,
+    ):
         """Test --force flag bypasses existing data check."""
         cli_args_full.force = True
         cli_args_full.database = Path(temp_db_path)
@@ -156,10 +165,14 @@ class TestFullScrapeCommand:
         assert exit_code == 0
 
     def test_existing_data_without_force_returns_error(
-        self, cli_args_full, mock_config, patch_checkpoint_manager, temp_db_path):
+        self, cli_args_full, mock_config, patch_checkpoint_manager, temp_db_path
+    ):
         """Test existing data without --force returns error."""
         cli_args_full.force = False
         cli_args_full.database = Path(temp_db_path)
+
+        # Create an actual temp file to make exists() return True
+        Path(temp_db_path).touch()
 
         # Create mock database with existing data
         mock_db = MockDatabase(temp_db_path)
@@ -168,13 +181,14 @@ class TestFullScrapeCommand:
         mock_config.storage.database_file = Path(temp_db_path)
 
         with patch("scraper.cli.commands._load_config", return_value=mock_config):
-            with patch("scraper.cli.commands.Path.exists", return_value=True):
-                with patch("scraper.cli.commands.Database", return_value=mock_db):
-                    exit_code = full_scrape_command(cli_args_full)
+            with patch("scraper.cli.commands.Database", return_value=mock_db):
+                exit_code = full_scrape_command(cli_args_full)
 
         assert exit_code == 1
 
-    def test_dry_run_mode_only_discovers(self, cli_args_full, mock_config, patch_checkpoint_manager, capsys):
+    def test_dry_run_mode_only_discovers(
+        self, cli_args_full, mock_config, patch_checkpoint_manager, capsys
+    ):
         """Test --dry-run only discovers pages, doesn't scrape."""
         cli_args_full.dry_run = True
 
@@ -211,7 +225,9 @@ class TestFullScrapeCommand:
         assert "0 (Main" in captured.out and "2 pages" in captured.out
         assert "4 (Project" in captured.out and "1 pages" in captured.out
 
-    def test_dry_run_shows_header_and_footer(self, cli_args_full, mock_config, patch_checkpoint_manager, capsys):
+    def test_dry_run_shows_header_and_footer(
+        self, cli_args_full, mock_config, patch_checkpoint_manager, capsys
+    ):
         """Test dry-run shows DRY RUN MODE header and DRY RUN COMPLETE footer."""
         cli_args_full.dry_run = True
 
@@ -244,7 +260,8 @@ class TestFullScrapeCommand:
         assert "DRY RUN COMPLETE" in captured.out
 
     def test_dry_run_shows_estimated_api_calls(
-        self, cli_args_full, mock_config, patch_checkpoint_manager, capsys):
+        self, cli_args_full, mock_config, patch_checkpoint_manager, capsys
+    ):
         """Test dry-run shows estimated API calls."""
         cli_args_full.dry_run = True
 
@@ -278,7 +295,9 @@ class TestFullScrapeCommand:
         # Should show at least the page count for revision calls
         assert "2" in captured.out
 
-    def test_dry_run_shows_estimated_duration(self, cli_args_full, mock_config, patch_checkpoint_manager, capsys):
+    def test_dry_run_shows_estimated_duration(
+        self, cli_args_full, mock_config, patch_checkpoint_manager, capsys
+    ):
         """Test dry-run shows estimated duration."""
         cli_args_full.dry_run = True
 
@@ -313,7 +332,13 @@ class TestFullScrapeCommand:
         assert "s" in captured.out  # Should show seconds
 
     def test_dry_run_does_not_call_scraper(
-        self, cli_args_full, mock_config, mock_full_scraper, patch_checkpoint_manager, capsys):
+        self,
+        cli_args_full,
+        mock_config,
+        mock_full_scraper,
+        patch_checkpoint_manager,
+        capsys,
+    ):
         """Test dry-run does not call FullScraper.scrape()."""
         cli_args_full.dry_run = True
 
@@ -348,7 +373,9 @@ class TestFullScrapeCommand:
         assert not mock_full_scraper.scrape_called
         assert exit_code == 0
 
-    def test_dry_run_does_not_create_database(self, cli_args_full, mock_config, patch_checkpoint_manager, capsys):
+    def test_dry_run_does_not_create_database(
+        self, cli_args_full, mock_config, patch_checkpoint_manager, capsys
+    ):
         """Test dry-run does not create database file."""
         cli_args_full.dry_run = True
 
@@ -389,7 +416,9 @@ class TestFullScrapeCommand:
         assert not database_created
         assert exit_code == 0
 
-    def test_dry_run_with_namespace_filter(self, cli_args_full, mock_config, patch_checkpoint_manager, capsys):
+    def test_dry_run_with_namespace_filter(
+        self, cli_args_full, mock_config, patch_checkpoint_manager, capsys
+    ):
         """Test dry-run respects namespace filter."""
         cli_args_full.dry_run = True
         cli_args_full.namespace = [0, 4]
@@ -435,7 +464,8 @@ class TestFullScrapeCommand:
         assert exit_code == 0
 
     def test_dry_run_with_multiple_namespaces_breakdown(
-        self, cli_args_full, mock_config, patch_checkpoint_manager, capsys):
+        self, cli_args_full, mock_config, patch_checkpoint_manager, capsys
+    ):
         """Test dry-run shows correct breakdown for multiple namespaces."""
         cli_args_full.dry_run = True
 
@@ -480,7 +510,8 @@ class TestFullScrapeCommand:
         assert "14 (Category" in captured.out and "1 pages" in captured.out
 
     def test_quiet_flag_suppresses_progress(
-        self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper):
+        self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper
+    ):
         """Test --quiet flag suppresses progress output."""
         cli_args_full.quiet = True
 
@@ -506,7 +537,8 @@ class TestFullScrapeCommand:
         assert exit_code == 0
 
     def test_progress_callback_invoked_when_not_quiet(
-        self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper):
+        self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper
+    ):
         """Test progress callback is invoked when not quiet."""
         cli_args_full.quiet = False
 
@@ -532,7 +564,8 @@ class TestFullScrapeCommand:
         assert exit_code == 0
 
     def test_namespace_argument_passed_to_scraper(
-        self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper):
+        self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper
+    ):
         """Test --namespace argument is passed to scraper."""
         cli_args_full.namespace = [0, 4, 6]
 
@@ -557,7 +590,13 @@ class TestFullScrapeCommand:
         assert exit_code == 0
 
     def test_output_shows_statistics(
-        self, cli_args_full, mock_config, mock_full_scraper, patch_checkpoint_manager, capsys):
+        self,
+        cli_args_full,
+        mock_config,
+        mock_full_scraper,
+        patch_checkpoint_manager,
+        capsys,
+    ):
         """Test output shows statistics summary."""
         result = MockScrapeResult(
             pages_count=2400,
@@ -592,7 +631,9 @@ class TestFullScrapeCommand:
         )
         assert "[142, 589, 1023]" in captured.out or "142, 589, 1023" in captured.out
 
-    def test_config_file_loading(self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper):
+    def test_config_file_loading(
+        self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper
+    ):
         """Test configuration file is loaded when specified."""
         cli_args_full.config = Path("config.yaml")
 
@@ -615,7 +656,9 @@ class TestFullScrapeCommand:
 
         assert exit_code == 0
 
-    def test_rate_limit_override(self, cli_args_full, patch_checkpoint_manager, mock_full_scraper):
+    def test_rate_limit_override(
+        self, cli_args_full, patch_checkpoint_manager, mock_full_scraper
+    ):
         """Test rate limit can be overridden via CLI."""
         cli_args_full.rate_limit = 3.0
 
@@ -647,7 +690,9 @@ class TestFullScrapeCommand:
         assert captured_rate == 3.0
         assert exit_code == 0
 
-    def test_logging_setup(self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper):
+    def test_logging_setup(
+        self, cli_args_full, mock_config, patch_checkpoint_manager, mock_full_scraper
+    ):
         """Test logging is configured based on log level."""
         cli_args_full.log_level = "DEBUG"
 
@@ -674,7 +719,13 @@ class TestFullScrapeCommand:
         assert exit_code == 0
 
     def test_output_shows_many_errors(
-        self, cli_args_full, mock_config, mock_full_scraper, patch_checkpoint_manager, capsys):
+        self,
+        cli_args_full,
+        mock_config,
+        mock_full_scraper,
+        patch_checkpoint_manager,
+        capsys,
+    ):
         """Test output shows truncated errors when more than 5."""
         # Create more than 5 errors
         errors = [f"Error {i}" for i in range(1, 11)]
@@ -716,118 +767,148 @@ class TestIncrementalScrapeCommand:
     """Test incremental_scrape_command implementation."""
 
     def test_command_returns_zero_on_success(
-        self, cli_args_incremental, mock_config, patch_checkpoint_manager, mock_incremental_scraper):
+        self,
+        cli_args_incremental,
+        mock_config,
+        patch_checkpoint_manager,
+        mock_incremental_scraper,
+        temp_db_file,
+    ):
         """Test incremental command returns 0 on success."""
         stats = MockIncrementalStats(pages_new=5, pages_modified=10, revisions_added=25)
         mock_incremental_scraper.set_stats(stats)
 
+        mock_config.storage.database_file = temp_db_file
+
         with patch("scraper.cli.commands._load_config", return_value=mock_config):
-            with patch("scraper.cli.commands.Path.exists", return_value=True):
-                with patch("scraper.cli.commands._create_database"):
+            with patch("scraper.cli.commands._create_database"):
+                with patch(
+                    "scraper.cli.commands.MediaWikiAPIClient",
+                    return_value=MagicMock(),
+                ):
                     with patch(
-                        "scraper.cli.commands.MediaWikiAPIClient",
-                        return_value=MagicMock(),
+                        "scraper.cli.commands.RateLimiter", return_value=MagicMock()
                     ):
                         with patch(
-                            "scraper.cli.commands.RateLimiter", return_value=MagicMock()
+                            "scraper.cli.commands.IncrementalPageScraper",
+                            return_value=mock_incremental_scraper,
                         ):
-                            with patch(
-                                "scraper.cli.commands.IncrementalPageScraper",
-                                return_value=mock_incremental_scraper,
-                            ):
-                                exit_code = incremental_scrape_command(
-                                    cli_args_incremental
-                                )
+                            exit_code = incremental_scrape_command(cli_args_incremental)
 
         assert exit_code == 0
 
-    def test_missing_database_returns_error(self, cli_args_incremental, patch_checkpoint_manager, mock_config):
+    def test_missing_database_returns_error(
+        self, cli_args_incremental, patch_checkpoint_manager, mock_config, temp_db_file
+    ):
         """Test missing database file returns error."""
+        # Don't set database file - let it not exist
+
         with patch("scraper.cli.commands._load_config", return_value=mock_config):
-            with patch("scraper.cli.commands.Path.exists", return_value=False):
-                exit_code = incremental_scrape_command(cli_args_incremental)
+            exit_code = incremental_scrape_command(cli_args_incremental)
 
         assert exit_code == 1
 
     def test_first_run_requires_full_scrape_error(
-        self, cli_args_incremental, mock_config, patch_checkpoint_manager, mock_incremental_scraper):
+        self,
+        cli_args_incremental,
+        mock_config,
+        patch_checkpoint_manager,
+        mock_incremental_scraper,
+        temp_db_file,
+    ):
         """Test FirstRunRequiresFullScrapeError is handled."""
         mock_incremental_scraper.set_exception(
             FirstRunRequiresFullScrapeError("No baseline scrape found")
         )
 
+        mock_config.storage.database_file = temp_db_file
+
         with patch("scraper.cli.commands._load_config", return_value=mock_config):
-            with patch("scraper.cli.commands.Path.exists", return_value=True):
-                with patch("scraper.cli.commands._create_database"):
+            with patch("scraper.cli.commands._create_database"):
+                with patch(
+                    "scraper.cli.commands.MediaWikiAPIClient",
+                    return_value=MagicMock(),
+                ):
                     with patch(
-                        "scraper.cli.commands.MediaWikiAPIClient",
-                        return_value=MagicMock(),
+                        "scraper.cli.commands.RateLimiter", return_value=MagicMock()
                     ):
                         with patch(
-                            "scraper.cli.commands.RateLimiter", return_value=MagicMock()
+                            "scraper.cli.commands.IncrementalPageScraper",
+                            return_value=mock_incremental_scraper,
                         ):
-                            with patch(
-                                "scraper.cli.commands.IncrementalPageScraper",
-                                return_value=mock_incremental_scraper,
-                            ):
-                                exit_code = incremental_scrape_command(
-                                    cli_args_incremental
-                                )
+                            exit_code = incremental_scrape_command(cli_args_incremental)
 
         assert exit_code == 1
 
     def test_keyboard_interrupt_returns_130(
-        self, cli_args_incremental, mock_config, patch_checkpoint_manager, mock_incremental_scraper):
+        self,
+        cli_args_incremental,
+        mock_config,
+        patch_checkpoint_manager,
+        mock_incremental_scraper,
+        temp_db_file,
+    ):
         """Test KeyboardInterrupt returns 130."""
         mock_incremental_scraper.set_exception(KeyboardInterrupt())
 
+        mock_config.storage.database_file = temp_db_file
+
         with patch("scraper.cli.commands._load_config", return_value=mock_config):
-            with patch("scraper.cli.commands.Path.exists", return_value=True):
-                with patch("scraper.cli.commands._create_database"):
+            with patch("scraper.cli.commands._create_database"):
+                with patch(
+                    "scraper.cli.commands.MediaWikiAPIClient",
+                    return_value=MagicMock(),
+                ):
                     with patch(
-                        "scraper.cli.commands.MediaWikiAPIClient",
-                        return_value=MagicMock(),
+                        "scraper.cli.commands.RateLimiter", return_value=MagicMock()
                     ):
                         with patch(
-                            "scraper.cli.commands.RateLimiter", return_value=MagicMock()
+                            "scraper.cli.commands.IncrementalPageScraper",
+                            return_value=mock_incremental_scraper,
                         ):
-                            with patch(
-                                "scraper.cli.commands.IncrementalPageScraper",
-                                return_value=mock_incremental_scraper,
-                            ):
-                                exit_code = incremental_scrape_command(
-                                    cli_args_incremental
-                                )
+                            exit_code = incremental_scrape_command(cli_args_incremental)
 
         assert exit_code == 130
 
     def test_generic_exception_returns_one(
-        self, cli_args_incremental, mock_config, patch_checkpoint_manager, mock_incremental_scraper):
+        self,
+        cli_args_incremental,
+        mock_config,
+        patch_checkpoint_manager,
+        mock_incremental_scraper,
+        temp_db_file,
+    ):
         """Test generic exception returns 1."""
         mock_incremental_scraper.set_exception(RuntimeError("Test error"))
 
+        mock_config.storage.database_file = temp_db_file
+
         with patch("scraper.cli.commands._load_config", return_value=mock_config):
-            with patch("scraper.cli.commands.Path.exists", return_value=True):
-                with patch("scraper.cli.commands._create_database"):
+            with patch("scraper.cli.commands._create_database"):
+                with patch(
+                    "scraper.cli.commands.MediaWikiAPIClient",
+                    return_value=MagicMock(),
+                ):
                     with patch(
-                        "scraper.cli.commands.MediaWikiAPIClient",
-                        return_value=MagicMock(),
+                        "scraper.cli.commands.RateLimiter", return_value=MagicMock()
                     ):
                         with patch(
-                            "scraper.cli.commands.RateLimiter", return_value=MagicMock()
+                            "scraper.cli.commands.IncrementalPageScraper",
+                            return_value=mock_incremental_scraper,
                         ):
-                            with patch(
-                                "scraper.cli.commands.IncrementalPageScraper",
-                                return_value=mock_incremental_scraper,
-                            ):
-                                exit_code = incremental_scrape_command(
-                                    cli_args_incremental
-                                )
+                            exit_code = incremental_scrape_command(cli_args_incremental)
 
         assert exit_code == 1
 
     def test_output_shows_all_statistics(
-        self, cli_args_incremental, mock_config, mock_incremental_scraper, patch_checkpoint_manager, capsys):
+        self,
+        cli_args_incremental,
+        mock_config,
+        mock_incremental_scraper,
+        patch_checkpoint_manager,
+        capsys,
+        temp_db_file,
+    ):
         """Test output shows complete statistics summary."""
         from datetime import timedelta
 
@@ -842,23 +923,22 @@ class TestIncrementalScrapeCommand:
         )
         mock_incremental_scraper.set_stats(stats)
 
+        mock_config.storage.database_file = temp_db_file
+
         with patch("scraper.cli.commands._load_config", return_value=mock_config):
-            with patch("scraper.cli.commands.Path.exists", return_value=True):
-                with patch("scraper.cli.commands._create_database"):
+            with patch("scraper.cli.commands._create_database"):
+                with patch(
+                    "scraper.cli.commands.MediaWikiAPIClient",
+                    return_value=MagicMock(),
+                ):
                     with patch(
-                        "scraper.cli.commands.MediaWikiAPIClient",
-                        return_value=MagicMock(),
+                        "scraper.cli.commands.RateLimiter", return_value=MagicMock()
                     ):
                         with patch(
-                            "scraper.cli.commands.RateLimiter", return_value=MagicMock()
+                            "scraper.cli.commands.IncrementalPageScraper",
+                            return_value=mock_incremental_scraper,
                         ):
-                            with patch(
-                                "scraper.cli.commands.IncrementalPageScraper",
-                                return_value=mock_incremental_scraper,
-                            ):
-                                exit_code = incremental_scrape_command(
-                                    cli_args_incremental
-                                )
+                            exit_code = incremental_scrape_command(cli_args_incremental)
 
         captured = capsys.readouterr()
         assert "INCREMENTAL SCRAPE COMPLETE" in captured.out
@@ -877,34 +957,45 @@ class TestIncrementalScrapeCommand:
         assert exit_code == 0
 
     def test_config_file_loading(
-        self, cli_args_incremental, mock_config, patch_checkpoint_manager, mock_incremental_scraper):
+        self,
+        cli_args_incremental,
+        mock_config,
+        patch_checkpoint_manager,
+        mock_incremental_scraper,
+        temp_db_file,
+    ):
         """Test configuration file is loaded when specified."""
         cli_args_incremental.config = Path("config.yaml")
+        cli_args_incremental.database = temp_db_file
 
         stats = MockIncrementalStats(pages_new=5, pages_modified=10)
         mock_incremental_scraper.set_stats(stats)
 
         with patch("scraper.cli.commands.Config.from_yaml", return_value=mock_config):
-            with patch("scraper.cli.commands.Path.exists", return_value=True):
-                with patch("scraper.cli.commands._create_database"):
+            with patch("scraper.cli.commands._create_database"):
+                with patch(
+                    "scraper.cli.commands.MediaWikiAPIClient",
+                    return_value=MagicMock(),
+                ):
                     with patch(
-                        "scraper.cli.commands.MediaWikiAPIClient",
-                        return_value=MagicMock(),
+                        "scraper.cli.commands.RateLimiter", return_value=MagicMock()
                     ):
                         with patch(
-                            "scraper.cli.commands.RateLimiter", return_value=MagicMock()
+                            "scraper.cli.commands.IncrementalPageScraper",
+                            return_value=mock_incremental_scraper,
                         ):
-                            with patch(
-                                "scraper.cli.commands.IncrementalPageScraper",
-                                return_value=mock_incremental_scraper,
-                            ):
-                                exit_code = incremental_scrape_command(
-                                    cli_args_incremental
-                                )
+                            exit_code = incremental_scrape_command(cli_args_incremental)
 
         assert exit_code == 0
 
-    def test_rate_limit_override(self, cli_args_incremental, patch_checkpoint_manager, mock_incremental_scraper):
+    def test_rate_limit_override(
+        self,
+        cli_args_incremental,
+        patch_checkpoint_manager,
+        mock_incremental_scraper,
+        mock_config,
+        temp_db_file,
+    ):
         """Test rate limit can be overridden via CLI."""
         cli_args_incremental.rate_limit = 3.0
 
@@ -919,26 +1010,35 @@ class TestIncrementalScrapeCommand:
             captured_rate = requests_per_second
             return MagicMock()
 
-        with patch("scraper.cli.commands.Path.exists", return_value=True):
-            with patch("scraper.cli.commands._create_database"):
+        # Set database file to temp location to pass existence check
+        cli_args_incremental.database = temp_db_file
+
+        with patch("scraper.cli.commands._create_database"):
+            with patch(
+                "scraper.cli.commands.MediaWikiAPIClient", return_value=MagicMock()
+            ):
                 with patch(
-                    "scraper.cli.commands.MediaWikiAPIClient", return_value=MagicMock()
+                    "scraper.cli.commands.RateLimiter",
+                    side_effect=capture_rate_limiter,
                 ):
                     with patch(
-                        "scraper.cli.commands.RateLimiter",
-                        side_effect=capture_rate_limiter,
+                        "scraper.cli.commands.IncrementalPageScraper",
+                        return_value=mock_incremental_scraper,
                     ):
-                        with patch(
-                            "scraper.cli.commands.IncrementalPageScraper",
-                            return_value=mock_incremental_scraper,
-                        ):
-                            exit_code = incremental_scrape_command(cli_args_incremental)
+                        exit_code = incremental_scrape_command(cli_args_incremental)
 
         assert captured_rate == 3.0
         assert exit_code == 0
 
     def test_download_directory_created(
-        self, cli_args_incremental, mock_config, mock_incremental_scraper, patch_checkpoint_manager, tmp_path):
+        self,
+        cli_args_incremental,
+        mock_config,
+        mock_incremental_scraper,
+        patch_checkpoint_manager,
+        tmp_path,
+        temp_db_file,
+    ):
         """Test download directory is created if it doesn't exist."""
         # Set up config with temp path
         mock_config.storage.data_dir = tmp_path
@@ -947,30 +1047,35 @@ class TestIncrementalScrapeCommand:
         stats = MockIncrementalStats(pages_new=5, pages_modified=10)
         mock_incremental_scraper.set_stats(stats)
 
+        mock_config.storage.database_file = temp_db_file
+
         with patch("scraper.cli.commands._load_config", return_value=mock_config):
-            with patch("scraper.cli.commands.Path.exists", return_value=True):
-                with patch("scraper.cli.commands._create_database"):
+            with patch("scraper.cli.commands._create_database"):
+                with patch(
+                    "scraper.cli.commands.MediaWikiAPIClient",
+                    return_value=MagicMock(),
+                ):
                     with patch(
-                        "scraper.cli.commands.MediaWikiAPIClient",
-                        return_value=MagicMock(),
+                        "scraper.cli.commands.RateLimiter", return_value=MagicMock()
                     ):
                         with patch(
-                            "scraper.cli.commands.RateLimiter", return_value=MagicMock()
+                            "scraper.cli.commands.IncrementalPageScraper",
+                            return_value=mock_incremental_scraper,
                         ):
-                            with patch(
-                                "scraper.cli.commands.IncrementalPageScraper",
-                                return_value=mock_incremental_scraper,
-                            ):
-                                exit_code = incremental_scrape_command(
-                                    cli_args_incremental
-                                )
+                            exit_code = incremental_scrape_command(cli_args_incremental)
 
         # Directory should exist
         assert download_dir.exists()
         assert exit_code == 0
 
     def test_api_client_created_with_config(
-        self, cli_args_incremental, mock_config, patch_checkpoint_manager, mock_incremental_scraper):
+        self,
+        cli_args_incremental,
+        mock_config,
+        patch_checkpoint_manager,
+        mock_incremental_scraper,
+        temp_db_file,
+    ):
         """Test MediaWikiAPIClient is created with correct configuration."""
         stats = MockIncrementalStats(pages_new=5, pages_modified=10)
         mock_incremental_scraper.set_stats(stats)
@@ -982,23 +1087,22 @@ class TestIncrementalScrapeCommand:
             captured_args = kwargs
             return MagicMock()
 
+        mock_config.storage.database_file = temp_db_file
+
         with patch("scraper.cli.commands._load_config", return_value=mock_config):
-            with patch("scraper.cli.commands.Path.exists", return_value=True):
-                with patch("scraper.cli.commands._create_database"):
+            with patch("scraper.cli.commands._create_database"):
+                with patch(
+                    "scraper.cli.commands.MediaWikiAPIClient",
+                    side_effect=capture_api_client,
+                ):
                     with patch(
-                        "scraper.cli.commands.MediaWikiAPIClient",
-                        side_effect=capture_api_client,
+                        "scraper.cli.commands.RateLimiter", return_value=MagicMock()
                     ):
                         with patch(
-                            "scraper.cli.commands.RateLimiter", return_value=MagicMock()
+                            "scraper.cli.commands.IncrementalPageScraper",
+                            return_value=mock_incremental_scraper,
                         ):
-                            with patch(
-                                "scraper.cli.commands.IncrementalPageScraper",
-                                return_value=mock_incremental_scraper,
-                            ):
-                                exit_code = incremental_scrape_command(
-                                    cli_args_incremental
-                                )
+                            exit_code = incremental_scrape_command(cli_args_incremental)
 
         # Verify API client was created with correct config
         assert captured_args is not None
@@ -1009,59 +1113,68 @@ class TestIncrementalScrapeCommand:
         assert exit_code == 0
 
     def test_logging_setup(
-        self, cli_args_incremental, mock_config, patch_checkpoint_manager, mock_incremental_scraper):
+        self,
+        cli_args_incremental,
+        mock_config,
+        patch_checkpoint_manager,
+        mock_incremental_scraper,
+        temp_db_file,
+    ):
         """Test logging is configured based on log level."""
         cli_args_incremental.log_level = "DEBUG"
+        cli_args_incremental.database = temp_db_file
 
         stats = MockIncrementalStats(pages_new=5, pages_modified=10)
         mock_incremental_scraper.set_stats(stats)
 
         with patch("scraper.cli.commands._setup_logging") as mock_logging:
-            with patch("scraper.cli.commands._load_config", return_value=mock_config):
-                with patch("scraper.cli.commands.Path.exists", return_value=True):
-                    with patch("scraper.cli.commands._create_database"):
+            with patch("scraper.cli.commands._create_database"):
+                with patch(
+                    "scraper.cli.commands.MediaWikiAPIClient",
+                    return_value=MagicMock(),
+                ):
+                    with patch(
+                        "scraper.cli.commands.RateLimiter",
+                        return_value=MagicMock(),
+                    ):
                         with patch(
-                            "scraper.cli.commands.MediaWikiAPIClient",
-                            return_value=MagicMock(),
+                            "scraper.cli.commands.IncrementalPageScraper",
+                            return_value=mock_incremental_scraper,
                         ):
-                            with patch(
-                                "scraper.cli.commands.RateLimiter",
-                                return_value=MagicMock(),
-                            ):
-                                with patch(
-                                    "scraper.cli.commands.IncrementalPageScraper",
-                                    return_value=mock_incremental_scraper,
-                                ):
-                                    exit_code = incremental_scrape_command(
-                                        cli_args_incremental
-                                    )
+                            exit_code = incremental_scrape_command(cli_args_incremental)
 
         mock_logging.assert_called_once_with("DEBUG")
         assert exit_code == 0
 
     def test_output_format_includes_separators(
-        self, cli_args_incremental, mock_config, mock_incremental_scraper, patch_checkpoint_manager, capsys):
+        self,
+        cli_args_incremental,
+        mock_config,
+        mock_incremental_scraper,
+        patch_checkpoint_manager,
+        capsys,
+        temp_db_file,
+    ):
         """Test output includes separator lines for readability."""
         stats = MockIncrementalStats(pages_new=5, pages_modified=10)
         mock_incremental_scraper.set_stats(stats)
 
+        mock_config.storage.database_file = temp_db_file
+
         with patch("scraper.cli.commands._load_config", return_value=mock_config):
-            with patch("scraper.cli.commands.Path.exists", return_value=True):
-                with patch("scraper.cli.commands._create_database"):
+            with patch("scraper.cli.commands._create_database"):
+                with patch(
+                    "scraper.cli.commands.MediaWikiAPIClient",
+                    return_value=MagicMock(),
+                ):
                     with patch(
-                        "scraper.cli.commands.MediaWikiAPIClient",
-                        return_value=MagicMock(),
+                        "scraper.cli.commands.RateLimiter", return_value=MagicMock()
                     ):
                         with patch(
-                            "scraper.cli.commands.RateLimiter", return_value=MagicMock()
+                            "scraper.cli.commands.IncrementalPageScraper",
+                            return_value=mock_incremental_scraper,
                         ):
-                            with patch(
-                                "scraper.cli.commands.IncrementalPageScraper",
-                                return_value=mock_incremental_scraper,
-                            ):
-                                exit_code = incremental_scrape_command(
-                                    cli_args_incremental
-                                )
+                            exit_code = incremental_scrape_command(cli_args_incremental)
 
         captured = capsys.readouterr()
         # Check for separator lines (60 equals signs)
@@ -1069,46 +1182,65 @@ class TestIncrementalScrapeCommand:
         assert exit_code == 0
 
     def test_error_message_for_missing_database(
-        self, cli_args_incremental, mock_config, patch_checkpoint_manager, capsys):
+        self,
+        cli_args_incremental,
+        mock_config,
+        patch_checkpoint_manager,
+        capsys,
+        temp_db_file,
+    ):
         """Test clear error message when database is missing."""
+        # Don't set database file - let it not exist
+
         with patch("scraper.cli.commands._load_config", return_value=mock_config):
-            with patch("scraper.cli.commands.Path.exists", return_value=False):
-                exit_code = incremental_scrape_command(cli_args_incremental)
+            exit_code = incremental_scrape_command(cli_args_incremental)
 
         # Check that error was logged (captured by capsys won't show logs, but exit code should be 1)
         assert exit_code == 1
 
     def test_first_run_error_suggests_full_scrape(
-        self, cli_args_incremental, mock_config, mock_incremental_scraper, patch_checkpoint_manager, capsys):
+        self,
+        cli_args_incremental,
+        mock_config,
+        mock_incremental_scraper,
+        patch_checkpoint_manager,
+        capsys,
+        temp_db_file,
+    ):
         """Test FirstRunRequiresFullScrapeError message suggests running full scrape."""
         mock_incremental_scraper.set_exception(
             FirstRunRequiresFullScrapeError("No baseline scrape found")
         )
 
+        mock_config.storage.database_file = temp_db_file
+
         with patch("scraper.cli.commands._load_config", return_value=mock_config):
-            with patch("scraper.cli.commands.Path.exists", return_value=True):
-                with patch("scraper.cli.commands._create_database"):
+            with patch("scraper.cli.commands._create_database"):
+                with patch(
+                    "scraper.cli.commands.MediaWikiAPIClient",
+                    return_value=MagicMock(),
+                ):
                     with patch(
-                        "scraper.cli.commands.MediaWikiAPIClient",
-                        return_value=MagicMock(),
+                        "scraper.cli.commands.RateLimiter", return_value=MagicMock()
                     ):
                         with patch(
-                            "scraper.cli.commands.RateLimiter", return_value=MagicMock()
+                            "scraper.cli.commands.IncrementalPageScraper",
+                            return_value=mock_incremental_scraper,
                         ):
-                            with patch(
-                                "scraper.cli.commands.IncrementalPageScraper",
-                                return_value=mock_incremental_scraper,
-                            ):
-                                exit_code = incremental_scrape_command(
-                                    cli_args_incremental
-                                )
+                            exit_code = incremental_scrape_command(cli_args_incremental)
 
         captured = capsys.readouterr()
         assert "Run 'scraper full' first to create baseline" in captured.out
         assert exit_code == 1
 
     def test_scraper_invoked_with_correct_components(
-        self, cli_args_incremental, mock_config, patch_checkpoint_manager, mock_incremental_scraper):
+        self,
+        cli_args_incremental,
+        mock_config,
+        patch_checkpoint_manager,
+        mock_incremental_scraper,
+        temp_db_file,
+    ):
         """Test IncrementalPageScraper is created with correct components."""
         stats = MockIncrementalStats(pages_new=5, pages_modified=10)
         mock_incremental_scraper.set_stats(stats)
@@ -1124,23 +1256,22 @@ class TestIncrementalScrapeCommand:
             }
             return mock_incremental_scraper
 
+        mock_config.storage.database_file = temp_db_file
+
         with patch("scraper.cli.commands._load_config", return_value=mock_config):
-            with patch("scraper.cli.commands.Path.exists", return_value=True):
-                with patch("scraper.cli.commands._create_database"):
+            with patch("scraper.cli.commands._create_database"):
+                with patch(
+                    "scraper.cli.commands.MediaWikiAPIClient",
+                    return_value=MagicMock(),
+                ):
                     with patch(
-                        "scraper.cli.commands.MediaWikiAPIClient",
-                        return_value=MagicMock(),
+                        "scraper.cli.commands.RateLimiter", return_value=MagicMock()
                     ):
                         with patch(
-                            "scraper.cli.commands.RateLimiter", return_value=MagicMock()
+                            "scraper.cli.commands.IncrementalPageScraper",
+                            side_effect=capture_scraper,
                         ):
-                            with patch(
-                                "scraper.cli.commands.IncrementalPageScraper",
-                                side_effect=capture_scraper,
-                            ):
-                                exit_code = incremental_scrape_command(
-                                    cli_args_incremental
-                                )
+                            exit_code = incremental_scrape_command(cli_args_incremental)
 
         # Verify scraper was created with correct components
         assert captured_args is not None
@@ -1190,7 +1321,9 @@ class TestHelperFunctions:
         config = _load_config(args)
         assert config is not None
 
-    def test_create_database_initializes_schema(self, temp_db_path, patch_checkpoint_manager):
+    def test_create_database_initializes_schema(
+        self, temp_db_path, patch_checkpoint_manager
+    ):
         """Test _create_database initializes schema."""
         from scraper.cli.commands import _create_database
         from scraper.config import Config

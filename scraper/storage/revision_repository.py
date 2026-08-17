@@ -4,7 +4,7 @@ import json
 import logging
 import sqlite3
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Set
 
 from scraper.storage.database import Database
 from scraper.storage.models import Revision
@@ -35,6 +35,10 @@ class RevisionRepository:
         # Convert tags list to JSON
         tags_json = json.dumps(revision.tags) if revision.tags else None
 
+        # Resolve parent_id: null it out if the parent revision is not present
+        # (e.g. a suppressed/deleted parent) to avoid FOREIGN KEY failures.
+        parent_id = self._resolve_parent_id(revision.parent_id, set())
+
         self.conn.execute(
             """
             INSERT OR REPLACE INTO revisions
@@ -45,7 +49,7 @@ class RevisionRepository:
             (
                 revision.revision_id,
                 revision.page_id,
-                revision.parent_id,
+                parent_id,
                 revision.timestamp.isoformat(),
                 revision.user,
                 revision.user_id,
@@ -70,11 +74,15 @@ class RevisionRepository:
         if not revisions:
             return
 
+        # revision_ids present in this batch; a parent pointing at one of these
+        # is safe because the batch is inserted in a single transaction.
+        batch_ids: Set[int] = {r.revision_id for r in revisions}
+
         data = [
             (
                 r.revision_id,
                 r.page_id,
-                r.parent_id,
+                self._resolve_parent_id(r.parent_id, batch_ids),
                 r.timestamp.isoformat(),
                 r.user,
                 r.user_id,
@@ -88,6 +96,10 @@ class RevisionRepository:
             for r in revisions
         ]
 
+        # Defer foreign-key checks until commit so that within-batch parent
+        # references resolve regardless of row ordering. Unresolvable parents
+        # have already been nulled by _resolve_parent_id above.
+        self.conn.execute("PRAGMA defer_foreign_keys = ON")
         self.conn.executemany(
             """
             INSERT OR REPLACE INTO revisions
@@ -100,6 +112,44 @@ class RevisionRepository:
 
         self.conn.commit()
         logger.info(f"Inserted {len(revisions)} revisions in batch")
+
+    def _resolve_parent_id(
+        self, parent_id: Optional[int], batch_ids: Set[int]
+    ) -> Optional[int]:
+        """Return a parent_id that satisfies the self-referencing FK, else None.
+
+        MediaWiki can return a ``parentid`` that points at a revision which is
+        not itself returned (for example when the parent revision's content has
+        been suppressed via RevisionDelete). Inserting such a row violates the
+        ``parent_id`` foreign key. To preserve the child revision we drop the
+        unresolvable parent link by setting it to NULL.
+
+        Args:
+            parent_id: Candidate parent revision id (or None)
+            batch_ids: Revision ids being inserted in the current batch
+
+        Returns:
+            ``parent_id`` if it resolves to a known revision, otherwise None
+        """
+        if parent_id is None:
+            return None
+
+        # Parent is being inserted alongside this revision in the same batch.
+        if parent_id in batch_ids:
+            return parent_id
+
+        # Parent already exists in the database.
+        cursor = self.conn.execute(
+            "SELECT 1 FROM revisions WHERE revision_id = ? LIMIT 1", (parent_id,)
+        )
+        if cursor.fetchone() is not None:
+            return parent_id
+
+        logger.debug(
+            f"Dropping unresolvable parent_id {parent_id} (parent revision "
+            f"not present, likely suppressed)"
+        )
+        return None
 
     def get_revision(self, revision_id: int) -> Optional[Revision]:
         """

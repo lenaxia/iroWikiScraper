@@ -36,8 +36,16 @@ class TestFullScraperIntegration:
             True  # Mock attribute needed by PageDiscovery
         )
 
-        # Create scraper with real components
-        self.scraper = FullScraper(self.config, self.api_client, self.database)
+        # Create scraper with real components. File/link phases are disabled
+        # here because these tests only mock the pages/revisions API surface.
+        self.scraper = FullScraper(
+            self.config,
+            self.api_client,
+            self.database,
+            scrape_links=False,
+            scrape_files=False,
+            download_files=False,
+        )
 
     def teardown_method(self):
         """Clean up test database."""

@@ -130,6 +130,24 @@ Examples:
         help="Remove old checkpoint file and exit",
     )
 
+    full_parser.add_argument(
+        "--no-links",
+        action="store_true",
+        help="Skip internal link extraction",
+    )
+
+    full_parser.add_argument(
+        "--no-files",
+        action="store_true",
+        help="Skip file (media) metadata discovery and download",
+    )
+
+    full_parser.add_argument(
+        "--no-download",
+        action="store_true",
+        help="Store file metadata but do not download media content",
+    )
+
     # Incremental scrape command
     incr_epilog = """
 Examples:
@@ -178,6 +196,71 @@ Examples:
     )
 
     incr_parser.add_argument(
+        "--format",
+        choices=["text", "json"],
+        default="text",
+        help="Output format for statistics (default: text)",
+    )
+
+    # Backfill command
+    backfill_epilog = """
+Examples:
+  # Fill in files, links, run metadata and retry failed pages on an
+  # existing database (no revision re-scrape)
+  python -m scraper backfill
+
+  # Only rebuild the links table from stored revisions (offline, no network)
+  python -m scraper backfill --no-files --no-failed-pages
+
+  # Store file metadata but skip downloading the actual media
+  python -m scraper backfill --no-download
+"""
+
+    backfill_parser = subparsers.add_parser(
+        "backfill",
+        help="Fill missing files/links/run-metadata into an existing database",
+        description=(
+            "Complete an existing archive: retry failed pages, extract links "
+            "from stored revisions, and discover/download media files. Does not "
+            "re-scrape revision history."
+        ),
+        epilog=backfill_epilog,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+
+    backfill_parser.add_argument(
+        "--rate-limit",
+        type=float,
+        default=2.0,
+        metavar="RATE",
+        help="Maximum requests per second (default: 2.0)",
+    )
+
+    backfill_parser.add_argument(
+        "--no-failed-pages",
+        action="store_true",
+        help="Do not retry pages that have no revisions",
+    )
+
+    backfill_parser.add_argument(
+        "--no-links",
+        action="store_true",
+        help="Do not rebuild the links table",
+    )
+
+    backfill_parser.add_argument(
+        "--no-files",
+        action="store_true",
+        help="Do not discover/store file metadata or download media",
+    )
+
+    backfill_parser.add_argument(
+        "--no-download",
+        action="store_true",
+        help="Store file metadata but do not download media content",
+    )
+
+    backfill_parser.add_argument(
         "--format",
         choices=["text", "json"],
         default="text",

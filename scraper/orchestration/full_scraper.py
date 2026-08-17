@@ -8,15 +8,20 @@ and storage operations.
 import logging
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Callable, List, Optional
 
 from scraper.api.client import MediaWikiAPIClient
 from scraper.config import Config
 from scraper.orchestration.checkpoint import CheckpointManager
 from scraper.orchestration.retry import retry_with_backoff
+from scraper.scrapers.file_scraper import FileDiscovery, FileDownloader
+from scraper.scrapers.link_extractor import LinkExtractor
 from scraper.scrapers.page_scraper import PageDiscovery
 from scraper.scrapers.revision_scraper import RevisionScraper
 from scraper.storage.database import Database
+from scraper.storage.file_repository import FileRepository
+from scraper.storage.link_storage import LinkStorage
 from scraper.storage.models import Page
 from scraper.storage.page_repository import PageRepository
 from scraper.storage.revision_repository import RevisionRepository
@@ -31,6 +36,9 @@ class ScrapeResult:
     Attributes:
         pages_count: Number of pages discovered
         revisions_count: Number of revisions scraped
+        files_count: Number of file metadata records stored
+        files_downloaded: Number of media files downloaded to disk
+        links_count: Number of internal links extracted and stored
         namespaces_scraped: List of namespace IDs that were scraped
         start_time: When the scrape started
         end_time: When the scrape completed
@@ -40,6 +48,9 @@ class ScrapeResult:
 
     pages_count: int = 0
     revisions_count: int = 0
+    files_count: int = 0
+    files_downloaded: int = 0
+    links_count: int = 0
     namespaces_scraped: List[int] = field(default_factory=list)
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
@@ -89,6 +100,11 @@ class FullScraper:
         api_client: MediaWikiAPIClient,
         database: Database,
         checkpoint_manager: Optional[CheckpointManager] = None,
+        *,
+        scrape_links: bool = True,
+        scrape_files: bool = True,
+        download_files: bool = True,
+        download_dir: Optional[Path] = None,
     ):
         """Initialize full scraper.
 
@@ -97,17 +113,55 @@ class FullScraper:
             api_client: MediaWiki API client
             database: Database instance with initialized schema
             checkpoint_manager: Optional checkpoint manager for resume capability
+            scrape_links: Extract and store internal links from page content
+            scrape_files: Discover and store file (media) metadata
+            download_files: Download file (media) content to disk (implies
+                scrape_files); metadata is always stored when files are scraped
+            download_dir: Directory for downloaded media files (defaults to
+                ``<data_dir>/files``)
         """
         self.config = config
         self.api = api_client
         self.db = database
         self.checkpoint = checkpoint_manager
 
+        self.scrape_links = scrape_links
+        self.scrape_files = scrape_files or download_files
+        self.download_files = download_files
+        self.download_dir = self._resolve_download_dir(config, download_dir)
+
         # Initialize components
         self.page_discovery = PageDiscovery(api_client)
         self.revision_scraper = RevisionScraper(api_client)
         self.page_repo = PageRepository(database)
         self.revision_repo = RevisionRepository(database)
+
+        # File + link + run-metadata components
+        self.file_discovery = FileDiscovery(api_client)
+        self.file_downloader = FileDownloader(self.download_dir)
+        self.file_repo = FileRepository(database)
+        self.link_extractor = LinkExtractor()
+        self.link_storage = LinkStorage(database)
+
+        # ScrapeRunTracker records a row in the scrape_runs table. Imported
+        # lazily to avoid a heavy import chain at module load time.
+        from scraper.incremental.scrape_run_tracker import ScrapeRunTracker
+
+        self.run_tracker = ScrapeRunTracker(database)
+
+    @staticmethod
+    def _resolve_download_dir(config: Config, download_dir: Optional[Path]) -> Path:
+        """Resolve the media download directory.
+
+        Falls back to ``data/files`` when the configured ``data_dir`` is not a
+        usable path (for example when a test passes a Mock config object).
+        """
+        if download_dir is not None:
+            return Path(download_dir)
+        try:
+            return Path(config.storage.data_dir) / "files"
+        except (TypeError, AttributeError):
+            return Path("data") / "files"
 
     def scrape(
         self,
@@ -165,6 +219,13 @@ class FullScraper:
 
         logger.info(f"Starting full scrape of namespaces: {namespaces}")
 
+        # Record this scrape run in the scrape_runs table.
+        run_id: Optional[int] = None
+        try:
+            run_id = self.run_tracker.create_scrape_run("full")
+        except Exception as e:  # pragma: no cover - metadata must never abort a scrape
+            logger.warning(f"Could not create scrape_runs record: {e}")
+
         try:
             # Phase 1: Discover all pages
             all_pages = self._discover_pages(namespaces, progress_callback, result)
@@ -174,7 +235,8 @@ class FullScraper:
                 f"Discovered {result.pages_count} pages across {len(namespaces)} namespaces"
             )
 
-            # Phase 2: Scrape revisions for each page
+            # Phase 2: Scrape revisions for each page (and extract links from the
+            # latest revision content, reusing what we already fetched).
             result.revisions_count = self._scrape_revisions(
                 all_pages, progress_callback, result
             )
@@ -182,6 +244,13 @@ class FullScraper:
             logger.info(
                 f"Scraped {result.revisions_count} revisions for {result.pages_count} pages"
             )
+
+            if self.scrape_links:
+                logger.info(f"Extracted {result.links_count} internal links")
+
+            # Phase 3: Discover file metadata and (optionally) download content.
+            if self.scrape_files:
+                self._scrape_files(progress_callback, result)
 
             # Clear checkpoint on successful completion
             if self.checkpoint and result.success:
@@ -196,9 +265,29 @@ class FullScraper:
 
         result.end_time = datetime.now(UTC)
 
+        # Finalize scrape_runs record.
+        if run_id is not None:
+            try:
+                if result.errors and result.pages_count == 0:
+                    self.run_tracker.fail_scrape_run(
+                        run_id, "; ".join(result.errors[:3])
+                    )
+                else:
+                    self.run_tracker.complete_scrape_run(
+                        run_id,
+                        {
+                            "pages_new": result.pages_count,
+                            "revisions_added": result.revisions_count,
+                            "files_downloaded": result.files_downloaded,
+                        },
+                    )
+            except Exception as e:  # pragma: no cover
+                logger.warning(f"Could not finalize scrape_runs record: {e}")
+
         logger.info(
             f"Full scrape completed in {result.duration:.1f}s: "
             f"{result.pages_count} pages, {result.revisions_count} revisions, "
+            f"{result.files_count} files, {result.links_count} links, "
             f"{len(result.failed_pages)} failures"
         )
 
@@ -322,6 +411,23 @@ class FullScraper:
 
                 total_revisions += len(revisions)
 
+                # Extract and store internal links from the latest revision's
+                # content. Revisions are chronological (oldest first), so the
+                # last element is the current page content. No extra API calls.
+                if self.scrape_links and result is not None:
+                    try:
+                        latest_content = revisions[-1].content
+                        links = self.link_extractor.extract_links(
+                            page.page_id, latest_content
+                        )
+                        if links:
+                            self.link_storage.add_links(links)
+                            result.links_count += len(links)
+                    except Exception as e:
+                        logger.warning(
+                            f"Failed to extract links for page {page.page_id}: {e}"
+                        )
+
                 # Mark page complete in checkpoint
                 if self.checkpoint:
                     self.checkpoint.mark_page_complete(page.page_id)
@@ -353,3 +459,72 @@ class FullScraper:
                 continue
 
         return total_revisions
+
+    def _scrape_files(
+        self,
+        progress_callback: Optional[Callable[[str, int, int], None]] = None,
+        result: Optional[ScrapeResult] = None,
+    ) -> None:
+        """Discover file metadata and optionally download file content.
+
+        Uses the MediaWiki ``allimages`` API to enumerate every uploaded file,
+        persists the metadata to the ``files`` table, and (when enabled)
+        downloads each file to disk with SHA1 verification.
+
+        Args:
+            progress_callback: Optional progress callback(stage, current, total)
+            result: ScrapeResult to update with counts/errors
+        """
+        logger.info("Starting file discovery")
+
+        try:
+            files = self.file_discovery.discover_files()
+        except Exception as e:
+            error_msg = f"Failed to discover files: {e}"
+            logger.error(error_msg, exc_info=True)
+            if result is not None:
+                result.errors.append(error_msg)
+            return
+
+        if not files:
+            logger.info("No files discovered")
+            return
+
+        # Persist metadata for every file (idempotent via INSERT OR REPLACE).
+        try:
+            self.file_repo.insert_files_batch(files)
+            if result is not None:
+                result.files_count = len(files)
+            logger.info(f"Stored metadata for {len(files)} files")
+        except Exception as e:
+            error_msg = f"Failed to store file metadata: {e}"
+            logger.error(error_msg, exc_info=True)
+            if result is not None:
+                result.errors.append(error_msg)
+
+        if not self.download_files:
+            return
+
+        logger.info(f"Downloading {len(files)} files to {self.download_dir}")
+
+        def _download_progress(current: int, total: int) -> None:
+            if progress_callback:
+                progress_callback("files", current, total)
+
+        try:
+            stats = self.file_downloader.download_files(
+                files, progress_callback=_download_progress
+            )
+            if result is not None:
+                result.files_downloaded = stats.downloaded + stats.skipped
+            logger.info(
+                f"File download complete: {stats.downloaded} downloaded, "
+                f"{stats.skipped} skipped, {stats.failed} failed"
+            )
+            if stats.failed and result is not None:
+                result.errors.append(f"{stats.failed} file(s) failed to download")
+        except Exception as e:
+            error_msg = f"File download phase failed: {e}"
+            logger.error(error_msg, exc_info=True)
+            if result is not None:
+                result.errors.append(error_msg)

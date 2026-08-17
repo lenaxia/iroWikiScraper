@@ -349,9 +349,25 @@ class TestRevisionModel:
                 sha1="abc",
             )
 
-    def test_revision_invalid_sha1_empty(self):
-        """Test that empty sha1 raises ValueError."""
-        with pytest.raises(ValueError, match="sha1 must be a non-empty string"):
+    def test_revision_empty_sha1_allowed_for_suppressed(self):
+        """Empty sha1 is allowed (MediaWiki suppresses sha1 for deleted content)."""
+        revision = Revision(
+            revision_id=1001,
+            page_id=1,
+            parent_id=None,
+            timestamp=datetime(2024, 1, 15, 10, 30, 0),
+            user="User",
+            user_id=1,
+            comment="Comment",
+            content="Content",
+            size=50,
+            sha1="",
+        )
+        assert revision.sha1 == ""
+
+    def test_revision_invalid_sha1_not_string(self):
+        """Test that a non-string sha1 raises ValueError."""
+        with pytest.raises(ValueError, match="sha1 must be a string"):
             Revision(
                 revision_id=1001,
                 page_id=1,
@@ -362,7 +378,7 @@ class TestRevisionModel:
                 comment="Comment",
                 content="Content",
                 size=50,
-                sha1="",
+                sha1=None,  # type: ignore[arg-type]
             )
 
     def test_revision_invalid_minor_not_bool(self):
