@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	irowiki "github.com/lenaxia/iroWikiScraper/sdk/irowiki"
 	"github.com/lenaxia/iroWikiScraper/sdk/internal/testutil"
+	irowiki "github.com/lenaxia/iroWikiScraper/sdk/irowiki"
 )
 
 func TestSQLiteClient_ResolveRedirect(t *testing.T) {

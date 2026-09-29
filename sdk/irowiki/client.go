@@ -143,6 +143,24 @@ type StatisticsReader interface {
 	GetEditorActivityEnhanced(ctx context.Context, username string, start, end time.Time) (*EditorActivity, error)
 }
 
+// MarkdownSource is the materialized-markdown surface: pre-converted,
+// entity-annotated markdown produced by the wikitext converter and stored
+// in pages_md by the materialize command. Requires ErrNotMaterialized
+// handling when the archive predates materialization.
+type MarkdownSource interface {
+	// GetPageMarkdown retrieves the materialized markdown for a page by
+	// title, following redirects first. Returns ErrNotFound for missing
+	// pages and ErrNotMaterialized for unmaterialized archives.
+	GetPageMarkdown(ctx context.Context, title string) (*PageMarkdown, error)
+
+	// GetSection retrieves one materialized section by title and anchor.
+	GetSection(ctx context.Context, title, anchor string) (*MarkdownSection, error)
+
+	// SearchMarkdown performs full-text search over materialized markdown
+	// sections with relevance ranking.
+	SearchMarkdown(ctx context.Context, query string, opts SearchOptions) ([]MarkdownHit, error)
+}
+
 // Client provides methods to query wiki archive data.
 // All query methods accept a context for cancellation and timeout control.
 // The client is safe for concurrent use by multiple goroutines.
@@ -155,6 +173,7 @@ type Client interface {
 	FileReader
 	HistoryReader
 	StatisticsReader
+	MarkdownSource
 
 	// Ping checks if the database connection is alive.
 	// Use for health checks and connection validation.

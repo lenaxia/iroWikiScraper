@@ -1,0 +1,51 @@
+{{Quest Info
+| levelreq =45
+| joblevelreq =
+| classreq = 
+| classreq2 = 
+| skillreq =
+| partyreq = 
+| itemreq = 1 +8 {{item|id=5024 Cake Hat}}, 15 {{item|id=7864 Stolen Cacao}}
+| nitemreq =
+| zenyreq = 
+| hunting =
+| questsreq =
+| questscoreq =
+| baseexpreward = 750,000 ([[VIP]])<br>500,000 (Non-VIP)
+| jobexpreward = 600,000 ([[VIP]])<br>400,000 (Non-VIP)
+| itemreward = 1 {{item|id=5105 Cake Hat (Costume Version)}}, 1 {{item|id=617 Old Purple Box}}, 2 {{item|id=12319 Rune Strawberry Cake}} 
+| qreward = Ability to trade in {{item|id=7864 Stolen Cacao}} for sweets
+| external =http://playragnarok.com/news/eventdetail.aspx?id=155
+| window =yes
+}}
+
+== Valentine's Day Event (Quest 1) ==
+#In [[Moscovia]], talk to '''Pinkamenia''' {{navi|mosc_in|21|246}} in the tool shop {{navi|moscovia|222|176}} and help her.
+#She will tell you to bring a +8 {{item|id=5024 Cake Hat}} to the Baker Extraordinaire next to her so that you can hunt the {{item|id=7864 Stolen Cacao}}.
+#Talk to Baker Extraordinaire to get the {{item|id=5105 Cake Hat (Costume Version)}}.
+##Note that having a Cake Hat (Costume Version) is entirely optional, provided you can get the Stolen Cacao required.
+#Hunt 15 {{item|id=7864 Stolen Cacao}} while wearing the {{item|id=5105 Cake Hat (Costume Version)}} (or purchase it from other players) and return back to Pinkamenia.
+#She will reward you with:
+#* 500,000 [[Base EXP]] (750,000 if [[VIP]])
+#* 400,000 [[Job EXP]] (600,000 if [[VIP]])
+#* 1 {{item|id=617 Old Purple Box}}
+#* 2 {{item|id=12319 Rune Strawberry Cake}}
+
+== Cacao Rewards ==
+After completing the quest you will have the option to trade in {{item|id=7864 Stolen Cacao}} for the following:
+
+* &nbsp;&nbsp;1 Stolen Cacao for a {{item|id=538 Well-baked Cookie}}
+* &nbsp;&nbsp;2 Stolen Cacao for a {{item|id=558 Chocolate}}
+* &nbsp;&nbsp;5 Stolen Cacao for a {{item|id=539 	Piece of Cake}}
+* 10 Stolen Cacao for a {{item|id=573 Chocolate Drink}}, a {{item|id=559 Hand-made Chocolate}}, a {{item|id=560 Handmade White Chocolate}} or a {{item|id=12130 Cookie Bag}}
+* 15 Stolen Cacao for a {{item|id=12062 Chocolate Mousse Cake}}, a {{item|id=596 Cute Strawberry-Choco}} or a {{item|id=597 	Lovely Choco-Tart}}
+* 20 Stolen Cacao for a {{item|id=12414 Guarana Candy}} or a {{item|id=12319 Rune Strawberry Cake}}
+
+{{Quest Info
+| levelreq =50
+| joblevelreq =
+| classreq = 
+| classreq2 = 
+| skillreq =
+| partyreq = 
+| itemreq = 5

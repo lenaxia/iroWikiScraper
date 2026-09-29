@@ -15,6 +15,10 @@ var (
 	// ErrDatabaseError is returned for database-related errors.
 	ErrDatabaseError = errors.New("database error")
 
+	// ErrNotMaterialized is returned when the archive carries no materialized
+	// markdown (pages_md). Run the materialize command on the database.
+	ErrNotMaterialized = errors.New("markdown not materialized for this archive")
+
 	// ErrConnectionFailed is returned when database connection fails.
 	ErrConnectionFailed = errors.New("connection failed")
 )

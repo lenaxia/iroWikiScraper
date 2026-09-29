@@ -1,0 +1,12 @@
+{{Articles Needing DB Links}}
+There's big trouble in the world of the little {{monster|id=1002 Porings}}, as they are taking the war between {{monster|id=1096 Angeling}} and {{monster|id=1582 Deviling}} to a new level.  If you agree to help them, you will be led to the realm of Porings, where you need to team up with other players in a [[party]] of five and then choose which side you will fight for. 
+
+To begin, talk to '''Poring War Recruiter''' ({{map|id=prt_fild08 prt_fild08}} 159, 371) at the southern gate in [[Prontera]] and agree to help him. Since life as a Poring is quite hard these days, he asks you for a donation of 500 [[Zeny]].  Note that there is no level limit to Poring Wars!
+
+After accepting the Poring's request you will be taken to the recruiting room. In order to play, two parties (one Angeling team and one Deviling team) of 5 players each are needed. It would be a good idea to decide which party to join early, since in the later rooms there are time limits for the party registration.  The Deviling and Angeling in this game have identical [[Stats|stats]], weak attacks, and won't use any [[Skills|skills]] or summon [[Monster|monsters]]; the team you choose is simply a matter of preference.
+
+Once 10 players join the chat in the recruiting room, they will be transported to another map with two smaller chat rooms, one for the deviling team, and one for the angeling team.  This room does have a time limit, so don't take too long before selecting your team.  When 5 players join a room, the room closes and those 5 are transported to the Poring Wars map.
+
+You are now at what I call the "Preperation area" be careful, as you can attack, and even kill, the other players on your team if you are not all in a party yet.  If you are not already all in a party, you will need to get all the players on your team into a party now.  The party leader will need to talk to the {{monster|id=1046 Doppelganger}} [[NPC]] (who will soon appear) to register your team.  Once registered, the team may click the Doppelganger NPC to go to the war area.  The NPC requests that the party leader wait until his entire party has moved before he goes.
+
+The rules will be shouted and a portal will open to let your team into the battle area.  There will attempt to seek and destroy the enemy Porings, while keeping the other team from killing yours.  The starting locations of the Devilin

@@ -1,0 +1,52 @@
+{{expert}}
+== Overview ==
+Attack Speed is abbreviated as ASPD. It depends on the player's [[Classes|class]], equipped [[Weapons|Weapon]] Type, Speed Modifiers, [[AGI]] and [[DEX]].
+
+=== Factors affecting Attack Speed ===
+* The player's class.
+* The player's weapon type.
+* Increasing [[Stats#AGI|AGI]] to gain higher Attack Speed. ([[Stats#DEX|DEX]] provides negligible Attack Speed increases)
+* Wearing a [[shield]] decreases Attack Speed. The difference varies by class and is more dramatic at higher base Attack Speeds.
+* Some items, skills and equipments can either increase or decrease Attack Speed.
+<br/>
+== ASPD Formula ==
+Each class has a Base ASPD (146 ~ 158) which is affected by the weapon (-50 ~ +2). Equipping a [[shield]] reduces ASPD by 5 ~ 10.
+
+
+'''ASPD Penalty''' = [ 1 − { ''Job Base ASPD'' − 144 } ÷ 50 ]
+:''Note'': Limit down to a maximum of 0.96. Keep 2 decimals.
+
+
+'''ASPD Correction''' = [ { &radic;( 205 ) − &radic;( [[Stats#AGI|AGI]] ) } ÷ 7.15 ]
+:''Note'': Round up to 3 decimals.
+
+
+'''Equip ASPD %''' = [ { 195 − ''Base ASPD'' } × ''Total of [[ASPD#Equipment ASPD Modifiers|Equip ASPD Mod]]'' ]
+:''Note'': Round down to 1 decimal.
+
+
+'''Base ASPD''' = [ 200 − { 200 − ( ''Job Base ASPD'' + ''Shield Penalty'' − ''ASPD Correction'' + &radic;[ [[Stats#AGI|AGI]] × 9.999 + [[Stats#DEX|DEX]] × 0.19212 ] × ''Aspd Penalty'' ) } × { 1 − ''[[ASPD#Potion ASPD Modifiers|Potion ASPD Mod]]'' − ''[[ASPD#Skill ASPD Modifiers|Skill ASPD Mod]]'' } ]
+:''Note'': Round down to 2 decimal.
+
+
+'''Final ASPD''' = [ ''Base ASPD'' + { ''Equip ASPD %'' } + ''Equip ASPD Fixed'' ]
+
+=== Links ===
+*[http://kaitch.com/files/FJK_iRO_ASPD_Calc_1.11.xls ASPD Tables (xls)]
+*[http://j.mp/iROASPDCalc]
+
+== Speed Modifiers ==
+''Note'': Non-percentage numbers are '''absolute modifiers'''. These ones are directly added to the ASPD at the end of the calculations.
+
+The following items will affect ASPD:
+
+=== Potion ASPD Modifiers ===
+:''Main article: [[ASPD Potion]].''
+
+Only the potion with greater effect will be put into consideration, they never stack to each other. 
+
+{| class="wikitablec"
+ ! Consumable Potions !! Modifier !! Additional notes
+ |-
+ ! {{Item List |id=645 |item=Concentration Potion}}
+ 

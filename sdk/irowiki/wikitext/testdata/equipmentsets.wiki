@@ -1,0 +1,61 @@
+==Overview==
+
+A list of all the different [[equipment]] sets. Many sets are not very effective compared to regular individual pieces of equipment and are perhaps more oriented towards lower level new characters.
+*Some equipment have When this set is assembled, the following effects are bestowed: with a card or enchant.
+*The enchant doesn't have to come from the equipment itself to activate the set bonus.
+*Set bonus, whether from equipment, card, or enchant are '''only applied once''', even if the player has multiple instances of it.
+
+== Abusive Robe & Morrigane's Manteau Set == 
+When this set is assembled, the following effects are bestowed: 
+*[[LUK]] + 3
+*Additional [[LUK]]+ 1 per upgrade level of '''Abusive Robe'''.
+*Crit + 10
+*Additional [[Crit]] + 1 per upgrade level of '''Abusive Robe'''.
+*Bypass 15% of hard defense of Demi-Human, Demon and Undead race targets when performing a physical attack. 
+
+{| class="wikitable" 
+|-
+! Item !! Type !! Effect
+|- 
+|{{item |id=15147 Abusive Robe}}
+| [[Armor]] ||
+*Bypass 4% of Def of [[Demi-Human]], [[Demon]] and [[Undead]] race targets when performing a physical attack per upgrade level of the item.
+*Enables Level 1 [[Improve Concentration|Improved Concentration]].
+|- 
+|{{item |id=2519 Morrigane's Manteau}}
+| [[Garment]]  || 
+*[[LUK]] +2,
+*Perfect Dodge +8.
+|}
+
+== Abusive Robe & Valkyrie Manteau Set == 
+When this set is assembled, the following effects are bestowed: 
+*Max HP + 10%
+*Additional Max HP + 1% per upgrade level of Abusive Robe.
+*Atk + 2%
+*Additional Atk + 1% per upgrade level of Abusive Robe.
+*Bypass 15% of hard defense of Demi-Human, Demon and Undead race targets when performing a physical attack. 
+
+{| class="wikitable" 
+|-
+! Item !! Type !! Effect
+|- 
+|{{item |id=15147 Abusive Robe}}
+| [[Armor]] ||
+*Bypass 4% of Def of [[Demi-Human]], [[Demon]] and [[Undead]] race targets when performing a physical attack per upgrade level of the item.
+*Enables Level 1 [[Improve Concentration|Improved Concentration]].
+|- 
+|{{item |id=2524 Valkyrian Manteau}}
+| [[Garment]]  || 
+*This item is indestructible in battle.
+*Mage, Archer, Acolyte Bonus:
+**Perfect Dodge + 5
+**Additional Perfect Dodge + 2 per upgrade level of the item up to a maximum upgrade level of 10.
+*Swordman, Merchant, Thief Bonus:
+**Reflects 5% of the received short-ranged damage back to the attacker.
+**Reflects an additional 2% of the received short-ranged damage back to the attacker per upgrade level of the item up to a maximum upgrade level of 10.
+|}
+
+== Advanced Angelic Set == 
+When this set is assembled, the following effects are bestowed:
+*[[Max HP]
