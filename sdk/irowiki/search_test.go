@@ -349,8 +349,8 @@ func TestSearch_TitleSearch(t *testing.T) {
 				Query:     "P",
 				Namespace: 0,
 			},
-			wantCount:  3,
-			wantTitles: []string{"Main_Page", "Poring", "Prontera"},
+			wantCount:  5,
+			wantTitles: []string{"Loop_A", "Loop_B", "Main_Page", "Poring", "Prontera"},
 		},
 		{
 			name: "search in namespace 6",
@@ -570,28 +570,28 @@ func TestSearch_AdvancedFilters(t *testing.T) {
 				ExcludeRedirects: true,
 				Namespace:        -1, // Search all namespaces
 			},
-			wantCount: 4, // All pages except Redirect_Test
+			wantCount: 9, // All pages except Redirect_Test
 		},
 		{
 			name: "only redirects",
 			opts: irowiki.SearchOptions{
 				OnlyRedirects: true,
 			},
-			wantCount: 1, // Only Redirect_Test
+			wantCount: 1, // Only Redirect_Test (flag-based filter)
 		},
 		{
 			name: "multiple namespaces",
 			opts: irowiki.SearchOptions{
 				Namespaces: []int{0, 6},
 			},
-			wantCount: 5, // All test pages
+			wantCount: 10, // All test pages
 		},
 		{
 			name: "exclude namespace",
 			opts: irowiki.SearchOptions{
 				ExcludeNamespaces: []int{6},
 			},
-			wantCount: 4, // All except Example.png
+			wantCount: 9, // All except Example.png
 		},
 	}
 
@@ -643,7 +643,7 @@ func TestSearch_Sorting(t *testing.T) {
 				SortBy:    "title",
 				SortOrder: "asc",
 			},
-			wantFirst:     "Main_Page",
+			wantFirst:     "Chain_Mid", // Alphabetically first in namespace 0
 			checkOrdering: true,
 		},
 		{

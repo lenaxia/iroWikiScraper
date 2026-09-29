@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -977,4 +978,41 @@ func (c *postgresClient) Close() error {
 	}
 
 	return nil
+}
+
+// ResolveRedirect follows redirect chains from a title and returns the
+// canonical title of the page where content actually lives.
+// See the SQLite backend's documentation for semantics.
+func (c *postgresClient) ResolveRedirect(ctx context.Context, title string) (string, error) {
+	if err := c.ensureNotClosed(); err != nil {
+		return "", err
+	}
+	return resolveRedirectFrom(ctx, title, func(ctx context.Context, candidates []string) (string, string, error) {
+		if len(candidates) == 0 {
+			return "", "", ErrNotFound
+		}
+		placeholders := make([]string, len(candidates))
+		args := make([]interface{}, len(candidates))
+		for i, cand := range candidates {
+			placeholders[i] = fmt.Sprintf("$%d", i+1)
+			args[i] = cand
+		}
+		const queryPrefix = `
+			SELECT p.title, r.content
+			FROM pages p
+			LEFT JOIN revisions r ON p.page_id = r.page_id
+			WHERE p.title IN (%s)
+			ORDER BY p.namespace ASC, r.timestamp DESC
+			LIMIT 1
+		`
+		var title, content sql.NullString
+		err := c.db.QueryRowContext(ctx, fmt.Sprintf(queryPrefix, strings.Join(placeholders, ",")), args...).Scan(&title, &content)
+		if err == sql.ErrNoRows {
+			return "", "", ErrNotFound
+		}
+		if err != nil {
+			return "", "", fmt.Errorf("%w: %v", ErrDatabaseError, err)
+		}
+		return title.String, content.String, nil
+	})
 }

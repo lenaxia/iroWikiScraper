@@ -37,10 +37,10 @@ import (
 	"time"
 )
 
-// Client provides methods to query wiki archive data.
-// All query methods accept a context for cancellation and timeout control.
-// The client is safe for concurrent use by multiple goroutines.
-type Client interface {
+// PageReader is the content-access surface: page retrieval, listing, and
+// search. Consumers needing wiki content for grounding (e.g. goKore's
+// WikiSource adapter) should depend on this role only.
+type PageReader interface {
 	// Search performs a search across pages.
 	// Returns pages matching the search criteria with pagination support.
 	Search(ctx context.Context, opts SearchOptions) ([]SearchResult, error)
@@ -61,6 +61,30 @@ type Client interface {
 	// Use offset and limit for pagination. Set limit to 0 for default (100).
 	ListPages(ctx context.Context, namespace int, offset, limit int) ([]Page, error)
 
+	// ResolveRedirect follows redirect chains from a title and returns the
+	// canonical title where content actually lives. Redirects are detected
+	// by content (#REDIRECT [[Target]]); the is_redirect flag is not
+	// populated in current archives. Titles are normalized (underscores,
+	// first-letter case, "#fragment" anchors, dot-escapes) before lookup.
+	// Returns ErrNotFound for missing titles and ErrRedirectLoop for cycles.
+	ResolveRedirect(ctx context.Context, title string) (string, error)
+}
+
+// FileReader is the file-metadata surface for archived media records.
+type FileReader interface {
+	// GetFile retrieves file metadata by filename.
+	// Returns ErrNotFound if the file does not exist.
+	GetFile(ctx context.Context, filename string) (*File, error)
+
+	// ListFiles returns a paginated list of all files.
+	// Use offset and limit for pagination. Set limit to 0 for default (100).
+	ListFiles(ctx context.Context, offset, limit int) ([]File, error)
+}
+
+// HistoryReader is the temporal surface: revision history, point-in-time
+// snapshots, and diffs. Drift-detection harnesses and archival analysis
+// consume this role.
+type HistoryReader interface {
 	// GetPageHistory retrieves the revision history for a page.
 	// Returns revisions in reverse chronological order (newest first).
 	GetPageHistory(ctx context.Context, title string, opts HistoryOptions) ([]Revision, error)
@@ -82,6 +106,22 @@ type Client interface {
 	// Use for contributor analysis and statistics.
 	GetEditorActivity(ctx context.Context, username string, start, end time.Time) ([]Revision, error)
 
+	// GetRevisionDiff computes the diff between two revisions.
+	// Returns a unified diff showing additions and removals.
+	// Returns ErrNotFound if either revision doesn't exist.
+	// Returns ErrInvalidInput if revisions are from different pages.
+	GetRevisionDiff(ctx context.Context, fromRevID, toRevID int64) (*DiffResult, error)
+
+	// GetConsecutiveDiff computes the diff from a revision to its parent.
+	// Useful for seeing what changed in a specific edit.
+	// Returns ErrNotFound if the revision doesn't exist or has no parent.
+	GetConsecutiveDiff(ctx context.Context, revID int64) (*DiffResult, error)
+}
+
+// StatisticsReader is the analytics surface: aggregate statistics and
+// per-page/editor analysis. Nothing in the goKore/ragnaData integration
+// consumes this role; it serves archival research tooling.
+type StatisticsReader interface {
 	// GetStatistics returns overall wiki statistics.
 	// Includes counts of pages, revisions, files, and storage metrics.
 	GetStatistics(ctx context.Context) (*Statistics, error)
@@ -101,25 +141,20 @@ type Client interface {
 	// GetEditorActivityEnhanced retrieves enhanced activity analysis for an editor.
 	// Includes content statistics, activity patterns, and top pages edited.
 	GetEditorActivityEnhanced(ctx context.Context, username string, start, end time.Time) (*EditorActivity, error)
+}
 
-	// GetRevisionDiff computes the diff between two revisions.
-	// Returns a unified diff showing additions and removals.
-	// Returns ErrNotFound if either revision doesn't exist.
-	// Returns ErrInvalidInput if revisions are from different pages.
-	GetRevisionDiff(ctx context.Context, fromRevID, toRevID int64) (*DiffResult, error)
-
-	// GetConsecutiveDiff computes the diff from a revision to its parent.
-	// Useful for seeing what changed in a specific edit.
-	// Returns ErrNotFound if the revision doesn't exist or has no parent.
-	GetConsecutiveDiff(ctx context.Context, revID int64) (*DiffResult, error)
-
-	// GetFile retrieves file metadata by filename.
-	// Returns ErrNotFound if the file doesn't exist.
-	GetFile(ctx context.Context, filename string) (*File, error)
-
-	// ListFiles returns a paginated list of all files.
-	// Use offset and limit for pagination. Set limit to 0 for default (100).
-	ListFiles(ctx context.Context, offset, limit int) ([]File, error)
+// Client provides methods to query wiki archive data.
+// All query methods accept a context for cancellation and timeout control.
+// The client is safe for concurrent use by multiple goroutines.
+//
+// Client composes the role interfaces. Consumers should accept the narrow
+// role they need (PageReader, HistoryReader, StatisticsReader, FileReader)
+// rather than the full union.
+type Client interface {
+	PageReader
+	FileReader
+	HistoryReader
+	StatisticsReader
 
 	// Ping checks if the database connection is alive.
 	// Use for health checks and connection validation.

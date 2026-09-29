@@ -1093,3 +1093,20 @@ func (c *sqliteClient) Close() error {
 
 	return nil
 }
+
+// ResolveRedirect follows redirect chains from a title and returns the
+// canonical title of the page where content actually lives.
+//
+// Redirects are detected by content (#REDIRECT [[Target]]); the is_redirect
+// flag is not populated in current archives. Titles are normalized
+// (underscores, first-letter case, "#fragment" anchors, dot-escapes) before
+// lookup. Returns ErrNotFound when the start title does not exist and
+// ErrRedirectLoop for cycles or chains exceeding 5 hops.
+func (c *sqliteClient) ResolveRedirect(ctx context.Context, title string) (string, error) {
+	if err := c.ensureNotClosed(); err != nil {
+		return "", err
+	}
+	return resolveRedirectFrom(ctx, title, func(ctx context.Context, candidates []string) (string, string, error) {
+		return fetchLatestTitleContentSQLite(ctx, c.db, candidates)
+	})
+}

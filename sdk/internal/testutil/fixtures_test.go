@@ -18,8 +18,8 @@ func TestSetupTestDB(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to query pages: %v", err)
 	}
-	if count != 5 {
-		t.Errorf("expected 5 pages, got %d", count)
+	if count != 10 {
+		t.Errorf("expected 10 pages, got %d", count)
 	}
 
 	// Verify revisions table exists and has data
@@ -27,8 +27,8 @@ func TestSetupTestDB(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to query revisions: %v", err)
 	}
-	if count != 7 {
-		t.Errorf("expected 7 revisions, got %d", count)
+	if count != 12 {
+		t.Errorf("expected 12 revisions, got %d", count)
 	}
 
 	// Verify files table exists and has data

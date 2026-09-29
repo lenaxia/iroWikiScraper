@@ -189,6 +189,11 @@ func insertTestData(db *sql.DB) error {
 		{3, 0, "Poring", false},
 		{4, 6, "Example.png", false},
 		{5, 0, "Redirect_Test", true},
+		{6, 0, "Chain_Start", false},
+		{7, 0, "Chain_Mid", false},
+		{8, 0, "Loop_A", false},
+		{9, 0, "Loop_B", false},
+		{10, 0, "Frag_Redirect", false},
 	}
 
 	for _, p := range pages {
@@ -222,7 +227,12 @@ func insertTestData(db *sql.DB) error {
 		{103, 2, int64Ptr(102), baseTime.Add(72 * time.Hour), "Editor", 2, "Minor typo fix", "Prontera is the capital city", 29, "jkl012", true},
 		{104, 3, nil, baseTime.Add(96 * time.Hour), "Contributor", 3, "Created Poring page", "Poring is a pink slime monster.", 32, "mno345", false},
 		{105, 4, nil, baseTime.Add(120 * time.Hour), "Admin", 1, "Uploaded image", "Image file", 10, "pqr678", false},
-		{106, 5, nil, baseTime.Add(144 * time.Hour), "Admin", 1, "Created redirect", "REDIRECT Main_Page", 20, "stu901", false},
+		{106, 5, nil, baseTime.Add(144 * time.Hour), "Admin", 1, "Created redirect", "#REDIRECT [[Main Page]]", 23, "stu901", false},
+		{107, 6, nil, baseTime.Add(96 * time.Hour), "Admin", 1, "Created redirect", "#REDIRECT [[Chain_Mid]] chain step one for redirect tests", 57, "stu902", false},
+		{108, 7, nil, baseTime.Add(97 * time.Hour), "Admin", 1, "Created redirect", "#REDIRECT [[Poring]] chain step two for redirect tests", 54, "stu903", false},
+		{109, 8, nil, baseTime.Add(98 * time.Hour), "Admin", 1, "Created redirect", "#REDIRECT [[Loop_B]] loop test page A for redirect cycle coverage", 62, "stu904", false},
+		{110, 9, nil, baseTime.Add(99 * time.Hour), "Admin", 1, "Created redirect", "#REDIRECT [[Loop_A]] loop test page B for redirect cycle coverage", 62, "stu905", false},
+		{111, 10, nil, baseTime.Add(100 * time.Hour), "Admin", 1, "Created redirect", "#REDIRECT [[Prontera#Central Plaza]] fragment anchor redirect test", 66, "stu906", false},
 	}
 
 	for _, r := range revisions {
@@ -296,7 +306,7 @@ func insertTestData(db *sql.DB) error {
 		{2, "Prontera", "Prontera is the capital city"},
 		{3, "Poring", "Poring is a pink slime monster."},
 		{4, "Example.png", "Image file"},
-		{5, "Redirect_Test", "REDIRECT Main_Page"},
+		{5, "Redirect_Test", "#REDIRECT [[Main Page]]"},
 	}
 
 	for _, entry := range ftsEntries {

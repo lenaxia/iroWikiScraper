@@ -100,8 +100,8 @@ func TestSQLiteClient_ListPages(t *testing.T) {
 		t.Fatalf("ListPages failed: %v", err)
 	}
 
-	if len(pages) != 4 { // Main_Page, Prontera, Poring, Redirect_Test
-		t.Errorf("expected 4 pages, got %d", len(pages))
+	if len(pages) != 9 { // Main_Page, Prontera, Poring, Redirect_Test, Chain_Start, Chain_Mid, Loop_A, Loop_B, Frag_Redirect
+		t.Errorf("expected 9 pages, got %d", len(pages))
 	}
 
 	// Test: Pagination
@@ -251,8 +251,8 @@ func TestSQLiteClient_GetChangesByPeriod(t *testing.T) {
 		t.Fatalf("GetChangesByPeriod failed: %v", err)
 	}
 
-	if len(changes) != 7 { // All test revisions are in January 2020 (revisions 100-106)
-		t.Errorf("expected 7 changes, got %d", len(changes))
+	if len(changes) != 12 { // All test revisions are in January 2020 (revisions 100-111)
+		t.Errorf("expected 12 changes, got %d", len(changes))
 	}
 }
 
@@ -278,8 +278,8 @@ func TestSQLiteClient_GetEditorActivity(t *testing.T) {
 		t.Fatalf("GetEditorActivity failed: %v", err)
 	}
 
-	if len(activity) != 4 { // Admin made 4 edits (revisions 100, 102, 105, 106)
-		t.Errorf("expected 4 revisions by Admin, got %d", len(activity))
+	if len(activity) != 9 { // Admin made 9 edits (revisions 100, 102, 105-111)
+		t.Errorf("expected 9 revisions by Admin, got %d", len(activity))
 	}
 
 	// Verify all are by Admin
@@ -368,11 +368,11 @@ func TestSQLiteClient_GetStatistics(t *testing.T) {
 		t.Fatalf("GetStatistics failed: %v", err)
 	}
 
-	if stats.TotalPages != 5 {
-		t.Errorf("expected 5 pages, got %d", stats.TotalPages)
+	if stats.TotalPages != 10 {
+		t.Errorf("expected 10 pages, got %d", stats.TotalPages)
 	}
-	if stats.TotalRevisions != 7 {
-		t.Errorf("expected 7 revisions, got %d", stats.TotalRevisions)
+	if stats.TotalRevisions != 12 {
+		t.Errorf("expected 12 revisions, got %d", stats.TotalRevisions)
 	}
 	if stats.TotalFiles != 2 {
 		t.Errorf("expected 2 files, got %d", stats.TotalFiles)
