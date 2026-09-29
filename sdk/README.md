@@ -14,7 +14,7 @@ A Go SDK for querying the iRO Wiki archive. Supports both SQLite and PostgreSQL 
 ## Installation
 
 ```bash
-go get github.com/mikekao/iRO-Wiki-Scraper/sdk/irowiki
+go get github.com/lenaxia/iroWikiScraper/sdk/irowiki
 ```
 
 ## Quick Start
@@ -29,7 +29,7 @@ import (
     "fmt"
     "log"
     
-    "github.com/mikekao/iRO-Wiki-Scraper/sdk/irowiki"
+    "github.com/lenaxia/iroWikiScraper/sdk/irowiki"
 )
 
 func main() {

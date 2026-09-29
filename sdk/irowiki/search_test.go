@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mikekao/iRO-Wiki-Scraper/sdk/internal/testutil"
-	"github.com/mikekao/iRO-Wiki-Scraper/sdk/irowiki"
+	"github.com/lenaxia/iroWikiScraper/sdk/internal/testutil"
+	"github.com/lenaxia/iroWikiScraper/sdk/irowiki"
 )
 
 // TestSearchOptions_Validate tests SearchOptions validation

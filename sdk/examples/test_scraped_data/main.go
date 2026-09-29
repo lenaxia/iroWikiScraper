@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/mikekao/iRO-Wiki-Scraper/sdk/irowiki"
+	"github.com/lenaxia/iroWikiScraper/sdk/irowiki"
 )
 
 func main() {

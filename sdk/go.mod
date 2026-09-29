@@ -1,4 +1,4 @@
-module github.com/mikekao/iRO-Wiki-Scraper/sdk
+module github.com/lenaxia/iroWikiScraper/sdk
 
 go 1.25.5
 
