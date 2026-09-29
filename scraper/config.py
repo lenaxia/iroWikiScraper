@@ -164,7 +164,7 @@ class Config:
     logging: LoggingConfig = field(default_factory=LoggingConfig)
 
     @classmethod
-    def from_yaml(cls, path: Union[str, Path]) -> "Config":
+    def from_yaml(cls, path: Union[str, Path], validate: bool = True) -> "Config":
         """
         Load configuration from YAML file.
 
@@ -247,9 +247,10 @@ class Config:
             wiki=wiki, scraper=scraper, storage=storage, logging=logging_config
         )
 
-        # Validate and return
+        # Optionally validate; CLI overrides may repair values first
         logger.info(f"Loaded configuration from {config_path}")
-        config.validate()
+        if validate:
+            config.validate()
         return config
 
     def validate(self) -> None:

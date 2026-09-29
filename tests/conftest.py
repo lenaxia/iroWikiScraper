@@ -6,6 +6,8 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 
+import logging
+
 import pytest
 
 from tests.mocks.mock_http_session import MockSession
@@ -501,3 +503,19 @@ def temp_db_file(temp_db_path):
     path.touch()
     yield path
     # Cleanup handled by temp_db_path fixture
+
+
+@pytest.fixture(autouse=True)
+def _restore_root_logging_state():
+    """Snapshot and restore root logger level/handlers around every test.
+
+    Some tests exercise _setup_logging with restrictive levels (e.g.
+    CRITICAL) that would otherwise leak into unrelated tests and filter
+    their log records out of caplog assertions.
+    """
+    root = logging.getLogger()
+    level_before = root.level
+    handlers_before = list(root.handlers)
+    yield
+    root.setLevel(level_before)
+    root.handlers[:] = handlers_before

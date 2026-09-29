@@ -170,6 +170,71 @@ irowiki-cli snapshot "Main_Page" --date 2020-06-15
 irowiki-cli stats
 ```
 
+## Command Reference
+
+The scraper CLI (`python -m scraper`) provides three commands:
+
+### `full` — full archive scrape
+
+```bash
+python -m scraper full [--namespace NS [NS ...]] [--rate-limit RATE]
+                       [--force] [--dry-run] [--resume | --no-resume]
+                       [--no-links] [--no-files] [--no-download]
+                       [--format text|json]
+```
+
+Discovers every page in the selected namespaces (default: all standard
+namespaces 0-15) and stores the complete revision history.
+
+- `--namespace` — namespace IDs to scrape (default: 0 1 2 ... 15)
+- `--rate-limit` — max requests per second (default: 2.0)
+- `--dry-run` — discover pages and estimate time without storing data
+- `--force` — scrape even if data already exists
+- `--resume` / `--no-resume` — resume from checkpoint or start fresh
+- `--no-links` / `--no-files` / `--no-download` — skip link extraction,
+  file metadata, or media downloads
+
+**Dry run example** (estimate scope before committing):
+
+```bash
+python -m scraper full --dry-run --namespace 0
+```
+
+### `incremental` — delta update
+
+```bash
+python -m scraper incremental [--since ISO8601] [--namespace NS [NS ...]]
+                              [--format text|json]
+```
+
+Fetches only pages changed since the last scrape (or `--since`).
+
+### `backfill` — fill gaps in history
+
+```bash
+python -m scraper backfill [--pages] [--links] [--files]
+```
+
+Re-scrapes pages with missing revisions, links, or file metadata.
+
+Global options for all commands: `--config PATH`, `--database PATH`,
+`--log-level LEVEL`, `--quiet`.
+
+## Troubleshooting
+
+- **`Configuration validation failed: scraper.rate_limit must be positive`**
+  — a config file value is invalid; CLI flags (e.g. `--rate-limit 2`)
+  override file values, or fix the YAML file.
+- **`Page not found` on a page you know exists** — iRO Wiki removed
+  per-monster and per-item pages during its database externalization;
+  check the live wiki or use a current title.
+- **Scrape interrupted** — re-run with `--resume`; the checkpoint file
+  tracks completed pages and namespaces.
+- **`429` rate-limit errors in logs** — the scraper backs off
+  automatically; lower `--rate-limit` if it persists.
+- **Database locked / busy** — ensure no other process holds the SQLite
+  file; incremental runs take an exclusive transaction during commits.
+
 ## Database Schema
 
 The archive database stores:

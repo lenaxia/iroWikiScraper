@@ -272,7 +272,11 @@ class TestConfigurationLoading:
             _load_config(args_with_config)
 
             # Should have called from_yaml with the config path
-            mock_from_yaml.assert_called_once_with(args_with_config.config)
+            # (validate=False: the merged config is validated after CLI
+            # overrides are applied)
+            mock_from_yaml.assert_called_once_with(
+                args_with_config.config, validate=False
+            )
 
     def test_use_defaults_if_no_config_specified(self, args_default):
         """Test config uses defaults when no --config specified.
