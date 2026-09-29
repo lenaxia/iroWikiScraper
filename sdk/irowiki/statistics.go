@@ -3,6 +3,7 @@ package irowiki
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -776,6 +777,9 @@ func (c *sqliteClient) GetEditorActivityEnhanced(ctx context.Context, username s
 	// Get basic statistics
 	err := c.getEditorBasicStats(ctx, activity, start, end)
 	if err != nil {
+		if errors.Is(err, ErrNotFound) {
+			return nil, ErrNotFound
+		}
 		return nil, fmt.Errorf("failed to get basic stats: %w", err)
 	}
 
@@ -816,12 +820,12 @@ func (c *sqliteClient) getEditorBasicStats(ctx context.Context, activity *Editor
 	args := []interface{}{activity.Username}
 
 	if !start.IsZero() {
-		query += " AND timestamp >= ?"
-		args = append(args, start)
+		query += " AND datetime(timestamp) >= datetime(?)"
+		args = append(args, start.UTC().Format(time.RFC3339))
 	}
 	if !end.IsZero() {
-		query += " AND timestamp <= ?"
-		args = append(args, end)
+		query += " AND datetime(timestamp) <= datetime(?)"
+		args = append(args, end.UTC().Format(time.RFC3339))
 	}
 
 	query += " GROUP BY user_id"
@@ -884,12 +888,12 @@ func (c *sqliteClient) getEditorContentStats(ctx context.Context, activity *Edit
 	args := []interface{}{activity.Username}
 
 	if !start.IsZero() {
-		query += " AND timestamp >= ?"
-		args = append(args, start)
+		query += " AND datetime(timestamp) >= datetime(?)"
+		args = append(args, start.UTC().Format(time.RFC3339))
 	}
 	if !end.IsZero() {
-		query += " AND timestamp <= ?"
-		args = append(args, end)
+		query += " AND datetime(timestamp) <= datetime(?)"
+		args = append(args, end.UTC().Format(time.RFC3339))
 	}
 
 	err := c.db.QueryRowContext(ctx, query, args...).Scan(
@@ -914,12 +918,12 @@ func (c *sqliteClient) getEditorActivityPatterns(ctx context.Context, activity *
 	args := []interface{}{activity.Username}
 
 	if !start.IsZero() {
-		query += " AND timestamp >= ?"
-		args = append(args, start)
+		query += " AND datetime(timestamp) >= datetime(?)"
+		args = append(args, start.UTC().Format(time.RFC3339))
 	}
 	if !end.IsZero() {
-		query += " AND timestamp <= ?"
-		args = append(args, end)
+		query += " AND datetime(timestamp) <= datetime(?)"
+		args = append(args, end.UTC().Format(time.RFC3339))
 	}
 
 	rows, err := c.db.QueryContext(ctx, query, args...)

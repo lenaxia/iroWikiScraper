@@ -229,7 +229,7 @@ func insertTestData(db *sql.DB) error {
 		_, err := db.ExecContext(ctx,
 			`INSERT INTO revisions (revision_id, page_id, parent_id, timestamp, user, user_id, comment, content, size, sha1, minor) 
 			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-			r.id, r.pageID, r.parent, r.time, r.user, r.userID, r.comment, r.content, r.size, r.sha1, r.minor,
+			r.id, r.pageID, r.parent, r.time.UTC().Format(time.RFC3339), r.user, r.userID, r.comment, r.content, r.size, r.sha1, r.minor,
 		)
 		if err != nil {
 			return fmt.Errorf("failed to insert revision: %w", err)
@@ -279,7 +279,7 @@ func insertTestData(db *sql.DB) error {
 		_, err := db.ExecContext(ctx,
 			`INSERT INTO files (filename, url, descriptionurl, sha1, size, width, height, mime_type, timestamp, uploader)
 			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-			f.filename, f.url, f.descriptionurl, f.sha1, f.size, f.width, f.height, f.mimeType, f.timestamp, f.uploader,
+			f.filename, f.url, f.descriptionurl, f.sha1, f.size, f.width, f.height, f.mimeType, f.timestamp.UTC().Format(time.RFC3339), f.uploader,
 		)
 		if err != nil {
 			return fmt.Errorf("failed to insert file: %w", err)

@@ -590,12 +590,12 @@ func (c *sqliteClient) GetPageHistory(ctx context.Context, title string, opts Hi
 	args := []interface{}{pageID}
 
 	if !opts.StartDate.IsZero() {
-		query += " AND timestamp >= ?"
-		args = append(args, opts.StartDate)
+		query += " AND datetime(timestamp) >= datetime(?)"
+		args = append(args, opts.StartDate.UTC().Format(time.RFC3339))
 	}
 	if !opts.EndDate.IsZero() {
-		query += " AND timestamp <= ?"
-		args = append(args, opts.EndDate)
+		query += " AND datetime(timestamp) <= datetime(?)"
+		args = append(args, opts.EndDate.UTC().Format(time.RFC3339))
 	}
 
 	query += " ORDER BY timestamp DESC LIMIT ? OFFSET ?"
@@ -684,8 +684,8 @@ func (c *sqliteClient) GetPageAtTime(ctx context.Context, title string, timestam
 		SELECT revision_id, page_id, parent_id, timestamp, user, user_id,
 		       comment, content, size, sha1, minor, tags
 		FROM revisions
-		WHERE page_id = ? AND timestamp <= ?
-		ORDER BY timestamp DESC
+		WHERE page_id = ? AND datetime(timestamp) <= datetime(?)
+		ORDER BY datetime(timestamp) DESC
 		LIMIT 1
 	`
 
@@ -696,7 +696,7 @@ func (c *sqliteClient) GetPageAtTime(ctx context.Context, title string, timestam
 	var comment sql.NullString
 	var tagsJSON sql.NullString
 
-	err = c.db.QueryRowContext(ctx, query, pageID, timestamp).Scan(
+	err = c.db.QueryRowContext(ctx, query, pageID, timestamp.UTC().Format(time.RFC3339)).Scan(
 		&rev.ID, &rev.PageID, &parentID, &rev.Timestamp, &user, &userID,
 		&comment, &rev.Content, &rev.Size, &rev.SHA1, &rev.Minor, &tagsJSON,
 	)
