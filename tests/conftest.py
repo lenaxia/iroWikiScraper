@@ -1,12 +1,11 @@
 """Pytest configuration and fixtures for API client tests."""
 
 import json
+import logging
 import os
 import tempfile
 from datetime import datetime
 from pathlib import Path
-
-import logging
 
 import pytest
 
@@ -405,8 +404,9 @@ def mock_full_scraper():
     Returns:
         MockFullScraper instance
     """
-    from tests.mocks.mock_cli_components import MockConfig, MockFullScraper
     from unittest.mock import MagicMock
+
+    from tests.mocks.mock_cli_components import MockConfig, MockFullScraper
 
     config = MockConfig()
     api_client = MagicMock()
@@ -476,8 +476,9 @@ def mock_incremental_scraper():
     Returns:
         MockIncrementalPageScraper instance
     """
-    from tests.mocks.mock_cli_components import MockIncrementalPageScraper
     from unittest.mock import MagicMock
+
+    from tests.mocks.mock_cli_components import MockIncrementalPageScraper
 
     api_client = MagicMock()
     database = MagicMock()
