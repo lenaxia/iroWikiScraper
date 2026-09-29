@@ -37,7 +37,7 @@ class PageRepository:
         Raises:
             sqlite3.IntegrityError: If unique constraint violated
         """
-        cursor = self.conn.execute(
+        self.conn.execute(
             """
             INSERT INTO pages (page_id, namespace, title, is_redirect, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?)
