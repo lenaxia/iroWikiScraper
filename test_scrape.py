@@ -29,7 +29,16 @@ logger = logging.getLogger(__name__)
 def main():
     """Scrape a few test pages."""
     # Test pages to scrape
-    test_pages = ["Main_Page", "Poring", "Ragnarok_Online", "Prontera", "Archer"]
+    # Note: "Poring" and "Ragnarok_Online" no longer exist on the wiki.
+    # iRO Wiki removed per-monster pages (stats/drops moved to db.irowiki.org)
+    # and the game-overview article was removed during restructuring.
+    test_pages = [
+        "Main_Page",
+        "Prontera",
+        "Archer",
+        "Monster",
+        "World_Map",
+    ]
 
     # Setup
     output_dir = Path("./test_data")
@@ -71,6 +80,13 @@ def main():
                 continue
 
             page_data = list(pages.values())[0]
+            if "missing" in page_data or "pageid" not in page_data:
+                logger.warning(
+                    f"Page does not exist on the wiki: {page_title}"
+                )
+                print(f"  ✗ Page not found on wiki: {page_title}")
+                stats["pages_failed"] += 1
+                continue
             page_id = int(page_data["pageid"])
             namespace = page_data.get("ns", 0)
             title = page_data["title"]
