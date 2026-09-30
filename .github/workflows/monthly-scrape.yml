@@ -45,9 +45,13 @@ on:
         type: string
 
 # Secrets required:
-# - GITHUB_TOKEN (automatic, for releases)
+# - GITHUB_TOKEN (automatic, for releases and artifact download)
 # - DISCORD_WEBHOOK_URL (optional, for notifications)
 # - SLACK_WEBHOOK_URL (optional, for notifications)
+
+permissions:
+  contents: write  # release creation
+  actions: read    # previous-run artifact download
 
 jobs:
   scrape-and-release:
@@ -101,11 +105,50 @@ jobs:
           mkdir -p data/ downloads/ logs/ releases/
       
       - name: Download previous database artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: irowiki-database
-          path: data/
-        continue-on-error: true  # First run won't have artifact
+        id: download-db
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          # download-artifact@v4 without run-id only sees artifacts of the
+          # CURRENT run; the database is uploaded at the END of a run, so a
+          # new run starts empty. Resolve the newest database artifact from
+          # PREVIOUS runs via the Actions artifacts API instead.
+          #
+          # Newest-wins across both names: a run that failed during
+          # backfill/materialize still uploaded its post-scrape checkpoint
+          # (irowiki-database-checkpoint), and that fresher database must
+          # win over the last fully successful run's final artifact.
+          DB_ARTIFACT_URL=$(gh api \
+            "repos/${{ github.repository }}/actions/artifacts?per_page=100" \
+            --jq '.artifacts
+              | map(select(.name == "irowiki-database" or .name == "irowiki-database-checkpoint"))
+              | sort_by(.created_at) | reverse
+              | .[0].archive_download_url // empty' 2>/dev/null || true)
+          # Defensive: strip any JSON quoting around the URL.
+          DB_ARTIFACT_URL=${DB_ARTIFACT_URL//\"/}
+
+          if [[ -z "$DB_ARTIFACT_URL" ]]; then
+            echo "No previous database artifact found - starting with an empty database"
+            exit 0
+          fi
+
+          echo "Downloading previous database artifact..."
+          if ! curl -sfL \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "$DB_ARTIFACT_URL" -o /tmp/db-artifact.zip; then
+            echo "Artifact download failed - starting with an empty database"
+            exit 0
+          fi
+
+          if ! unzip -o /tmp/db-artifact.zip -d data/; then
+            echo "Artifact extraction failed - starting with an empty database"
+            rm -f data/irowiki.db /tmp/db-artifact.zip
+            exit 0
+          fi
+          rm -f /tmp/db-artifact.zip
+          echo "✓ Restored database from previous run"
       
       - name: Check for existing database
         id: check-db
@@ -136,6 +179,19 @@ jobs:
             FORCE="false"
             CREATE_RELEASE="true"
             ANNOUNCE="true"
+          fi
+          
+          # Self-heal scheduled runs: an incremental scrape on a missing
+          # database hard-fails (FirstRunRequiresFullScrapeError), and a
+          # missing DB means the artifact handoff found nothing. Fall back
+          # to a full scrape so the unattended run still produces a
+          # release instead of failing. Manual triggers keep the
+          # operator's explicit choice (fail loudly instead).
+          if [[ "${{ github.event_name }}" == "schedule" ]] \
+             && [[ "${{ steps.check-db.outputs.exists }}" != "true" ]] \
+             && [[ "$SCRAPE_TYPE" == "incremental" ]]; then
+            echo "No previous database found - falling back to FULL scrape"
+            SCRAPE_TYPE="full"
           fi
           
           echo "scrape_type=$SCRAPE_TYPE" >> $GITHUB_OUTPUT
@@ -236,6 +292,21 @@ jobs:
           echo "✓ Scrape completed successfully"
         env:
           PYTHONUNBUFFERED: "1"  # Force unbuffered output for real-time logs
+
+      - name: Upload scrape database checkpoint
+        # Preserve the freshly scraped database BEFORE post-processing
+        # (redirect backfill, markdown materialization) so a transient
+        # failure in either step cannot discard a whole month of scraping
+        # and reset the accumulation chain. The next run's download step
+        # prefers the newest artifact across both names, so this
+        # checkpoint is the handoff that survives a failed run.
+        if: steps.scrape.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: irowiki-database-checkpoint
+          path: data/irowiki.db
+          retention-days: 90
+          compression-level: 9
 
       - name: Backfill redirect flags
         run: |
@@ -350,6 +421,9 @@ jobs:
           retention-days: 30
       
       - name: Upload database artifact for next run
+        # The final (post-materialize) database; the checkpoint artifact
+        # above already guarantees the scrape handoff even when this run
+        # later fails, so success-gating here is safe.
         if: success()
         uses: actions/upload-artifact@v4
         with:

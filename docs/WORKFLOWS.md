@@ -31,18 +31,26 @@ The project uses GitHub Actions for:
 **Workflow Steps**:
 1. Check out repository
 2. Set up Python 3.11 environment
-3. Download previous database artifact (if exists)
+3. Download the newest previous-run database artifact via the Actions
+   artifacts API (`irowiki-database` or `irowiki-database-checkpoint`;
+   `download-artifact@v4` without `run-id` only sees the current run's
+   artifacts, which are uploaded at end-of-run). Scheduled runs with no
+   previous database fall back to a full scrape instead of failing.
 4. Run incremental or full scrape
-5. Backfill `pages.is_redirect` from stored revision content (offline)
-6. Set up Go and materialize `pages_md` / `pages_md_fts` (namespace 0)
-7. Generate statistics and release notes
-8. Package releases (database, full archive, XML)
-9. Create GitHub release with version tag
-10. Upload database artifact for next run
-11. Send notifications (if configured)
+5. Upload a post-scrape database checkpoint (so a backfill/materialize
+   failure cannot discard the month's scrape)
+6. Backfill `pages.is_redirect` from stored revision content (offline)
+7. Set up Go and materialize `pages_md` / `pages_md_fts` (namespace 0)
+8. Generate statistics and release notes
+9. Package releases (database, full archive, XML)
+10. Create GitHub release with version tag
+11. Upload final database artifact for next run
+12. Send notifications (if configured)
 
 **Artifacts**:
-- Database: `irowiki-database` (90-day retention)
+- Database (final): `irowiki-database` (90-day retention)
+- Database (post-scrape checkpoint): `irowiki-database-checkpoint`
+  (90-day retention; the handoff that survives failed post-processing)
 - Logs: `scrape-logs-{run_number}` (30-day retention)
 
 **Secrets Used**:

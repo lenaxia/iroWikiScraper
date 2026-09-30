@@ -79,18 +79,20 @@ class RedirectBackfillResult:
         return self.flags_set + self.flags_cleared
 
 
-def _latest_revision_rows(
-    conn: sqlite3.Connection,
-) -> List[Tuple[int, str, int]]:
-    """Return (page_id, latest_content, stored_flag) for every page.
+def _latest_revision_rows(conn: sqlite3.Connection):
+    """Yield (page_id, latest_content, stored_flag) per page, streaming.
 
-    Only the latest revision of each page participates; ties on identical
-    timestamps are collapsed to the first row seen per page.
+    Only the latest revision of each page participates. The latest
+    revision is the one with the newest timestamp; ties on identical
+    timestamps are broken deterministically by highest revision_id.
+    Rows are yielded lazily from the cursor so the wikitext of all
+    pages is never held in memory at once (large archives hold
+    gigabytes of content in revisions).
     """
     cursor = conn.execute("""
-        SELECT p.page_id, r.content, p.is_redirect
-        FROM pages p
-        JOIN revisions r ON r.page_id = p.page_id
+        SELECT r.page_id, r.content, p.is_redirect
+        FROM revisions r
+        JOIN pages p ON p.page_id = r.page_id
         JOIN (
             SELECT page_id, MAX(timestamp) AS max_ts
             FROM revisions
@@ -98,17 +100,16 @@ def _latest_revision_rows(
         ) latest
           ON latest.page_id = r.page_id
          AND latest.max_ts = r.timestamp
-        ORDER BY p.page_id
+        ORDER BY r.page_id, r.revision_id DESC
     """)
-    rows: List[Tuple[int, str, int]] = []
     seen = set()
     for page_id, content, is_redirect in cursor:
         if page_id in seen:
-            # Guard against ties on identical timestamps.
+            # Timestamp tie: rows are ordered revision_id DESC, so the
+            # first row seen for a page is the deterministic latest.
             continue
         seen.add(page_id)
-        rows.append((page_id, content or "", int(is_redirect or 0)))
-    return rows
+        yield page_id, content or "", int(is_redirect or 0)
 
 
 def backfill_redirect_flags(
@@ -117,10 +118,11 @@ def backfill_redirect_flags(
 ) -> RedirectBackfillResult:
     """Populate ``pages.is_redirect`` from stored revision content.
 
-    Scans the latest revision of every page, recomputes the redirect flag
-    and updates only rows whose stored flag differs. Pages without any
-    stored revision are counted but left untouched. Idempotent: a second
-    run performs no writes.
+    Streams the latest revision of every page (content is never fully
+    materialized in memory), recomputes the redirect flag and updates
+    only rows whose stored flag differs. Pages without any stored
+    revision are counted but left untouched. Idempotent: a second run
+    performs no writes.
 
     Args:
         database: Database instance with the archive schema initialized
@@ -132,14 +134,17 @@ def backfill_redirect_flags(
     result = RedirectBackfillResult(start_time=datetime.utcnow())
     conn = database.get_connection()
 
-    rows = _latest_revision_rows(conn)
-    result.pages_scanned = len(rows)
-
     total_pages = conn.execute("SELECT COUNT(*) FROM pages").fetchone()[0]
-    result.pages_missing_revisions = max(total_pages - len(rows), 0)
+    total_with_revisions = conn.execute(
+        "SELECT COUNT(*) FROM (SELECT DISTINCT page_id FROM revisions)"
+    ).fetchone()[0]
 
     updates: List[Tuple[int, int]] = []
-    for i, (page_id, content, stored_flag) in enumerate(rows, 1):
+    scanned = 0
+    # The updates list holds only (flag, page_id) tuples; wikitext is
+    # consumed one row at a time from the cursor.
+    for page_id, content, stored_flag in _latest_revision_rows(conn):
+        scanned += 1
         detected = 1 if detect_redirect(content) else 0
         if detected:
             result.redirects_found += 1
@@ -149,8 +154,13 @@ def backfill_redirect_flags(
                 result.flags_set += 1
             else:
                 result.flags_cleared += 1
-        if progress_callback and (i % 500 == 0 or i == len(rows)):
-            progress_callback("redirects", i, len(rows))
+        if progress_callback and (
+            scanned % 500 == 0 or scanned == total_with_revisions
+        ):
+            progress_callback("redirects", scanned, total_with_revisions)
+
+    result.pages_scanned = scanned
+    result.pages_missing_revisions = max(total_pages - scanned, 0)
 
     if updates:
         now = datetime.utcnow().isoformat()

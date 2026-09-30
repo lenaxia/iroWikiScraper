@@ -225,3 +225,44 @@ class TestBackfillRealWorldParity:
     def test_parity_cases(self, content, expected):
         """Detection matches the SDK's redirectTargetRe behavior classes."""
         assert detect_redirect(content) is expected
+
+
+class TestTimestampTiebreak:
+    """Deterministic latest-revision pick on identical timestamps."""
+
+    def _seed_tied_revisions(self, db, first_content, second_content):
+        """Insert one page with two revisions sharing a timestamp.
+
+        The lower revision_id holds first_content; the higher (later)
+        revision_id holds second_content.
+        """
+        page_repo = PageRepository(db)
+        rev_repo = RevisionRepository(db)
+        page_repo.insert_page(
+            Page(page_id=1, namespace=0, title="Page_1", is_redirect=False)
+        )
+        tied = datetime(2026, 5, 5, 12, 0, 0)
+        rev_repo.insert_revision(make_revision(100, 1, first_content, timestamp=tied))
+        rev_repo.insert_revision(make_revision(101, 1, second_content, timestamp=tied))
+
+    def test_highest_revision_id_wins_on_tie(self, db):
+        """Tied timestamps pick the highest revision_id: redirect wins."""
+        self._seed_tied_revisions(
+            db, first_content="Normal", second_content="#REDIRECT [[Target]]"
+        )
+
+        result = backfill_redirect_flags(db)
+
+        assert result.redirects_found == 1
+        assert PageRepository(db).get_page_by_id(1).is_redirect is True
+
+    def test_highest_revision_id_wins_on_tie_reverse(self, db):
+        """Tied timestamps pick the highest revision_id: redirect dropped."""
+        self._seed_tied_revisions(
+            db, first_content="#REDIRECT [[Target]]", second_content="Normal"
+        )
+
+        result = backfill_redirect_flags(db)
+
+        assert result.redirects_found == 0
+        assert PageRepository(db).get_page_by_id(1).is_redirect is False
