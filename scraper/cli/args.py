@@ -205,15 +205,19 @@ Examples:
     # Backfill command
     backfill_epilog = """
 Examples:
-  # Fill in files, links, run metadata and retry failed pages on an
-  # existing database (no revision re-scrape)
-  python -m scraper backfill
+   # Fill in files, links, run metadata and retry failed pages on an
+   # existing database (no revision re-scrape)
+   python -m scraper backfill
 
-  # Only rebuild the links table from stored revisions (offline, no network)
-  python -m scraper backfill --no-files --no-failed-pages
+   # Only rebuild the links table from stored revisions (offline, no network)
+   python -m scraper backfill --no-files --no-failed-pages
 
-  # Store file metadata but skip downloading the actual media
-  python -m scraper backfill --no-download
+   # Only populate the pages.is_redirect flags from stored revisions
+   # (offline, no network)
+   python -m scraper backfill --no-files --no-failed-pages --no-links
+
+   # Store file metadata but skip downloading the actual media
+   python -m scraper backfill --no-download
 """
 
     backfill_parser = subparsers.add_parser(
@@ -246,6 +250,12 @@ Examples:
         "--no-links",
         action="store_true",
         help="Do not rebuild the links table",
+    )
+
+    backfill_parser.add_argument(
+        "--no-redirects",
+        action="store_true",
+        help="Do not populate the pages.is_redirect flags",
     )
 
     backfill_parser.add_argument(

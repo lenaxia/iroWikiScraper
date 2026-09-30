@@ -10,7 +10,9 @@ captured pages and revisions. This module fills in the remaining data on an
    page (pure local computation, no API calls).
 3. Discover file (media) metadata via the ``allimages`` API and download the
    file content to disk with SHA1 verification.
-4. Record the operation in the ``scrape_runs`` table.
+4. Populate ``pages.is_redirect`` from the latest stored revision content
+   (pure local computation, no API calls).
+5. Record the operation in the ``scrape_runs`` table.
 
 This is intentionally idempotent: re-running it will not duplicate links,
 re-download unchanged files, or double-count revisions.
@@ -30,6 +32,7 @@ from scraper.scrapers.link_extractor import LinkExtractor
 from scraper.scrapers.revision_scraper import RevisionScraper
 from scraper.storage.database import Database
 from scraper.storage.file_repository import FileRepository
+from scraper.storage.redirects import backfill_redirect_flags
 from scraper.storage.revision_repository import RevisionRepository
 
 logger = logging.getLogger(__name__)
@@ -50,6 +53,9 @@ class BackfillResult:
     files_downloaded: int = 0
     files_skipped: int = 0
     files_failed: int = 0
+    redirects_found: int = 0
+    redirect_flags_set: int = 0
+    redirect_flags_cleared: int = 0
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     errors: List[str] = field(default_factory=list)
@@ -96,6 +102,7 @@ class Backfiller:
         do_failed_pages: bool = True,
         do_links: bool = True,
         do_files: bool = True,
+        do_redirects: bool = True,
         download_files: bool = True,
         progress_callback: ProgressCallback = None,
     ) -> BackfillResult:
@@ -105,6 +112,7 @@ class Backfiller:
             do_failed_pages: Retry pages that have no revisions
             do_links: Rebuild the links table from stored revisions
             do_files: Discover + store file metadata
+            do_redirects: Populate pages.is_redirect from stored revisions
             download_files: Download file content (implies do_files)
             progress_callback: Optional callback(stage, current, total)
         """
@@ -124,6 +132,8 @@ class Backfiller:
                 self._backfill_links(result, progress_callback)
             if do_files:
                 self._backfill_files(result, download_files, progress_callback)
+            if do_redirects:
+                self._backfill_redirects(result, progress_callback)
         except Exception as e:
             logger.error(f"Backfill failed: {e}", exc_info=True)
             result.errors.append(str(e))
@@ -258,6 +268,21 @@ class Backfiller:
         )
         self.conn.commit()
         result.links_added += len(batch)
+
+    # ------------------------------------------------------------------ #
+    # Redirect flags
+    # ------------------------------------------------------------------ #
+    def _backfill_redirects(
+        self, result: BackfillResult, progress_callback: ProgressCallback
+    ) -> None:
+        """Populate pages.is_redirect from stored revision content."""
+        logger.info("Backfilling redirect flags from stored revisions")
+        redirect_result = backfill_redirect_flags(
+            self.db, progress_callback=progress_callback
+        )
+        result.redirects_found = redirect_result.redirects_found
+        result.redirect_flags_set = redirect_result.flags_set
+        result.redirect_flags_cleared = redirect_result.flags_cleared
 
     # ------------------------------------------------------------------ #
     # Files
