@@ -746,3 +746,163 @@ class TestFullScraperScrapeRevisions:
         assert total == 0
         # Should not insert empty batch
         assert len(self.mock_revision_repo.insert_revisions_batch_calls) == 0
+
+
+class TestFullScraperRedirectFlag:
+    """Test that _scrape_revisions populates pages.is_redirect from content."""
+
+    def _make_revision(self, rev_id, page_id, content):
+        return Revision(
+            revision_id=rev_id,
+            page_id=page_id,
+            parent_id=None,
+            timestamp=datetime(2024, 1, 1),
+            user="User1",
+            user_id=1,
+            comment="edit",
+            content=content,
+            size=len(content),
+            sha1="a" * 40,
+            minor=False,
+            tags=[],
+        )
+
+    def test_redirect_page_flagged(self, db):
+        """A page whose latest revision is a #REDIRECT gets the flag set."""
+        config = Mock()
+        config.scraper.max_retries = 1
+        api_client = Mock()
+        scraper = FullScraper(
+            config,
+            api_client,
+            db,
+            scrape_links=False,
+            scrape_files=False,
+            download_files=False,
+        )
+
+        from tests.mocks.mock_components import MockRevisionScraper
+
+        mock_revision_scraper = MockRevisionScraper()
+        mock_revision_scraper.set_revisions_for_page(
+            1, [self._make_revision(101, 1, "#REDIRECT [[Real Page]]")]
+        )
+        scraper.revision_scraper = mock_revision_scraper
+
+        # Pre-insert the page row as it would exist from discovery.
+        from scraper.storage.page_repository import PageRepository
+
+        PageRepository(db).insert_page(
+            Page(page_id=1, namespace=0, title="Alias", is_redirect=False)
+        )
+
+        page = Page(page_id=1, namespace=0, title="Alias", is_redirect=False)
+        scraper._scrape_revisions([page])
+
+        assert page.is_redirect is True
+        assert PageRepository(db).get_page_by_id(1).is_redirect is True
+
+    def test_normal_page_not_flagged(self, db):
+        """A normal page is stored with the flag cleared."""
+        config = Mock()
+        config.scraper.max_retries = 1
+        api_client = Mock()
+        scraper = FullScraper(
+            config,
+            api_client,
+            db,
+            scrape_links=False,
+            scrape_files=False,
+            download_files=False,
+        )
+
+        from tests.mocks.mock_components import MockRevisionScraper
+
+        mock_revision_scraper = MockRevisionScraper()
+        mock_revision_scraper.set_revisions_for_page(
+            1, [self._make_revision(101, 1, "Normal content")]
+        )
+        scraper.revision_scraper = mock_revision_scraper
+
+        # Pre-insert the page row as it would exist from discovery.
+        from scraper.storage.page_repository import PageRepository
+
+        PageRepository(db).insert_page(
+            Page(page_id=1, namespace=0, title="Page", is_redirect=False)
+        )
+
+        page = Page(page_id=1, namespace=0, title="Page", is_redirect=False)
+        scraper._scrape_revisions([page])
+
+        assert page.is_redirect is False
+        assert PageRepository(db).get_page_by_id(1).is_redirect is False
+
+    def test_stale_discovery_flag_cleared_by_content(self, db):
+        """A page wrongly flagged by discovery gets cleared (content wins)."""
+        config = Mock()
+        config.scraper.max_retries = 1
+        api_client = Mock()
+        scraper = FullScraper(
+            config,
+            api_client,
+            db,
+            scrape_links=False,
+            scrape_files=False,
+            download_files=False,
+        )
+
+        from tests.mocks.mock_components import MockRevisionScraper
+
+        mock_revision_scraper = MockRevisionScraper()
+        mock_revision_scraper.set_revisions_for_page(
+            1, [self._make_revision(101, 1, "Actually normal content")]
+        )
+        scraper.revision_scraper = mock_revision_scraper
+
+        # Pre-insert the page row with a stale redirect flag.
+        from scraper.storage.page_repository import PageRepository
+
+        PageRepository(db).insert_page(
+            Page(page_id=1, namespace=0, title="Page", is_redirect=True)
+        )
+
+        page = Page(page_id=1, namespace=0, title="Page", is_redirect=True)
+        scraper._scrape_revisions([page])
+
+        assert page.is_redirect is False
+        assert PageRepository(db).get_page_by_id(1).is_redirect is False
+
+    def test_flag_update_failure_does_not_abort_scrape(self):
+        """A broken page repository must not fail the revision scrape."""
+        config = Mock()
+        config.scraper.max_retries = 1
+        api_client = Mock()
+        database = Mock()
+        scraper = FullScraper(
+            config,
+            api_client,
+            database,
+            scrape_links=False,
+            scrape_files=False,
+            download_files=False,
+        )
+
+        from tests.mocks.mock_components import MockRevisionScraper
+
+        mock_revision_scraper = MockRevisionScraper()
+        mock_revision_scraper.set_revisions_for_page(
+            1, [self._make_revision(101, 1, "#REDIRECT [[Target]]")]
+        )
+        scraper.revision_scraper = mock_revision_scraper
+
+        broken_repo = Mock()
+        broken_repo.update_redirect_flag.side_effect = Exception("boom")
+        scraper.page_repo = broken_repo
+
+        result = ScrapeResult()
+        page = Page(page_id=1, namespace=0, title="Alias", is_redirect=False)
+
+        total = scraper._scrape_revisions([page], result=result)
+
+        assert total == 1
+        assert result.errors == []

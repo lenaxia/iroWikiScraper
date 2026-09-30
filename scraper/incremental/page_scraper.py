@@ -20,6 +20,7 @@ from scraper.scrapers.revision_scraper import RevisionScraper
 from scraper.storage.database import Database
 from scraper.storage.models import Page
 from scraper.storage.page_repository import PageRepository
+from scraper.storage.redirects import detect_redirect
 from scraper.storage.revision_repository import RevisionRepository
 
 logger = logging.getLogger(__name__)
@@ -201,7 +202,8 @@ class IncrementalPageScraper:
                     page_id=page_id,
                     namespace=0,  # TODO: Get from API
                     title=f"Page_{page_id}",  # TODO: Get from API
-                    is_redirect=False,  # TODO: Detect redirects
+                    # Redirect-ness is derived from the current content.
+                    is_redirect=detect_redirect(revisions[-1].content),
                 )
                 self.page_repo.insert_page(page)
 
@@ -263,6 +265,18 @@ class IncrementalPageScraper:
                 # Update links from latest revision
                 latest_content = new_revisions[-1].content
                 self.link_scraper.update_links_for_page(info.page_id, latest_content)
+
+                # A page may have become a redirect (or stopped being one):
+                # refresh the flag from the now-current content.
+                try:
+                    self.page_repo.update_redirect_flag(
+                        info.page_id, detect_redirect(latest_content)
+                    )
+                except Exception as e:
+                    logger.warning(
+                        f"Could not update redirect flag for page "
+                        f"{info.page_id}: {e}"
+                    )
 
                 pages_processed += 1
                 logger.debug(f"Updated page {info.page_id}: {inserted} new revisions")

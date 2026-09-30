@@ -668,3 +668,119 @@ class TestStatistics:
         assert stats.start_time is not None
         assert stats.end_time is not None
         assert stats.duration.total_seconds() >= 0
+
+
+class TestRedirectFlagPopulation:
+    """Tests for content-based redirect flag maintenance."""
+
+    def _revision(self, page_id, content, rev_id=1000):
+        return Revision(
+            revision_id=rev_id,
+            page_id=page_id,
+            parent_id=None,
+            timestamp=datetime(2026, 1, 1),
+            user="TestUser",
+            user_id=1,
+            comment="test",
+            content=content,
+            size=len(content),
+            sha1="a" * 40,
+            minor=False,
+            tags=None,
+        )
+
+    def test_new_redirect_page_flagged(self, page_scraper, db):
+        """New pages created from #REDIRECT content carry the flag."""
+        from scraper.storage.page_repository import PageRepository
+
+        with patch.object(
+            page_scraper.new_detector, "verify_new_pages", return_value=[1]
+        ):
+            with patch.object(
+                page_scraper.full_revision_scraper,
+                "fetch_revisions",
+                return_value=[self._revision(1, "#REDIRECT [[Real Page]]")],
+            ):
+                result = page_scraper._process_new_pages({1})
+
+        assert result == 1
+        assert PageRepository(db).get_page_by_id(1).is_redirect is True
+
+    def test_new_normal_page_not_flagged(self, page_scraper, db):
+        """New pages with normal content are stored without the flag."""
+        from scraper.storage.page_repository import PageRepository
+
+        with patch.object(
+            page_scraper.new_detector, "verify_new_pages", return_value=[1]
+        ):
+            with patch.object(
+                page_scraper.full_revision_scraper,
+                "fetch_revisions",
+                return_value=[self._revision(1, "Normal content")],
+            ):
+                result = page_scraper._process_new_pages({1})
+
+        assert result == 1
+        assert PageRepository(db).get_page_by_id(1).is_redirect is False
+
+    def test_modified_page_becoming_redirect(self, page_scraper, db):
+        """A page rewritten into a redirect gets its flag set."""
+        from scraper.storage.page_repository import PageRepository
+
+        PageRepository(db).insert_page(
+            Page(page_id=10, namespace=0, title="Page_10", is_redirect=False)
+        )
+
+        info = PageUpdateInfo(
+            page_id=10,
+            namespace=0,
+            title="Page_10",
+            is_redirect=False,
+            highest_revision_id=1000,
+            last_revision_timestamp=datetime(2026, 1, 1),
+            total_revisions_stored=1,
+        )
+        with patch.object(
+            page_scraper.modified_detector,
+            "get_batch_update_info",
+            return_value=[info],
+        ):
+            with patch.object(
+                page_scraper.revision_scraper,
+                "fetch_new_revisions",
+                return_value=[self._revision(10, "#WEITERLEITUNG [[Ziel]]", 2000)],
+            ):
+                page_scraper._process_modified_pages({10})
+
+        assert PageRepository(db).get_page_by_id(10).is_redirect is True
+
+    def test_modified_page_leaving_redirect(self, page_scraper, db):
+        """A redirect rewritten into normal content gets its flag cleared."""
+        from scraper.storage.page_repository import PageRepository
+
+        PageRepository(db).insert_page(
+            Page(page_id=10, namespace=0, title="Page_10", is_redirect=True)
+        )
+
+        info = PageUpdateInfo(
+            page_id=10,
+            namespace=0,
+            title="Page_10",
+            is_redirect=True,
+            highest_revision_id=1000,
+            last_revision_timestamp=datetime(2026, 1, 1),
+            total_revisions_stored=1,
+        )
+        with patch.object(
+            page_scraper.modified_detector,
+            "get_batch_update_info",
+            return_value=[info],
+        ):
+            with patch.object(
+                page_scraper.revision_scraper,
+                "fetch_new_revisions",
+                return_value=[self._revision(10, "Now a real article", 2000)],
+            ):
+                page_scraper._process_modified_pages({10})
+
+        assert PageRepository(db).get_page_by_id(10).is_redirect is False

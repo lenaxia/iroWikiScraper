@@ -226,6 +226,38 @@ class PageRepository:
         self.conn.commit()
         logger.debug(f"Updated page: {page.page_id}")
 
+    def update_redirect_flag(self, page_id: int, is_redirect: bool) -> bool:
+        """
+        Update only the redirect flag of a page.
+
+        Used by the scrape path after the latest revision content has been
+        stored: redirect-ness is derived from content (see
+        scraper.storage.redirects), so the flag is refreshed without
+        rewriting the rest of the row.
+
+        Args:
+            page_id: Page ID to update
+            is_redirect: New redirect flag value
+
+        Returns:
+            True if the stored flag changed, False if it already matched
+        """
+        cursor = self.conn.execute(
+            "UPDATE pages SET is_redirect = ?, updated_at = ? "
+            "WHERE page_id = ? AND is_redirect != ?",
+            (
+                1 if is_redirect else 0,
+                datetime.utcnow().isoformat(),
+                page_id,
+                1 if is_redirect else 0,
+            ),
+        )
+        self.conn.commit()
+        changed = cursor.rowcount > 0
+        if changed:
+            logger.debug(f"Updated redirect flag for page {page_id}: {is_redirect}")
+        return changed
+
     def delete_page(self, page_id: int) -> None:
         """
         Delete page by ID.

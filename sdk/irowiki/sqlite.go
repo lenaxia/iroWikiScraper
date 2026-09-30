@@ -1097,8 +1097,10 @@ func (c *sqliteClient) Close() error {
 // ResolveRedirect follows redirect chains from a title and returns the
 // canonical title of the page where content actually lives.
 //
-// Redirects are detected by content (#REDIRECT [[Target]]); the is_redirect
-// flag is not populated in current archives. Titles are normalized
+// Redirects are detected by content (#REDIRECT [[Target]]); archives
+// scraped before September 2026 never populated the is_redirect flag, so
+// content sniffing stays the primary mechanism even though newer scrapes
+// populate the flag. Titles are normalized
 // (underscores, first-letter case, "#fragment" anchors, dot-escapes) before
 // lookup. Returns ErrNotFound when the start title does not exist and
 // ErrRedirectLoop for cycles or chains exceeding 5 hops.

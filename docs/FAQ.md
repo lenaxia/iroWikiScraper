@@ -43,3 +43,31 @@ client backs off automatically on HTTP 429 responses.
 All standard MediaWiki namespaces (0-15: Main, Talk, User, Project,
 File, MediaWiki, Template, Help, Category and their talk pages). Select
 subsets with `--namespace 0 4 6`; the default full scrape covers 0-15.
+
+## What do the monthly release archives contain?
+
+Each release ships the SQLite database post-processed before packaging:
+
+- `pages.is_redirect` is populated from the latest revision content
+  (`#REDIRECT` / `#WEITERLEITUNG` prefix), so redirect-based filtering
+  (e.g. the Go SDK's `OnlyRedirects` / `ExcludeRedirects` search options)
+  works out of the box.
+- `pages_md` / `pages_md_fts` are materialized for namespace 0 (Main)
+  via `sdk/cmd/materialize`: per-page-section markdown plus a full-text
+  search index, ready to query with no local build step.
+
+Media files and the MediaWiki XML export are packaged alongside the
+database when present.
+
+## The redirect flags in my old archive are all zero. Can I fix that?
+
+Yes. Archives scraped before September 2026 never populated
+`pages.is_redirect`. Repair them offline (no network access needed)
+against the existing database:
+
+```bash
+python -m scraper backfill --no-failed-pages --no-links --no-files
+```
+
+This recomputes the flag for every page from its stored latest revision
+and only writes rows whose flag actually changes.

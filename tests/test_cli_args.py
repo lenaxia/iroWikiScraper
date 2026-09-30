@@ -424,3 +424,34 @@ class TestEdgeCases:
         with pytest.raises(SystemExit) as exc_info:
             parser.parse_args(["full", "--help"])
         assert exc_info.value.code == 0
+
+
+class TestBackfillRedirectArgs:
+    """Tests for backfill command redirect-flag options."""
+
+    def test_backfill_no_redirects_flag(self):
+        """--no-redirects disables the redirect backfill step."""
+        parser = create_parser()
+        args = parser.parse_args(["backfill", "--no-redirects"])
+
+        assert args.command == "backfill"
+        assert args.no_redirects is True
+
+    def test_backfill_redirects_enabled_by_default(self):
+        """Redirect backfill runs unless --no-redirects is given."""
+        parser = create_parser()
+        args = parser.parse_args(["backfill"])
+
+        assert args.no_redirects is False
+
+    def test_backfill_offline_combination(self):
+        """The documented offline repair invocation parses."""
+        parser = create_parser()
+        args = parser.parse_args(
+            ["backfill", "--no-failed-pages", "--no-links", "--no-files"]
+        )
+
+        assert args.no_failed_pages is True
+        assert args.no_links is True
+        assert args.no_files is True
+        assert args.no_redirects is False

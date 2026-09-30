@@ -42,6 +42,7 @@ SELECT 'Total pages' as Metric, COUNT(*) as Count FROM pages;
 SELECT 'Total revisions' as Metric, COUNT(*) as Count FROM revisions;
 SELECT 'Total users' as Metric, COUNT(DISTINCT user) as Count FROM revisions WHERE user IS NOT NULL;
 SELECT 'Total files' as Metric, COUNT(*) as Count FROM files;
+SELECT 'Redirect pages' as Metric, COUNT(*) as Count FROM pages WHERE is_redirect = 1;
 
 -- Recent activity (last 30 days)
 SELECT '' as '';
@@ -150,6 +151,25 @@ SELECT 'Scrape status' as Property,
        status as Value
 FROM scrape_runs
 ORDER BY start_time DESC
+LIMIT 1;
+SQL
+fi
+
+# Materialized markdown stats (present when the release pipeline ran the
+# Go materializer; older archives do not have these tables)
+if sqlite3 "$DATABASE" "SELECT name FROM sqlite_master WHERE type='table' AND name='pages_md';" | grep -q "pages_md"; then
+    sqlite3 "$DATABASE" -markdown <<SQL
+SELECT 'Materialized pages' as Property,
+       COUNT(DISTINCT page_id) as Value
+FROM pages_md;
+
+SELECT 'Materialized sections' as Property,
+       COUNT(*) as Value
+FROM pages_md;
+
+SELECT 'Markdown converter' as Property,
+       converter_version as Value
+FROM materialization_meta
 LIMIT 1;
 SQL
 fi

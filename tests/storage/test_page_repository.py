@@ -415,3 +415,57 @@ class TestPageDataConversion:
         loaded_true = repo.get_page_by_id(2)
         assert loaded_true.is_redirect
         assert isinstance(loaded_true.is_redirect, bool)
+
+
+class TestUpdateRedirectFlag:
+    """Test the targeted redirect flag update (scrape-path seam)."""
+
+    def test_update_redirect_flag_sets_flag(self, db):
+        """Flag flips from False to True and reports a change."""
+        repo = PageRepository(db)
+        repo.insert_page(Page(page_id=1, namespace=0, title="Page", is_redirect=False))
+
+        changed = repo.update_redirect_flag(1, True)
+
+        assert changed is True
+        assert repo.get_page_by_id(1).is_redirect is True
+
+    def test_update_redirect_flag_clears_flag(self, db):
+        """Flag flips from True to False and reports a change."""
+        repo = PageRepository(db)
+        repo.insert_page(Page(page_id=1, namespace=0, title="Page", is_redirect=True))
+
+        changed = repo.update_redirect_flag(1, False)
+
+        assert changed is True
+        assert repo.get_page_by_id(1).is_redirect is False
+
+    def test_update_redirect_flag_noop_when_unchanged(self, db):
+        """No change reported (or written) when the flag already matches."""
+        repo = PageRepository(db)
+        repo.insert_page(Page(page_id=1, namespace=0, title="Page", is_redirect=False))
+
+        changed = repo.update_redirect_flag(1, False)
+
+        assert changed is False
+        assert repo.get_page_by_id(1).is_redirect is False
+
+    def test_update_redirect_flag_missing_page(self, db):
+        """Updating a nonexistent page reports no change and does not fail."""
+        repo = PageRepository(db)
+
+        assert repo.update_redirect_flag(999, True) is False
+
+    def test_update_redirect_flag_preserves_other_fields(self, db):
+        """Only the flag (and updated_at) change; namespace/title survive."""
+        repo = PageRepository(db)
+        repo.insert_page(
+            Page(page_id=1, namespace=4, title="Project:Page", is_redirect=False)
+        )
+
+        repo.update_redirect_flag(1, True)
+        loaded = repo.get_page_by_id(1)
+
+        assert loaded.namespace == 4
+        assert loaded.title == "Project:Page"
+        assert loaded.is_redirect is True

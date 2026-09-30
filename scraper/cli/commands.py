@@ -706,6 +706,7 @@ def backfill_command(args: Namespace) -> int:
             do_failed_pages=not args.no_failed_pages,
             do_links=not args.no_links,
             do_files=not args.no_files,
+            do_redirects=not getattr(args, "no_redirects", False),
             download_files=not args.no_files and not args.no_download,
             progress_callback=progress_callback,
         )
@@ -726,6 +727,9 @@ def backfill_command(args: Namespace) -> int:
                     "files_downloaded": result.files_downloaded,
                     "files_skipped": result.files_skipped,
                     "files_failed": result.files_failed,
+                    "redirects_found": result.redirects_found,
+                    "redirect_flags_set": result.redirect_flags_set,
+                    "redirect_flags_cleared": result.redirect_flags_cleared,
                 },
                 "errors": result.errors,
             }
@@ -747,6 +751,11 @@ def backfill_command(args: Namespace) -> int:
             print(
                 f"Files downloaded:    {_format_number(result.files_downloaded)}"
                 f" ({result.files_skipped} skipped, {result.files_failed} failed)"
+            )
+            print(
+                f"Redirect flags:      {result.redirects_found} redirects"
+                f" ({result.redirect_flags_set} set,"
+                f" {result.redirect_flags_cleared} cleared)"
             )
             print(f"Duration:            {_format_duration(result.duration)}")
             if result.errors:
