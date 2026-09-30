@@ -202,21 +202,23 @@ jobs:
       - name: Run scrape
         id: scrape
         run: |
-          # Determine command based on scrape type
-          if [[ "${{ steps.scrape-params.outputs.scrape_type }}" == "full" ]]; then
-            if [[ "${{ steps.scrape-params.outputs.force }}" == "true" ]]; then
-              SCRAPER_CMD="python -m scraper full --force"
-            else
-              SCRAPER_CMD="python -m scraper full"
-            fi
-          else
-            SCRAPER_CMD="python -m scraper incremental"
-          fi
-          
-          # Add global options
+          # Global options (--config/--database/--log-level) must precede
+          # the subcommand: argparse rejects them after it.
+          SCRAPER_CMD="python -m scraper"
           SCRAPER_CMD="$SCRAPER_CMD --config config.yaml"
           SCRAPER_CMD="$SCRAPER_CMD --database data/irowiki.db"
           SCRAPER_CMD="$SCRAPER_CMD --log-level INFO"
+
+          # Determine command based on scrape type
+          if [[ "${{ steps.scrape-params.outputs.scrape_type }}" == "full" ]]; then
+            if [[ "${{ steps.scrape-params.outputs.force }}" == "true" ]]; then
+              SCRAPER_CMD="$SCRAPER_CMD full --force"
+            else
+              SCRAPER_CMD="$SCRAPER_CMD full"
+            fi
+          else
+            SCRAPER_CMD="$SCRAPER_CMD incremental"
+          fi
           
           # Run scraper with output streaming
           echo "Executing: $SCRAPER_CMD"
@@ -234,7 +236,55 @@ jobs:
           echo "✓ Scrape completed successfully"
         env:
           PYTHONUNBUFFERED: "1"  # Force unbuffered output for real-time logs
-      
+
+      - name: Backfill redirect flags
+        run: |
+          # Populate pages.is_redirect from stored revision content.
+          # Offline (no API calls): repairs archives scraped before the
+          # flag was populated at scrape time. Incremental runs resume
+          # from a previous database artifact, so this pass is required
+          # for flag correctness in releases until a full re-scrape.
+          python -m scraper \
+            --config config.yaml \
+            --database data/irowiki.db \
+            --log-level INFO \
+            --quiet \
+            backfill \
+            --no-failed-pages \
+            --no-links \
+            --no-files
+
+          echo "✓ Redirect flags populated"
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: sdk/go.mod
+          cache-dependency-path: sdk/go.sum
+
+      - name: Materialize markdown tables
+        run: |
+          # Build pages_md / pages_md_fts into the release database so
+          # consumers get searchable markdown out of the box instead of
+          # materializing by hand. Idempotent full rebuild; raw wikitext
+          # stays authoritative.
+          cd sdk
+          go run ./cmd/materialize \
+            -db ../data/irowiki.db \
+            -namespace 0
+
+          cd ..
+          # Fail loudly if the tables are missing or empty.
+          MD_ROWS=$(sqlite3 data/irowiki.db "SELECT COUNT(*) FROM pages_md;")
+          FTS_ROWS=$(sqlite3 data/irowiki.db "SELECT COUNT(*) FROM pages_md_fts;")
+          echo "pages_md rows: $MD_ROWS, pages_md_fts rows: $FTS_ROWS"
+          if [[ "$MD_ROWS" -eq 0 || "$FTS_ROWS" -eq 0 ]]; then
+            echo "::error::Materialization produced no rows"
+            exit 1
+          fi
+
+          echo "✓ Markdown tables materialized into release database"
+
       - name: Generate version tag
         id: version
         run: |

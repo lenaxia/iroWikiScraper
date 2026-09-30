@@ -239,11 +239,13 @@ Global options for all commands: `--config PATH`, `--database PATH`,
 
 The archive database stores:
 
-- **Pages**: Page metadata (ID, title, namespace)
+- **Pages**: Page metadata (ID, title, namespace, redirect flag)
 - **Revisions**: Complete edit history with content
 - **Files**: Media files with checksums and metadata
 - **Links**: Internal link structure
 - **Scrape Runs**: Metadata about archival runs
+- **pages_md / pages_md_fts**: Materialized markdown per page section plus
+  full-text search index (releases; see below)
 
 See `schema/sqlite.sql` for complete schema.
 
@@ -255,6 +257,16 @@ Archives are automatically published monthly via GitHub Actions:
 - **Contents**: Database + media files + MediaWiki XML export
 - **Size**: ~10-25 GB (varies by month)
 - **Location**: GitHub Releases
+
+Release databases are post-processed before packaging:
+
+- **`pages.is_redirect` is populated** from each page's latest revision
+  content (`#REDIRECT` / `#WEITERLEITUNG` prefix), so redirect filtering
+  works out of the box. Old archives can be repaired with
+  `python -m scraper backfill --no-failed-pages --no-links --no-files`.
+- **`pages_md` / `pages_md_fts` are materialized** (namespace 0) via
+  `sdk/cmd/materialize`, so releases contain ready-to-query markdown and
+  markdown full-text search — no manual materialization step needed.
 
 Download the latest release from the [Releases](https://github.com/YOUR_USERNAME/iRO-Wiki-Scraper/releases) page.
 

@@ -176,6 +176,13 @@ tar -xzf irowiki-full-$VERSION.tar.gz
 
 \`\`\`bash
 sqlite3 irowiki-$VERSION/irowiki.db "SELECT title FROM pages LIMIT 10;"
+
+# pages.is_redirect is populated; filter redirects out of any listing
+sqlite3 irowiki-$VERSION/irowiki.db "SELECT COUNT(*) FROM pages WHERE is_redirect = 1;"
+
+# Markdown materialization ships with the release (namespace 0)
+sqlite3 irowiki-$VERSION/irowiki.db "SELECT page_id, heading FROM pages_md WHERE page_id = 1;"
+sqlite3 irowiki-$VERSION/irowiki.db "SELECT page_id FROM pages_md_fts WHERE pages_md_fts MATCH 'poring' LIMIT 10;"
 \`\`\`
 
 ### Use with Go SDK
@@ -196,6 +203,12 @@ page, err := client.GetPage(context.Background(), "Main_Page")
 ## Schema
 
 See the repository's \`schema/\` directory for database schema documentation.
+
+In addition to the raw tables (pages, revisions, files, links), the
+database ships with \`pages_md\` / \`pages_md_fts\`: per-page-section
+markdown materialized by the Go converter (\`sdk/cmd/materialize\`) plus a
+full-text search index over that markdown. \`pages.is_redirect\` is
+populated from each page's latest revision content.
 
 ## License
 

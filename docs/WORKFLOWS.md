@@ -33,11 +33,13 @@ The project uses GitHub Actions for:
 2. Set up Python 3.11 environment
 3. Download previous database artifact (if exists)
 4. Run incremental or full scrape
-5. Generate statistics and release notes
-6. Package releases (database, full archive, XML)
-7. Create GitHub release with version tag
-8. Upload database artifact for next run
-9. Send notifications (if configured)
+5. Backfill `pages.is_redirect` from stored revision content (offline)
+6. Set up Go and materialize `pages_md` / `pages_md_fts` (namespace 0)
+7. Generate statistics and release notes
+8. Package releases (database, full archive, XML)
+9. Create GitHub release with version tag
+10. Upload database artifact for next run
+11. Send notifications (if configured)
 
 **Artifacts**:
 - Database: `irowiki-database` (90-day retention)
