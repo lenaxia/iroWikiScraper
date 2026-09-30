@@ -63,9 +63,11 @@ type PageReader interface {
 
 	// ResolveRedirect follows redirect chains from a title and returns the
 	// canonical title where content actually lives. Redirects are detected
-	// by content (#REDIRECT [[Target]]); the is_redirect flag is not
-	// populated in current archives. Titles are normalized (underscores,
-	// first-letter case, "#fragment" anchors, dot-escapes) before lookup.
+	// by content (#REDIRECT [[Target]]); archives scraped before September
+	// 2026 never populated the is_redirect flag, so content sniffing stays
+	// the primary mechanism even though newer scrapes populate the flag.
+	// Titles are normalized (underscores, first-letter case, "#fragment"
+	// anchors, dot-escapes) before lookup.
 	// Returns ErrNotFound for missing titles and ErrRedirectLoop for cycles.
 	ResolveRedirect(ctx context.Context, title string) (string, error)
 }
