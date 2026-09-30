@@ -24,6 +24,7 @@ from scraper.storage.file_repository import FileRepository
 from scraper.storage.link_storage import LinkStorage
 from scraper.storage.models import Page
 from scraper.storage.page_repository import PageRepository
+from scraper.storage.redirects import detect_redirect
 from scraper.storage.revision_repository import RevisionRepository
 
 logger = logging.getLogger(__name__)
@@ -410,6 +411,21 @@ class FullScraper:
                 self.revision_repo.insert_revisions_batch(revisions)
 
                 total_revisions += len(revisions)
+
+                # Refresh the redirect flag from the current content.
+                # Discovery's allpages response does not carry the redirect
+                # marker, so the authoritative signal is the latest
+                # revision's wikitext (#REDIRECT / #WEITERLEITUNG prefix).
+                try:
+                    detected = detect_redirect(revisions[-1].content)
+                    if detected != page.is_redirect:
+                        self.page_repo.update_redirect_flag(page.page_id, detected)
+                        page.is_redirect = detected
+                except Exception as e:
+                    logger.warning(
+                        f"Could not update redirect flag for page "
+                        f"{page.page_id}: {e}"
+                    )
 
                 # Extract and store internal links from the latest revision's
                 # content. Revisions are chronological (oldest first), so the

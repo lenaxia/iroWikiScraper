@@ -71,6 +71,7 @@ class MockPageRepository:
         self.db = db
         self.insert_pages_batch_calls = []
         self.inserted_pages = []
+        self.redirect_flag_calls = []
         self.should_fail = False
         self.failure_exception = None
 
@@ -87,6 +88,11 @@ class MockPageRepository:
             raise self.failure_exception
 
         self.inserted_pages.extend(pages)
+
+    def update_redirect_flag(self, page_id: int, is_redirect: bool) -> bool:
+        """Mock update_redirect_flag method (records calls)."""
+        self.redirect_flag_calls.append((page_id, is_redirect))
+        return True
 
 
 class MockRevisionRepository:
